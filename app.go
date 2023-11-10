@@ -73,3 +73,18 @@ func (a *App) CompressPdfFile(filePath string) bool {
 
 	return true
 }
+
+func (a *App) ConvertImageToPdf(filePath string) bool {
+	pathParts := strings.Split(filePath, ".")
+	pathParts[len(pathParts)-1] = "pdf"
+	targetFilePath := strings.Join(pathParts, ".")
+
+	conversionError := pdfApi.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
+
+	if conversionError != nil {
+		runtime.LogErrorf(a.ctx, "Error importing image: %s", conversionError.Error())
+		return false
+	}
+
+	return true
+}

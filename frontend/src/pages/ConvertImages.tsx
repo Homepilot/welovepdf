@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { FilesList } from '../components';
+import { ConvertImageToPdf } from '../../wailsjs/go/main/App';
 
 export const ConvertImagesPage: React.FC = () => {
     const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
 
 
     const convertFiles = async () => {
-        // const result = await MergePdfFiles(filesToConvert)
-        // console.log({ mergeSuccess: result })
+        const result = await Promise.all(selectedFiles.map(ConvertImageToPdf))
+        console.log({ conversionSuccess: result })
     }
     
     return (

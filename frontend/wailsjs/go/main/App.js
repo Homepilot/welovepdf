@@ -6,6 +6,10 @@ export function CompressPdfFile(arg1) {
   return window['go']['main']['App']['CompressPdfFile'](arg1);
 }
 
+export function ConvertImageToPdf(arg1) {
+  return window['go']['main']['App']['ConvertImageToPdf'](arg1);
+}
+
 export function MergePdfFiles(arg1) {
   return window['go']['main']['App']['MergePdfFiles'](arg1);
 }
