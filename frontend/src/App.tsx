@@ -1,27 +1,37 @@
-import {useState} from 'react';
-import logo from './assets/images/logo-universal.png';
+import {useMemo, useState} from 'react';
 import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
+import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from './pages';
+
+export enum PageName {
+    HOME = 'HOME',
+    MERGE = 'MERGE',
+    CONVERT_IMG = 'CONVERT_IMG',
+    SPLIT = 'SPLIT',
+    COMPRESS = 'COMPRESS',
+}
 
 function App() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e: any) => setName(e.target.value);
-    const updateResultText = (result: string) => setResultText(result);
+    const [currentPage, setCurrentPage] = useState<PageName>(PageName.HOME);
 
-    function greet() {
-        Greet(name).then(updateResultText);
+    function onNavigate(pageName: PageName){
+        setCurrentPage(pageName);
     }
 
+    const pageComponent = useMemo(() => {
+        switch(currentPage){
+            case PageName.COMPRESS: return <CompressFilesPage />;
+            case PageName.CONVERT_IMG: return <ConvertImagesPage />;
+            case PageName.MERGE: return <MergeFilesPage />;
+            default: return <HomePage onNavigate={onNavigate}/>;
+        }
+    }, [currentPage]);
+
     return (
-        <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
-        </div>
+        <div id="app">
+            { currentPage !== PageName.HOME && <span className="box home-btn" onClick={() => onNavigate(PageName.HOME)} >Accueil</span> }
+            <h1>Homepilot ❤ PDF</h1>
+            { pageComponent}
+         </div>
     )
 }
 
