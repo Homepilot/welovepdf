@@ -13,19 +13,22 @@ export async function selectMultipleFiles(fileType: FileType = FileType.PDF, sel
 export async function convertFiles(filesPathes: string[]) {
     const result = await Promise.all(filesPathes.map(ConvertImageToPdf))
     console.log({ conversionSuccess: result })
+    return result;
 }
 
 export async function mergeFiles (filesPathes: string[]) {
-
+    
     if(filesPathes.length < 2) {
         console.error('Vous devez sélectionner au moins 2 fichiers');
-        return;
+        return false;
     }
     const result = await MergePdfFiles([...filesPathes])
     console.log({ mergeSuccess: result })
+    return result;
 }
 
 export async function compressFiles (filesPathes: string[]) {
     const result = await Promise.all(filesPathes.map(CompressPdfFile))
     console.log({ compressionSuccess: result })
+    return result;
 }

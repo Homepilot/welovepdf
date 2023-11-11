@@ -1,4 +1,5 @@
 import {useMemo, useState} from 'react';
+import { Toaster } from 'react-hot-toast';
 import './App.css';
 import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from './pages';
 import { AppHeader } from './components';
@@ -35,6 +36,7 @@ function App() {
                     />
                 { pageComponent}
             </div>
+            <Toaster position="bottom-right"/>
          </div>
     )
 }

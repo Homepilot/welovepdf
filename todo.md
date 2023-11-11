@@ -1,4 +1,3 @@
-- toasts
 - compress
 - style 2 (Abde ?)
 - add logger
