@@ -21,13 +21,6 @@ html, body, #root {
     /* background: white */
 }
 
-.flex-container {
-    padding-top: 5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
 
 .container {
     padding: 2rem 0;

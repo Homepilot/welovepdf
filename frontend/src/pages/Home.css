@@ -1,0 +1,13 @@
+
+.home-container {
+    padding-top: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+}
+
+.home-container svg {
+    margin: 1rem 0;
+}
