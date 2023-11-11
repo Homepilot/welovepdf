@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react-beautiful-dnd";
 import { SelectMultipleFiles } from '../../wailsjs/go/main/App';
+import { FileCard } from './FileCard';
 
 export const FilesList: React.FC<{onSelectionUpdated(filePathes: string[]): void}> = ({ onSelectionUpdated }) => {
     const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
@@ -10,10 +11,15 @@ export const FilesList: React.FC<{onSelectionUpdated(filePathes: string[]): void
         const files = await SelectMultipleFiles();
         const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
         const selectionWithIds = newSelection.map(id => ({id}))
-        console.log({ newSelection, selectionWithIds })
         setSelectedFiles(selectionWithIds);
         onSelectionUpdated(newSelection);
     }
+
+    const removeFileFromList = (fileId: string) => {
+        const newSelectionWithIds = selectedFiles.filter(({id}) => id !== fileId);
+        setSelectedFiles(newSelectionWithIds);
+        onSelectionUpdated(newSelectionWithIds.map(({id}) => id))
+    } 
 
     const onDragEnd: OnDragEndResponder = (result) => {
         console.log('ON DRAG END')
@@ -61,7 +67,7 @@ export const FilesList: React.FC<{onSelectionUpdated(filePathes: string[]): void
                                             provided.draggableProps.style
                                         )}
                                     >
-                                        {item.id}
+                                        <FileCard fileName={item.id} onDeleteCard={() => removeFileFromList(item.id)} />
                                     </div>
                                 )}
                                 </Draggable>
@@ -109,6 +115,7 @@ function getListStyle(isDraggingOver: boolean){
     return {
         background: isDraggingOver ? "lightblue" : "lightgrey",
         padding: grid,
-        width: 250
+        width: '100%',
+        margin: '2rem 0'
     }
 };

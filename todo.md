@@ -1,4 +1,4 @@
-- drag n drop
 - limit file types
+- style
 - toasts
 - compress
