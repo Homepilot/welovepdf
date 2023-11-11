@@ -1,0 +1,35 @@
+.app-header {
+    width: 95%;
+    padding: 0 1rem;
+    text-align: center;
+}
+
+.header-container {
+    margin-top: 7rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+svg {
+    margin: 0 1rem;
+}
+
+.header-subtitle {
+    margin-top: 0;
+}
+
+
+.box {
+    cursor: pointer;
+    border: solid #fff 1px;
+    border-radius: 3px;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.home-btn {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+}

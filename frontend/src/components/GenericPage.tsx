@@ -21,14 +21,15 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             <div>
                 <h3>{headerText}</h3>
             </div>
-            <FilesList onSelectionUpdated={setSelectedFiles} />
-            <button
-                onClick={() => action.handler(selectedFiles)}
-                disabled={selectedFiles.length < action.minFilesLength} 
-                className="btn"
-            >
-                { action.btnLabel}
-            </button>
+            <FilesList onSelectionUpdated={setSelectedFiles}>
+                <button
+                    onClick={() => action.handler(selectedFiles)}
+                    disabled={selectedFiles.length < action.minFilesLength} 
+                    className="btn"
+                >
+                    { action.btnLabel}
+                </button>
+            </FilesList>
         </div>
     )
 }

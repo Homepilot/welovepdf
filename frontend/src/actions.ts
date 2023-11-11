@@ -1,5 +1,14 @@
-import { CompressPdfFile, ConvertImageToPdf, MergePdfFiles } from '../wailsjs/go/main/App';
+import { FileType } from './types';
+import { 
+    CompressPdfFile,
+    ConvertImageToPdf,
+    MergePdfFiles,
+    SelectMultipleFiles
+} from '../wailsjs/go/main/App';
 
+export async function selectMultipleFiles(fileType: FileType = FileType.PDF){
+    return SelectMultipleFiles(fileType);
+}
 
 export async function convertFiles(filesPathes: string[]) {
     const result = await Promise.all(filesPathes.map(ConvertImageToPdf))

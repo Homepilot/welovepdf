@@ -1,4 +1,5 @@
 import { Trash2 } from 'react-feather'
+import "./FileCard.css"
 
 
 type FileCardProps = {

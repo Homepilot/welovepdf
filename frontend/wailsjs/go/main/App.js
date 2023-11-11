@@ -14,6 +14,6 @@ export function MergePdfFiles(arg1) {
   return window['go']['main']['App']['MergePdfFiles'](arg1);
 }
 
-export function SelectMultipleFiles() {
-  return window['go']['main']['App']['SelectMultipleFiles']();
+export function SelectMultipleFiles(arg1) {
+  return window['go']['main']['App']['SelectMultipleFiles'](arg1);
 }

@@ -6,7 +6,7 @@ type HomePageProps = {
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => (
     <>
-    <h3>Que souhaitez vous faire ?</h3>
+    {/* <h3>Que souhaitez vous faire ?</h3> */}
     <div className='flex-container'>
         <div onClick={() => onNavigate(PageName.CONVERT_IMG)} className='box'>Convertir des images en PDF</div>
         <div onClick={() => onNavigate(PageName.MERGE)} className='box'>Fusionner des PDF</div>

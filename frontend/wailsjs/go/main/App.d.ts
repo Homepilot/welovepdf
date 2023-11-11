@@ -7,4 +7,4 @@ export function ConvertImageToPdf(arg1:string):Promise<boolean>;
 
 export function MergePdfFiles(arg1:Array<string>):Promise<boolean>;
 
-export function SelectMultipleFiles():Promise<Array<string>>;
+export function SelectMultipleFiles(arg1:string):Promise<Array<string>>;

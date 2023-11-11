@@ -1,6 +1,7 @@
 import {useMemo, useState} from 'react';
 import './App.css';
 import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from './pages';
+import { AppHeader } from './components';
 
 export enum PageName {
     HOME = 'HOME',
@@ -27,9 +28,13 @@ function App() {
 
     return (
         <div id="app">
-            { currentPage !== PageName.HOME && <span className="box home-btn" onClick={() => onNavigate(PageName.HOME)} >Accueil</span> }
-            <h1>Homepilot ❤ PDF</h1>
-            { pageComponent}
+            <div id="app-container">
+                <AppHeader 
+                    shouldDisplayHomeBtn={currentPage !== PageName.HOME}
+                    onNavigateHome={() => onNavigate(PageName.HOME)}    
+                    />
+                { pageComponent}
+            </div>
          </div>
     )
 }

@@ -1,14 +1,15 @@
-
 import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react-beautiful-dnd";
-import { SelectMultipleFiles } from '../../wailsjs/go/main/App';
 import { FileCard } from './FileCard';
+import './FilesList.css';
+import { FileType } from '../types';
+import { selectMultipleFiles } from '../actions';
 
-export const FilesList: React.FC<{onSelectionUpdated(filePathes: string[]): void}> = ({ onSelectionUpdated }) => {
+export const FilesList: React.FC<React.PropsWithChildren<{onSelectionUpdated(filePathes: string[]): void, filesType?: FileType}>> = ({ onSelectionUpdated, filesType, children }) => {
     const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
 
     const selectFiles = async () => {
-        const files = await SelectMultipleFiles();
+        const files = await selectMultipleFiles(filesType);
         const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
         const selectionWithIds = newSelection.map(id => ({id}))
         setSelectedFiles(selectionWithIds);
@@ -40,8 +41,9 @@ export const FilesList: React.FC<{onSelectionUpdated(filePathes: string[]): void
     return (
         
         <div className='files-list'>
-            <div>
+            <div className='btn-container'>
                 <button onClick={selectFiles} className="btn">Choisir des fichiers</button>
+                {children}
             </div>
             {
                 !selectedFiles.length ?  
@@ -115,7 +117,7 @@ function getListStyle(isDraggingOver: boolean){
     return {
         background: isDraggingOver ? "lightblue" : "lightgrey",
         padding: grid,
-        width: '100%',
-        margin: '2rem 0'
+        width: '99%',
+        margin: '2rem auto',
     }
 };

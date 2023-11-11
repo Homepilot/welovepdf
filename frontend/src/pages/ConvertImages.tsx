@@ -6,7 +6,7 @@ export const ConvertImagesPage: React.FC = () => (
         headerText='Veuillez sélectionner les fichiers à convertir' 
         action={{
             handler: convertFiles,
-            btnLabel: 'Convertirles fichiers',
+            btnLabel: 'Convertir les fichiers',
             minFilesLength: 1
         }}  
     />
