@@ -1,23 +1,13 @@
-import { useState } from 'react';
-import { CompressPdfFile } from '../../wailsjs/go/main/App';
-import { FilesList } from '../components';
+import { GenericPage } from '../components';
+import { compressFiles } from '../actions';
 
-export const CompressFilesPage: React.FC = () => {
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-
-
-    const compressFiles = async () => {
-        const result = await Promise.all(selectedFiles.map(CompressPdfFile))
-        console.log({ compressionSuccess: result })
-    }
-    
-    return (
-        <div className='container'>
-            <h3>Veuillez sélectionner les fichiers à comprimer</h3>
-            <FilesList onFilesSelected={setSelectedFiles} />
-            {selectedFiles.length ? (
-                <button disabled={!selectedFiles.length} onClick={compressFiles} className="btn">Comprimer les fichiers</button>
-            ): null}
-        </div>
-    )
-}
+export const CompressFilesPage: React.FC = () => (
+    <GenericPage 
+        headerText='Veuillez sélectionner les fichiers à comprimer' 
+        action={{
+            handler: compressFiles,
+            btnLabel: 'Comprimer les fichiers',
+            minFilesLength: 1
+        }}  
+    />
+)

@@ -6,7 +6,6 @@ export enum PageName {
     HOME = 'HOME',
     MERGE = 'MERGE',
     CONVERT_IMG = 'CONVERT_IMG',
-    SPLIT = 'SPLIT',
     COMPRESS = 'COMPRESS',
 }
 

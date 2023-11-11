@@ -1,26 +1,14 @@
-import { useState } from 'react';
-import { FilesList } from '../components';
-import { ConvertImageToPdf } from '../../wailsjs/go/main/App';
+import { GenericPage } from '../components';
+import { convertFiles } from '../actions';
 
-export const ConvertImagesPage: React.FC = () => {
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-
-
-    const convertFiles = async () => {
-        const result = await Promise.all(selectedFiles.map(ConvertImageToPdf))
-        console.log({ conversionSuccess: result })
-    }
-    
-    return (
-        <div className='container'>
-            <div>
-                <h3>Veuillez sélectionner les fichiers à convertir</h3>
-            </div>
-            <FilesList onFilesSelected={setSelectedFiles} />
-            {selectedFiles.length ? (
-                <button onClick={convertFiles} className="btn">Convertir les fichiers</button>
-            ): null}
-        </div>
-    )
-}
+export const ConvertImagesPage: React.FC = () => (
+    <GenericPage 
+        headerText='Veuillez sélectionner les fichiers à convertir' 
+        action={{
+            handler: convertFiles,
+            btnLabel: 'Convertirles fichiers',
+            minFilesLength: 1
+        }}  
+    />
+)
 

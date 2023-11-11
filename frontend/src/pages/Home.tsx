@@ -10,8 +10,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => (
     <div className='flex-container'>
         <div onClick={() => onNavigate(PageName.CONVERT_IMG)} className='box'>Convertir des images en PDF</div>
         <div onClick={() => onNavigate(PageName.MERGE)} className='box'>Fusionner des PDF</div>
-        <div onClick={() => onNavigate(PageName.COMPRESS)} className='box'>Comprimer un PDF</div>
-        <div onClick={() => onNavigate(PageName.SPLIT)} className='box'>Diviser un PDF en plusieurs</div>
+        <div onClick={() => onNavigate(PageName.COMPRESS)} className='box'>Comprimer des PDF</div>
     </div>
     </>
 )
