@@ -6,8 +6,8 @@ import {
     SelectMultipleFiles
 } from '../wailsjs/go/main/App';
 
-export async function selectMultipleFiles(fileType: FileType = FileType.PDF){
-    return SelectMultipleFiles(fileType);
+export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
+    return SelectMultipleFiles(fileType, selectFilesPrompt);
 }
 
 export async function convertFiles(filesPathes: string[]) {

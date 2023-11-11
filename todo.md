@@ -1,4 +1,4 @@
-- limit file types
-- style
 - toasts
 - compress
+- style 2 (Abde ?)
+- add logger

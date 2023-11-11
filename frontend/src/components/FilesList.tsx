@@ -5,11 +5,17 @@ import './FilesList.css';
 import { FileType } from '../types';
 import { selectMultipleFiles } from '../actions';
 
-export const FilesList: React.FC<React.PropsWithChildren<{onSelectionUpdated(filePathes: string[]): void, filesType?: FileType}>> = ({ onSelectionUpdated, filesType, children }) => {
+type FilesListProps = {
+    onSelectionUpdated(filePathes: string[]): void;
+    filesType?: FileType;
+    selectFilesPrompt: string;
+}
+
+export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, filesType, selectFilesPrompt, children }) => {
     const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
 
     const selectFiles = async () => {
-        const files = await selectMultipleFiles(filesType);
+        const files = await selectMultipleFiles(filesType, selectFilesPrompt);
         const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
         const selectionWithIds = newSelection.map(id => ({id}))
         setSelectedFiles(selectionWithIds);
