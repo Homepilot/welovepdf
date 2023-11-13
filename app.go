@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os/exec"
 	"strings"
 
 	pdfApi "github.com/pdfcpu/pdfcpu/pkg/api"
@@ -60,21 +61,25 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 		return []string{}
 	}
 
-	runtime.LogPrintf(a.ctx, "Got files !!")
 	result.files = files
 	return files
 }
 
-func (a *App) MergePdfFiles(filePathes []string) bool {
+func (a *App) OpenSaveFileDialog() string {
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{})
 	if err != nil {
 		runtime.LogErrorf(a.ctx, "Error retrieving targetPath: %s", err.Error())
-		return false
+		return ""
 	}
 
-	mergeError := pdfApi.MergeCreateFile(filePathes, targetFilePath+".pdf", pdfApi.LoadConfiguration())
+	return targetFilePath
+}
+
+func (a *App) MergePdfFiles(targetFilePath string, filePathes []string) bool {
+
+	err := pdfApi.MergeCreateFile(filePathes, targetFilePath+".pdf", pdfApi.LoadConfiguration())
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error retrieving targetPath: %s", mergeError.Error())
+		runtime.LogErrorf(a.ctx, "Error retrieving targetPath: %s", err.Error())
 		return false
 	}
 
@@ -106,6 +111,57 @@ func (a *App) ConvertImageToPdf(filePath string) bool {
 		runtime.LogErrorf(a.ctx, "Error importing image: %s", conversionError.Error())
 		return false
 	}
+
+	return true
+}
+
+func (a *App) CompressFile(filePath string) bool {
+	// gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
+	cmd := exec.Command("gs",
+		"-sDEVICE=pdfwrite",
+		"-dCompatibilityLevel=1.4",
+		"-dSubsetFonts=true",
+		"-dUseFlateCompression=true",
+		"-dOptimize=true",
+		"-dProcessColorModel=/DeviceRGB",
+		"-dDownsampleGrayImages=true ",
+		"-dGrayImageDownsampleType=/Bicubic",
+		"-dGrayImageResolution=75",
+		"-dAutoFilterGrayImages=false",
+		"-dDownsampleMonoImages=true",
+		"-dMonoImageDownsampleType=/Bicubic",
+		"-dCompressPages=true",
+		"-dMonoImageResolution=75",
+		"-dDownsampleColorImages=true ",
+		"-dCompressStreams=true ",
+		"-dColorImageDownsampleType=/Bicubic",
+		"-dColorImageResolution=75",
+		"-dImageQuality=80",
+		"-dImageUpperPPI=100",
+		"-dAutoFilterColorImages=false",
+		"-dPDFSETTINGS=/default",
+		"-dNOPAUSE",
+		"-dQUIET",
+		"-dBATCH",
+		"-dSAFER",
+		"-sOutputFile="+filePath+"_compressed.pdf",
+		"-dCompressFonts=true",
+		"-r150",
+		filePath,
+	)
+	// cmd := exec.Command("ps2pdf",
+	// 	"-dPDFSETTINGS=/screen",
+	// 	filePath,
+	// 	filePath+"_compressed.pdf",
+	// )
+
+	out, err := cmd.Output()
+	if err != nil {
+		runtime.LogErrorf(a.ctx, "Error compressing file: %s", err.Error())
+		return false
+	}
+
+	runtime.LogInfof(a.ctx, "Success compressing file: %s", out)
 
 	return true
 }
