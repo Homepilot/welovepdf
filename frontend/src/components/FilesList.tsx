@@ -5,28 +5,21 @@ import './FilesList.css';
 import { FileType } from '../types';
 import { selectMultipleFiles } from '../actions';
 
+type FileInfo = {
+    id: string;
+}
+
 type FilesListProps = {
-    onSelectionUpdated(filePathes: string[]): void;
+    onSelectionUpdated(newSelection: FileInfo[]): void;
+    onRemoveFileFromList(fileId: string): void;
+    selectedFiles: FileInfo[];
     filesType?: FileType;
     selectFilesPrompt: string;
 }
 
-export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, filesType, selectFilesPrompt, children }) => {
-    const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
+export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, onRemoveFileFromList, selectedFiles, filesType, selectFilesPrompt, children }) => {
 
-    const selectFiles = async () => {
-        const files = await selectMultipleFiles(filesType, selectFilesPrompt);
-        const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
-        const selectionWithIds = newSelection.map(id => ({id}))
-        setSelectedFiles(selectionWithIds);
-        onSelectionUpdated(newSelection);
-    }
 
-    const removeFileFromList = (fileId: string) => {
-        const newSelectionWithIds = selectedFiles.filter(({id}) => id !== fileId);
-        setSelectedFiles(newSelectionWithIds);
-        onSelectionUpdated(newSelectionWithIds.map(({id}) => id))
-    } 
 
     const onDragEnd: OnDragEndResponder = (result) => {
         console.log('ON DRAG END')
@@ -41,16 +34,13 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
           result.destination.index
         );
     
-        setSelectedFiles(reorderedItems)
+        onSelectionUpdated(reorderedItems)
       }
 
     return (
         
         <div className='files-list'>
-            <div className='btn-container'>
-                <button onClick={selectFiles} className="btn">Choisir des fichiers</button>
-                {children}
-            </div>
+
             {
                 !selectedFiles.length ?  
                 <h3>Aucun fichier sélectionné</h3> : 
@@ -75,7 +65,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
                                             provided.draggableProps.style
                                         )}
                                     >
-                                        <FileCard fileName={item.id} onDeleteCard={() => removeFileFromList(item.id)} />
+                                        <FileCard fileName={item.id} onDeleteCard={() => onRemoveFileFromList(item.id)} />
                                     </div>
                                 )}
                                 </Draggable>

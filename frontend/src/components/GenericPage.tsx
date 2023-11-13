@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { FilesList } from '../components';
 import { FileType } from '../types';
 import toast from 'react-hot-toast';
+import { selectMultipleFiles } from '../actions';
 
 type GenericPageProps = {
     headerText: string;
     filesType?: FileType;
     action: {
         btnLabel: string;
-        handler(filesToHandle: string[]): Promise<boolean | boolean[]>;
+        handler(filesToHandle: string[]): Promise<boolean | boolean[] | null>;
         minFilesLength: number;
     };
     selectFilesPrompt?: string;
@@ -20,11 +21,30 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     filesType,
     selectFilesPrompt,
 }) => {
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
+
+    const removeFileFromList = (fileId: string) => {
+        const newSelectionWithIds = selectedFiles.filter(({id}) => id !== fileId);
+        setSelectedFiles(newSelectionWithIds);
+    } 
+
+    const selectFiles = async () => {
+        const files = await selectMultipleFiles(filesType, selectFilesPrompt ?? headerText);
+        const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
+        const selectionWithIds = newSelection.map(id => ({id}))
+        setSelectedFiles(selectionWithIds);
+    }
+
+    const emptyList = () => {
+        setSelectedFiles([]);
+    }
+
 
     async function runHandler(){
         
-       const result = await action.handler(selectedFiles)
+       const result = await action.handler(selectedFiles.map(({id}) => id));
+
+       if(result === null) return;
        
        if(!Array.isArray(result)){
         if(result) {
@@ -42,18 +62,22 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                 : { success: acc.success, failures: acc.failures + 1 }, 
             { success: 0, failures: 0 })
 
-            if(failures === 0) {
-                toast.success('Opération réussie pour tous les fichiers');
-                return;
-            }
-
-            if(success === 0) {
-                toast.error("L'opération a échoué pour tous les fichiers");
-                return;
-            }
-
-            toast.success(`L'opération a réussi pour ${success} fichiers`);
-            toast.error(`L'opération a échoué pour ${success} fichiers`);
+        if(failures === 0) {
+            toast.success('Opération réussie pour tous les fichiers');
+            emptyList();
+            return;
+        }
+        
+        if(success === 0) {
+            toast.error("L'opération a échoué pour tous les fichiers");
+            emptyList();
+            return;
+        }
+        
+        toast.success(`L'opération a réussi pour ${success} fichiers`);
+        toast.error(`L'opération a échoué pour ${failures} fichiers`);
+        
+        emptyList();
     }
 
     return (
@@ -61,11 +85,9 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             <div>
                 <h3>{headerText}</h3>
             </div>
-            <FilesList 
-                filesType={filesType} 
-                onSelectionUpdated={setSelectedFiles} 
-                selectFilesPrompt={selectFilesPrompt || headerText}
-            >
+            <div className='btn-container'>
+                <button disabled={!selectedFiles.length} onClick={() => setSelectedFiles([])} className="btn">Vider la liste</button>
+                <button onClick={selectFiles} className="btn">Choisir des fichiers</button>
                 <button
                     onClick={runHandler}
                     disabled={selectedFiles.length < action.minFilesLength} 
@@ -73,6 +95,14 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                 >
                     { action.btnLabel}
                 </button>
+            </div>
+            <FilesList 
+                selectedFiles={selectedFiles}
+                onRemoveFileFromList={removeFileFromList}
+                filesType={filesType} 
+                onSelectionUpdated={setSelectedFiles} 
+                selectFilesPrompt={selectFilesPrompt || headerText}
+            >
             </FilesList>
         </div>
     )
