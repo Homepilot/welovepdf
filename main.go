@@ -15,8 +15,6 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
-	pdfTools := NewPdfTools(*app)
-
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "We ❤ PDF",
@@ -29,7 +27,6 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
-			pdfTools,
 		},
 	})
 
