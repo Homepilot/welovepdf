@@ -1,3 +1,5 @@
 - compress
 - style 2 (Abde ?)
 - add logger
+- open dir after actions
+- keep mem usage in check
