@@ -1,11 +1,13 @@
 import { FileType } from './types';
 import {
     OpenSaveFileDialog,
-    CompressFile,
-    ConvertImageToPdf,
-    MergePdfFiles,
     SelectMultipleFiles
 } from '../wailsjs/go/main/App';
+import {
+    CompressFile,
+    ConvertImageToPdf,
+    MergePdfFiles
+} from '../wailsjs/go/main/PdfUtils';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
     return SelectMultipleFiles(fileType, selectFilesPrompt);

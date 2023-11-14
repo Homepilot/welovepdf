@@ -1,82 +1,89 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
 	pdfApi "github.com/pdfcpu/pdfcpu/pkg/api"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (a *App) MergePdfFiles(targetFileName string, filePathes []string) bool {
-	runtime.LogInfo(a.ctx, "MergePdfFiles: operation starting")
-	a.EnsureTargetDirPath()
+type PdfUtils struct{}
+
+func NewPdfUtils() *PdfUtils {
+	return &PdfUtils{}
+}
+
+func (p *PdfUtils) MergePdfFiles(targetFileName string, filePathes []string) error {
+	fmt.Println("MergePdfFiles: operation starting")
+	// EnsureTargetDirPath()
 
 	err := pdfApi.MergeCreateFile(filePathes, targetFileName+".pdf", pdfApi.LoadConfiguration())
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error retrieving targetPath: %s", err.Error())
-		return false
+		fmt.Printf("Error retrieving targetPath: %s", err.Error())
+		return err
 	}
 
-	runtime.LogInfo(a.ctx, "Operation succeeded, opening target folder")
+	fmt.Println("Operation succeeded, opening target folder")
+
 	cmd := exec.Command("open /Users/gregoire/Documents")
 	openErr := cmd.Run()
 	if openErr != nil {
-		runtime.LogErrorf(a.ctx, "Error opening target folder: %s", openErr.Error())
+		fmt.Printf("Error opening target folder: %s", openErr.Error())
 	}
 	directory, openErr2 := os.Open("/Users/gregoire/Documents")
 
-	runtime.LogInfof(a.ctx, "result is here: %s", directory.Name())
+	fmt.Printf("result is here: %s", directory.Name())
 
 	if openErr2 != nil {
-		runtime.LogErrorf(a.ctx, "Error opening target folder w/ Open: %s", openErr.Error())
+		fmt.Printf("Error opening target folder w/ Open: %s", openErr.Error())
 	}
-	return true
+
+	return nil
 }
 
-func (a *App) CompressPdfFile(filePath string) bool {
-	runtime.LogInfo(a.ctx, "CompressPdfFile: operation starting")
-	a.EnsureTargetDirPath()
+func (p *PdfUtils) OptimizePdfFile(filePath string) error {
+	fmt.Println("OptimizePdfFile: operation starting")
+	// EnsureTargetDirPath()
 
-	pathParts := strings.Split(filePath, ".")
-	pathParts[len(pathParts)-2] = pathParts[len(pathParts)-2] + "_compressed"
-	targetFilePath := strings.Join(pathParts, ".")
+	nameParts := strings.Split(GetFileNameFromPath(filePath), ".")
+	nameParts[len(nameParts)-2] = nameParts[len(nameParts)-2] + "_compressed"
+	targetFilePath := GetTargetDirectoryPath() + "/" + strings.Join(nameParts, ".")
 
 	err := pdfApi.OptimizeFile(filePath, targetFilePath, pdfApi.LoadConfiguration())
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error retrieving targetPath: %s", err.Error())
-		return false
+		fmt.Printf("Error retrieving targetPath: %s", err.Error())
+		return err
 	}
 
-	runtime.LogInfo(a.ctx, "Operation succeeded, opening target folder")
-	os.Open(a.targetDirPath)
-	return true
+	fmt.Println("Operation succeeded, opening target folder")
+
+	return nil
 }
 
-func (a *App) ConvertImageToPdf(filePath string) bool {
-	runtime.LogInfo(a.ctx, "ConvertImageToPdf: operation starting")
-	a.EnsureTargetDirPath()
+func (p *PdfUtils) ConvertImageToPdf(filePath string) error {
+	fmt.Println("ConvertImageToPdf: operation starting")
 
 	originalFileName := GetFileNameFromPath(filePath)
 	fileNameParts := strings.Split(originalFileName, ".")
 	fileNameParts[len(fileNameParts)-1] = "pdf"
 	targetFileName := strings.Join(fileNameParts, ".")
 
-	conversionError := pdfApi.ImportImagesFile([]string{filePath}, a.targetDirPath+"/"+targetFileName, nil, nil)
+	conversionError := pdfApi.ImportImagesFile([]string{filePath}, GetTargetDirectoryPath()+"/"+targetFileName, nil, nil)
 
 	if conversionError != nil {
-		runtime.LogErrorf(a.ctx, "Error importing image: %s", conversionError.Error())
-		return false
+		fmt.Printf("Error importing image: %s", conversionError.Error())
+		return conversionError
 	}
 
-	runtime.LogInfo(a.ctx, "Operation succeeded, opening target folder")
-	os.Open(a.targetDirPath)
-	return true
+	fmt.Println("Operation succeeded, opening target folder")
+
+	return nil
 }
 
-func (a *App) CompressFile(filePath string) bool {
-	// gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
+func (p *PdfUtils) CompressFile(filePath string) error {
+	// fmt.Println=4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
 	cmd := exec.Command("gs",
 		"-sDEVICE=pdfwrite",
 		"-dCompatibilityLevel=1.4",
@@ -117,18 +124,12 @@ func (a *App) CompressFile(filePath string) bool {
 
 	out, err := cmd.Output()
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error compressing file: %s", err.Error())
-		return false
+		fmt.Printf("Error compressing file: %s", err.Error())
+		return err
 	}
 
-	runtime.LogInfof(a.ctx, "Success compressing file: %s", out)
+	fmt.Printf("Success compressing file: %s", out)
 
-	runtime.LogInfo(a.ctx, "Operation succeeded, opening target folder")
-	os.Open(a.targetDirPath)
-	return true
-}
-
-func GetFileNameFromPath(filePath string) string {
-	pathParts := strings.Split(filePath, "/")
-	return pathParts[len(pathParts)-1]
+	fmt.Printf("Operation succeeded, opening target folder")
+	return nil
 }

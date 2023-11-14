@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -11,12 +12,20 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+var baseDirectory string
+
 func main() {
+	// Set globals
+	homeDirPath, err := os.UserHomeDir()
+	baseDirectory = homeDirPath + "/welovepdf"
+	EnsureDirectory(baseDirectory)
+
 	// Create an instance of the app structure
 	app := NewApp()
+	pdfUtils := NewPdfUtils()
 
 	// Create application with options
-	err := wails.Run(&options.App{
+	startErr := wails.Run(&options.App{
 		Title:  "We ❤ PDF",
 		Width:  777,
 		Height: 555,
@@ -27,10 +36,11 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
+			pdfUtils,
 		},
 	})
 
-	if err != nil {
+	if startErr != nil {
 		println("Error:", err.Error())
 	}
 }

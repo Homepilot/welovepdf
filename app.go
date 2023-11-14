@@ -2,19 +2,13 @@ package main
 
 import (
 	"context"
-	"os"
-	"os/exec"
-	"strings"
-	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
 type App struct {
-	ctx           context.Context
-	baseDirPath   string
-	targetDirPath string
+	ctx context.Context
 }
 
 // NewApp creates a new App application struct
@@ -26,15 +20,6 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-	a.baseDirPath = homeDir + "/Documents/welovepdf"
-	a.EnsureBaseDirPath()
-	a.targetDirPath = a.baseDirPath + "/" + GetDateString()
-	cmd := exec.Command("open /Users/gregoire/Documents")
-	cmd.Run()
 }
 
 type SelectFilesResult struct {
@@ -78,10 +63,8 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 }
 
 func (a *App) OpenSaveFileDialog() string {
-	a.EnsureTargetDirPath()
-
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		DefaultDirectory: a.targetDirPath,
+		DefaultDirectory: GetTargetDirectoryPath(),
 	})
 
 	if err != nil {
@@ -90,53 +73,4 @@ func (a *App) OpenSaveFileDialog() string {
 	}
 
 	return targetFilePath
-}
-
-func (a *App) EnsureTargetDirPath() {
-	stats, err := os.Stat(a.targetDirPath)
-	if err == nil && stats.IsDir() {
-		runtime.LogInfo(a.ctx, "Target directory successfully found")
-		return
-	}
-	if !os.IsNotExist((err)) {
-		runtime.LogErrorf(a.ctx, "Error ensuring target directory: %s", err.Error())
-		return
-	}
-
-	creationErr := os.MkdirAll(a.targetDirPath, os.ModePerm)
-
-	if creationErr != nil {
-		runtime.LogErrorf(a.ctx, "Error creating target folder: %s", creationErr.Error())
-		return
-	}
-
-	runtime.LogInfo(a.ctx, "Target folder successfully created")
-}
-
-func (a *App) EnsureBaseDirPath() {
-	stats, err := os.Stat(a.baseDirPath)
-	if err == nil && stats.IsDir() {
-		runtime.LogInfo(a.ctx, "Base folder successfully found")
-		return
-	}
-	if !os.IsNotExist((err)) {
-		runtime.LogErrorf(a.ctx, "Error ensuring base folder: %s", err.Error())
-		return
-	}
-
-	creationErr := os.MkdirAll(a.baseDirPath, os.ModePerm)
-
-	if creationErr != nil {
-		runtime.LogErrorf(a.ctx, "Error creating base folder: %s", creationErr.Error())
-		return
-	}
-
-	runtime.LogInfo(a.ctx, "Base folder successfully created")
-}
-
-func GetDateString() string {
-	currentTime := time.Now()
-	dateStr := strings.Split(currentTime.String(), " ")[0]
-	formattedDateStr := strings.Join(strings.Split(dateStr, "-"), "")
-	return formattedDateStr
 }
