@@ -41,14 +41,15 @@ export const GenericPage: React.FC<GenericPageProps> = ({
 
 
     async function runHandler(){
-        
-       const result = await action.handler(selectedFiles.map(({id}) => id));
+        const includedFiles = [...selectedFiles];
+       const result = await action.handler(includedFiles.map(({id}) => id));
 
        if(result === null) return;
        
        if(!Array.isArray(result)){
         if(result) {
             toast.success('Opération réussie');
+            emptyList();
             return;
         }
         toast.error("L'opération a échoué");
@@ -70,14 +71,13 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         
         if(success === 0) {
             toast.error("L'opération a échoué pour tous les fichiers");
-            emptyList();
             return;
         }
         
         toast.success(`L'opération a réussi pour ${success} fichiers`);
         toast.error(`L'opération a échoué pour ${failures} fichiers`);
         
-        emptyList();
+        setSelectedFiles(includedFiles.filter((_, index) => result[index]));
     }
 
     return (

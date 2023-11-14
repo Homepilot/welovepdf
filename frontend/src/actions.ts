@@ -4,9 +4,10 @@ import {
     SelectMultipleFiles
 } from '../wailsjs/go/main/App';
 import {
-    CompressFile,
     ConvertImageToPdf,
-    MergePdfFiles
+    CompressFileExtreme,
+    MergePdfFiles,
+    OptimizePdfFile
 } from '../wailsjs/go/main/PdfUtils';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
@@ -14,7 +15,7 @@ export async function selectMultipleFiles(fileType: FileType = FileType.PDF, sel
 }
 
 export async function convertFiles(filesPathes: string[]) {
-    const result = await Promise.all(filesPathes.map(ConvertImageToPdf))
+    const result = await Promise.all(filesPathes.map(ConvertImageToPdf as (index: string) => Promise<boolean>))
     console.log({ conversionSuccess: result })
     return result;
 }
@@ -33,8 +34,19 @@ export async function mergeFiles (filesPathes: string[]) {
     return result;
 }
 
-export async function compressFiles (filesPathes: string[]) {
-    const result = await Promise.all(filesPathes.map(CompressFile))
-    console.log({ compressionSuccess: result })
+export async function optimizeFiles (filesPathes: string[]) {
+    const result = await Promise.all(filesPathes.map(OptimizePdfFile))
+    console.log({ optimizationSuccess: result })
     return result;
+}
+
+export async function compressFilesExtreme (filesPathes: string[]) {
+    const resultsArray = [];
+    for (const file of filesPathes){
+        const result = await CompressFileExtreme(file)
+        resultsArray.push(result)
+
+    }
+    console.log({ compressionSuccess: resultsArray })
+    return resultsArray;
 }

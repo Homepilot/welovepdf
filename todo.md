@@ -1,9 +1,10 @@
-- compress
-- style 2 (Abde ?)
+- refine compress
+- prompt 3 compression modes
+- style 2 (Abde ?) (spinner, backdrop, etc)
 - add logger
 - open dir after actions
 - keep mem usage in check
-- Go : make PDF methods independant from app.ctx (used for logger)
+- ensure ghostscript is installed
 
 # Compressing
 ## 3 compression modes

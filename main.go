@@ -17,7 +17,7 @@ var baseDirectory string
 func main() {
 	// Set globals
 	homeDirPath, err := os.UserHomeDir()
-	baseDirectory = homeDirPath + "/welovepdf"
+	baseDirectory = homeDirPath + "/Documents/welovepdf"
 	EnsureDirectory(baseDirectory)
 
 	// Create an instance of the app structure
