@@ -1,10 +1,11 @@
-- refine compress
 - prompt 3 compression modes
 - style 2 (Abde ?) (spinner, backdrop, etc)
 - add logger
 - open dir after actions
 - keep mem usage in check
 - ensure ghostscript is installed
+- convert images to A4 format...
+- optmize after compression
 
 # Compressing
 ## 3 compression modes

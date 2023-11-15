@@ -15,7 +15,7 @@ export async function selectMultipleFiles(fileType: FileType = FileType.PDF, sel
 }
 
 export async function convertFiles(filesPathes: string[]) {
-    const result = await Promise.all(filesPathes.map(ConvertImageToPdf as (index: string) => Promise<boolean>))
+    const result = await Promise.all(filesPathes.map((ConvertImageToPdf as (index: string) => Promise<boolean>)))
     console.log({ conversionSuccess: result })
     return result;
 }

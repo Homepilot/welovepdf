@@ -20,26 +20,13 @@ func (p *PdfUtils) MergePdfFiles(targetFilePath string, filePathes []string) boo
 	log.Println("MergePdfFiles: operation starting")
 	// EnsureTargetDirPath()
 
-	err := pdfApi.MergeCreateFile(filePathes, targetFilePath+".pdf", pdfApi.LoadConfiguration())
+	err := pdfApi.MergeCreateFile(filePathes, targetFilePath, pdfApi.LoadConfiguration())
 	if err != nil {
-		log.Printf("Error retrieving targetPath: %s", err.Error())
+		log.Printf("Error merging files: %s", err.Error())
 		return false
 	}
 
-	log.Println("Operation succeeded, opening target folder")
-
-	cmd := exec.Command("open /Users/gregoire/Documents")
-	openErr := cmd.Run()
-	if openErr != nil {
-		log.Printf("Error opening target folder: %s", openErr.Error())
-	}
-	directory, openErr2 := os.Open("/Users/gregoire/Documents")
-
-	log.Printf("result is here: %s", directory.Name())
-
-	if openErr2 != nil {
-		log.Printf("Error opening target folder w/ Open: %s", openErr.Error())
-	}
+	log.Println("Merge succeeded")
 
 	return true
 }
@@ -58,7 +45,7 @@ func (p *PdfUtils) OptimizePdfFile(filePath string) error {
 		return err
 	}
 
-	log.Println("Operation succeeded, opening target folder")
+	log.Println("Optimization succeeded")
 
 	return nil
 }
@@ -79,13 +66,13 @@ func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool 
 		return false
 	}
 
-	log.Println("Operation succeeded, opening target folder")
+	log.Println("Conversion to PDF succeeded")
 
 	return true
 }
 
 func (p *PdfUtils) CompressOnePageFileExtreme(filePath string, targetDirPath string) bool {
-	tempFilePath := targetDirPath + "/" + GetFileNameWoExtensionFromPath(filePath) + "_compressed.jpeg"
+	tempFilePath := path.Join(targetDirPath, GetFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
 	// log.Println=4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
 	convertHQCmd := exec.Command("gs", "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ=10", "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
 	err := convertHQCmd.Run()
@@ -107,15 +94,15 @@ func (p *PdfUtils) CompressOnePageFileExtreme(filePath string, targetDirPath str
 		log.Printf("Error removing tempFile: %s \n", tempFilePath)
 	}
 
-	log.Printf("Operation succeeded, opening target folder")
+	log.Printf("One page compression succeeded")
 	return true
 }
 
 func (p *PdfUtils) CompressFileExtreme(filePath string) bool {
 	tempDirPath1 := baseDirectory + "/temp/compress"
 	tempDirPath2 := baseDirectory + "/temp/compress2"
-	// os.RemoveAll(tempDirPath1)
-	// os.RemoveAll(tempDirPath2)
+	os.RemoveAll(tempDirPath1)
+	os.RemoveAll(tempDirPath2)
 	EnsureDirectory(tempDirPath1)
 	EnsureDirectory(tempDirPath2)
 
@@ -132,6 +119,7 @@ func (p *PdfUtils) CompressFileExtreme(filePath string) bool {
 		return false
 	}
 
+	log.Printf("found %d compressed files to compress", len(filesToCompress))
 	for _, file := range filesToCompress {
 		isCompressionSuccess := p.CompressOnePageFileExtreme(path.Join(tempDirPath1, file.Name()), tempDirPath2)
 		if isCompressionSuccess != true {
@@ -173,9 +161,10 @@ func (p *PdfUtils) CompressFileExtreme(filePath string) bool {
 	}
 
 	log.Printf("File compression successful: %s", outFilePath)
-	// Merge all pages back together in the right order
 
 	// Remove all temp files
+	os.RemoveAll(tempDirPath1)
+	os.RemoveAll(tempDirPath2)
 
 	return true
 }
