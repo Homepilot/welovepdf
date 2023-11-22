@@ -1,6 +1,5 @@
 
 ## Must have
-- prompt 3 compression modes
 - style 2 (Abde ?) (spinner, backdrop, etc)
 - add logger
 - keep mem usage in check
@@ -14,6 +13,7 @@
 - optmize after compression ?
 - setup husky
 - remove unused dependencies
+- drag files into window (cf wails options CSSDragProperty: "--wails-draggable" ,CSSDragValue: "drag",)
 
 # Compressing
 ## 3 compression modes

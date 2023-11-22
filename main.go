@@ -7,6 +7,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 )
 
 //go:embed binary
@@ -14,6 +15,9 @@ var gs []byte
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+//go:embed all:assets
+var goAssets embed.FS
 
 var baseDirectory string
 
@@ -41,9 +45,25 @@ func main() {
 			app,
 			pdfUtils,
 		},
+		Mac: &mac.Options{
+			About: getMacAboutOptions(),
+		},
 	})
 
 	if startErr != nil {
 		println("Error:", err.Error())
 	}
+}
+
+func getMacAboutOptions() *mac.AboutInfo {
+	about := &mac.AboutInfo{
+		Title:   "We   ❤   PDF",
+		Message: "by Homepilot @ 2023",
+	}
+
+	iconFile, err := os.ReadFile("./assets/images/logo.svg")
+	if err == nil {
+		about.Icon = iconFile
+	}
+	return about
 }
