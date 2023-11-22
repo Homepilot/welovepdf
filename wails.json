@@ -7,7 +7,7 @@
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "Grégoire Claise",
-    "email": "gregoire.claise@homepilot.fr"
+    "name": "Homepilot - Rent Technologies S.A.S.",
+    "email": "tech@homepilot.fr"
   }
 }

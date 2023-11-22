@@ -1,12 +1,17 @@
+
+## Must have
 - prompt 3 compression modes
 - style 2 (Abde ?) (spinner, backdrop, etc)
 - add logger
-- open dir after actions
 - keep mem usage in check
 - convert images to A4 format...
+- build pipeline
+
+## Nice to have
+- open dir after actions
 - optmize after compression ?
-- frontend format setup
 - setup husky
+- remove unused dependencies
 
 # Compressing
 ## 3 compression modes
