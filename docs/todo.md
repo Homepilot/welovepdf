@@ -6,6 +6,8 @@
 - keep mem usage in check
 - convert images to A4 format...
 - build pipeline
+- prerequisites.md
+- replace icon in Dialog
 
 ## Nice to have
 - open dir after actions
