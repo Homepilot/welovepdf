@@ -9,8 +9,16 @@ type FileCardProps = {
 
 export const FileCard: React.FC<FileCardProps> = ({ fileName, onDeleteCard }) => (
     <div className="file-card">
+        <div className='file-info'>
         <span className='file-type'>{fileName.toLowerCase().endsWith('.pdf') ? <FileText /> : <Image />}</span>
-        <span className='file-name'  >{fileName} </span>
-        <span className='delete-file-btn' onClick={onDeleteCard} ><Trash2 color="red" /></span>
+        <span className='file-name'  >{formatPathString(fileName)} </span>
+        </div>
+        <span className='delete-file-btn' onClick={onDeleteCard} ><Trash2 className='delete-icon'/></span>
     </div>
 )
+
+function formatPathString(pathString: string) {
+    let formattedPathString = pathString;
+    if(formattedPathString.startsWith('/')) formattedPathString = formattedPathString.substring(1);
+    return formattedPathString.split('/').join(' > ')
+}

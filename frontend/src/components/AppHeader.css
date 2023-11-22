@@ -5,31 +5,26 @@
 }
 
 .header-container {
-    margin-top: 7rem;
+    margin-top: 2rem;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 svg {
-    margin: 0 1rem;
+    margin: 0 1.2rem;
+    transform: translateY(-2px);
 }
 
 .header-subtitle {
     margin-top: 0;
-}
-
-
-.box {
-    cursor: pointer;
-    border: solid #fff 1px;
-    border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
+    position: absolute;
+    bottom: 1rem;
+    left: 2rem;
 }
 
 .home-btn {
     position: absolute;
-    top: 2rem;
-    left: 2rem;
+    top: 1rem;
+    left: 1rem;
 }

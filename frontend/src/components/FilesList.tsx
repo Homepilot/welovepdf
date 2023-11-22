@@ -99,8 +99,9 @@ function getItemStyle (isDragging: boolean, draggableStyle) {
         margin: `0 0 ${grid}px 0`,
         
         // change background colour if dragging
-        background: isDragging ? "lightgreen" : "grey",
-
+        background: isDragging ? "#9c9c9c" : "#282824",
+        border: "solid 1px #dbdbda",
+        borderRadius: '2px',
         // styles we need to apply on draggables
         ...draggableStyle
     }
@@ -108,7 +109,7 @@ function getItemStyle (isDragging: boolean, draggableStyle) {
 
 function getListStyle(isDraggingOver: boolean){
     return {
-        background: isDraggingOver ? "lightblue" : "lightgrey",
+        background: isDraggingOver ? "#484848" : "#282824",
         padding: grid,
         width: '99%',
         margin: '2rem auto',

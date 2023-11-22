@@ -1,4 +1,11 @@
 
+.files-list {
+    padding-top: 2rem;
+    margin: 0 auto;
+    max-width: 60rem;
+}
+/* 
 .files-list div {
     max-width: 99%;
-}
+    background-color: transparent !important;
+} */

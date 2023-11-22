@@ -25,11 +25,14 @@ export const GenericPage: React.FC<GenericPageProps> = ({
 }) => {
     const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
 
+    // TODO : should use useCallback here ?
     const removeFileFromList = (fileId: string) => {
         const newSelectionWithIds = selectedFiles.filter(({id}) => id !== fileId);
         setSelectedFiles(newSelectionWithIds);
     } 
 
+
+    // TODO : should use useCallback here ?
     const selectFiles = async () => {
         const files = await selectMultipleFiles(filesType, selectFilesPrompt ?? headerText);
         const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
@@ -37,11 +40,12 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         setSelectedFiles(selectionWithIds);
     }
 
+    // TODO : should use useCallback here ?
     const emptyList = () => {
         setSelectedFiles([]);
     }
 
-
+    // TODO : should use useCallback here ?
     async function runHandler(){
         const includedFiles = [...selectedFiles];
        const result = await action.handler(includedFiles.map(({id}) => id));
@@ -88,16 +92,16 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                 <h3>{headerText}</h3>
             </div>
             <div className='btn-container'>
-                <button disabled={!selectedFiles.length} onClick={() => setSelectedFiles([])} className="btn">Vider la liste</button>
-                <button onClick={selectFiles} className="btn">Choisir des fichiers</button>
-                <button
+                <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'hp-btn' : 'hp-btn-disabled'}>Vider la liste</span>
+                <span onClick={selectFiles} className="hp-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
+                <span
                     onClick={runHandler}
-                    disabled={selectedFiles.length < action.minFilesLength} 
-                    className="btn"
+                    className={selectedFiles.length >= action.minFilesLength ? 'hp-btn' : 'hp-btn-disabled'}
                 >
                     { action.btnLabel}
-                </button>
+                </span>
             </div>
+            <hr/>
             <FilesList 
                 selectedFiles={selectedFiles}
                 onRemoveFileFromList={removeFileFromList}

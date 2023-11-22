@@ -40,4 +40,9 @@ To build a redistributable, production mode package, use `wails build`.
 
 ## 🙏 Credits
 This software is built with the [Wails framework](https://wails.io/docs/introduction).
-It uses [GhostScript](https://ghostscript.readthedocs.io/en/latest/) to convert PDFs to images (used as a compression step).
+It uses : 
+    - [GhostScript](https://ghostscript.readthedocs.io/en/latest/) to convert PDFs to images (used as a compression step),
+    - [pdfcpu]() to convert images to PDFs and to merge PDF files
+Compress icon : 
+    - Image by OpenClipart-Vectors from [Pixabay](https://pixabay.com/vectors/compression-archiver-compress-149782/)
+    - [License](https://pixabay.com/service/license-summary/)
