@@ -1,5 +1,5 @@
-import { GenericPage } from '../components';
 import { compressFilesExtreme } from '../actions';
+import { GenericPage } from '../components';
 
 export const CompressFilesPage: React.FC = () => (
     <GenericPage 

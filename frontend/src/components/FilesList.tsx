@@ -1,9 +1,10 @@
-import { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react-beautiful-dnd";
-import { FileCard } from './FileCard';
-import './FilesList.css';
+
 import { FileType } from '../types';
-import { selectMultipleFiles } from '../actions';
+
+import { FileCard } from './FileCard';
+
+import './FilesList.css';
 
 type FileInfo = {
     id: string;
@@ -17,13 +18,9 @@ type FilesListProps = {
     selectFilesPrompt: string;
 }
 
-export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, onRemoveFileFromList, selectedFiles, filesType, selectFilesPrompt, children }) => {
-
-
+export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, onRemoveFileFromList, selectedFiles }) => {
 
     const onDragEnd: OnDragEndResponder = (result) => {
-        console.log('ON DRAG END')
-        // dropped outside the list
         if (!result.destination) {
           return;
         }
@@ -89,7 +86,7 @@ function reorder (list: {id: string}[], startIndex: number, endIndex: number) {
   result.splice(endIndex, 0, removed);
 
   return result;
-};
+}
 
 const grid = 8;
 
@@ -107,7 +104,7 @@ function getItemStyle (isDragging: boolean, draggableStyle) {
         // styles we need to apply on draggables
         ...draggableStyle
     }
-};
+}
 
 function getListStyle(isDraggingOver: boolean){
     return {
@@ -116,4 +113,4 @@ function getListStyle(isDraggingOver: boolean){
         width: '99%',
         margin: '2rem auto',
     }
-};
+}

@@ -1,8 +1,10 @@
 import { useState } from 'react';
+
+import toast from 'react-hot-toast';
+
+import { selectMultipleFiles } from '../actions';
 import { FilesList } from '../components';
 import { FileType } from '../types';
-import toast from 'react-hot-toast';
-import { selectMultipleFiles } from '../actions';
 
 type GenericPageProps = {
     headerText: string;

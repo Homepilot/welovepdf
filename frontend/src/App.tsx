@@ -1,15 +1,12 @@
 import {useMemo, useState} from 'react';
-import { Toaster } from 'react-hot-toast';
-import './App.css';
-import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from './pages';
-import { AppHeader } from './components';
 
-export enum PageName {
-    HOME = 'HOME',
-    MERGE = 'MERGE',
-    CONVERT_IMG = 'CONVERT_IMG',
-    COMPRESS = 'COMPRESS',
-}
+import { Toaster } from 'react-hot-toast';
+
+import './App.css';
+import { AppHeader } from './components';
+import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from './pages';
+import { PageName } from './types';
+
 
 function App() {
     const [currentPage, setCurrentPage] = useState<PageName>(PageName.HOME);

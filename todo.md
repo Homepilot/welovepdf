@@ -3,9 +3,10 @@
 - add logger
 - open dir after actions
 - keep mem usage in check
-- ensure ghostscript is installed
 - convert images to A4 format...
-- optmize after compression
+- optmize after compression ?
+- frontend format setup
+- setup husky
 
 # Compressing
 ## 3 compression modes

@@ -1,4 +1,8 @@
 # README
+This application allows the user to convert images to PDF, compress PDFs sizes and merge PDF files.
+As of now, it is only targetting MacOS.
+This program using GhostScript which is under AGPL license, it must be open-sourced.
+<br/>**Disclaimer : Homepilot does not take any responsiblity for any malfunctions or problems caused by the use of this software**
 
 ## About
 

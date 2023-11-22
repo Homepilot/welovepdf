@@ -1,5 +1,5 @@
-import { GenericPage } from '../components';
 import { convertFiles } from '../actions';
+import { GenericPage } from '../components';
 import { FileType } from '../types';
 
 export const ConvertImagesPage: React.FC = () => (
