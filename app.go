@@ -74,3 +74,24 @@ func (a *App) OpenSaveFileDialog() string {
 
 	return targetFilePath
 }
+
+func (a *App) ChooseCompressionMode() string {
+	selection, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+		Title:        "Mode de compression",
+		Message:      "Choississez un mode de compression",
+		Buttons:      []string{"Optimisation", "Compression", "Compression extreme", "Annuler"},
+		CancelButton: "Annuler",
+		// Icon: ,
+	})
+
+	if err != nil {
+		runtime.LogErrorf(a.ctx, "Error retrieving target compression mode : %s", err.Error())
+		return ""
+	}
+
+	if selection == "Annuler" {
+		return ""
+	}
+
+	return selection
+}

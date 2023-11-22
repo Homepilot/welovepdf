@@ -1,15 +1,16 @@
 import {
+    ChooseCompressionMode,
     OpenSaveFileDialog,
     SelectMultipleFiles
 } from '../wailsjs/go/main/App';
 import {
     ConvertImageToPdf,
-    CompressFileExtreme,
+    CompressFile,
     MergePdfFiles,
     OptimizePdfFile
 } from '../wailsjs/go/main/PdfUtils';
 
-import { FileType } from './types';
+import { CompressionMode, FileType } from './types';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
     return SelectMultipleFiles(fileType, selectFilesPrompt);
@@ -41,13 +42,22 @@ export async function optimizeFiles (filesPathes: string[]) {
     return result;
 }
 
-export async function compressFilesExtreme (filesPathes: string[]) {
+export async function compressFiles (filesPathes: string[]): Promise<boolean[] | null> {
     const resultsArray = [];
-    for (const file of filesPathes){
-        const result = await CompressFileExtreme(file)
-        resultsArray.push(result)
 
+    const chosenCompressionMode = await ChooseCompressionMode() as CompressionMode | '';
+
+    if(!chosenCompressionMode) return null;
+
+    if(chosenCompressionMode === CompressionMode.OPTIMIZE) return optimizeFiles(filesPathes);
+
+    const targetImageQuality = CompressionMode.EXTREME ? 10 : 20;
+
+    for (const file of filesPathes){
+        const result = await CompressFile(file, targetImageQuality)
+        resultsArray.push(result)
     }
+
     console.log({ compressionSuccess: resultsArray })
     return resultsArray;
 }

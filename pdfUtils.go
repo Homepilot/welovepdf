@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -31,9 +32,8 @@ func (p *PdfUtils) MergePdfFiles(targetFilePath string, filePathes []string) boo
 	return true
 }
 
-func (p *PdfUtils) OptimizePdfFile(filePath string) error {
+func (p *PdfUtils) OptimizePdfFile(filePath string) bool {
 	log.Println("OptimizePdfFile: operation starting")
-	// EnsureTargetDirPath()
 
 	nameParts := strings.Split(GetFileNameFromPath(filePath), ".")
 	nameParts[len(nameParts)-2] = nameParts[len(nameParts)-2] + "_compressed"
@@ -42,12 +42,12 @@ func (p *PdfUtils) OptimizePdfFile(filePath string) error {
 	err := pdfApi.OptimizeFile(filePath, targetFilePath, pdfApi.LoadConfiguration())
 	if err != nil {
 		log.Printf("Error retrieving targetPath: %s", err.Error())
-		return err
+		return false
 	}
 
 	log.Println("Optimization succeeded")
 
-	return nil
+	return true
 }
 
 func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool {
@@ -71,10 +71,10 @@ func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool 
 	return true
 }
 
-func (p *PdfUtils) CompressOnePageFileExtreme(filePath string, targetDirPath string) bool {
+func (p *PdfUtils) CompressSinglePageFile(filePath string, targetDirPath string, targetImageQuality int64) bool {
 	tempFilePath := path.Join(targetDirPath, GetFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
 	// log.Println=4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
-	convertHQCmd := exec.Command("./binary/gs", "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ=10", "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
+	convertHQCmd := exec.Command("./binary/gs", "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
 	err := convertHQCmd.Run()
 	if err != nil {
 		log.Printf("Error converting file to JPEG: %s", err.Error())
@@ -98,7 +98,7 @@ func (p *PdfUtils) CompressOnePageFileExtreme(filePath string, targetDirPath str
 	return true
 }
 
-func (p *PdfUtils) CompressFileExtreme(filePath string) bool {
+func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool {
 	tempDirPath1 := baseDirectory + "/temp/compress"
 	tempDirPath2 := baseDirectory + "/temp/compress2"
 	os.RemoveAll(tempDirPath1)
@@ -121,7 +121,7 @@ func (p *PdfUtils) CompressFileExtreme(filePath string) bool {
 
 	log.Printf("found %d compressed files to compress", len(filesToCompress))
 	for _, file := range filesToCompress {
-		isCompressionSuccess := p.CompressOnePageFileExtreme(path.Join(tempDirPath1, file.Name()), tempDirPath2)
+		isCompressionSuccess := p.CompressSinglePageFile(path.Join(tempDirPath1, file.Name()), tempDirPath2, targetImageQuality)
 		if isCompressionSuccess != true {
 			return false
 		}

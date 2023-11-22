@@ -49,16 +49,3 @@ func GetFileNameWoExtensionFromPath(filePath string) string {
 	pathParts := strings.Split(GetFileNameFromPath(filePath), ".")
 	return strings.Join(pathParts[:len(pathParts)-1], ".")
 }
-
-// func EnsureGhostscriptInstallation() {
-// 	isGsInstalled := CheckGhostscriptInstallation()
-// 	if isGsInstalled == true {
-// 		return
-// 	}
-
-// }
-
-// func CheckGhostscriptInstallation() bool {
-// 	_, err := exec.LookPath("gs")
-// 	return err == nil
-// }

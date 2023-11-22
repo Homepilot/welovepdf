@@ -9,3 +9,9 @@ export enum PageName {
     CONVERT_IMG = 'CONVERT_IMG',
     COMPRESS = 'COMPRESS',
 }
+
+export enum CompressionMode {
+    OPTIMIZE = "Optimisation",
+    COMPRESS = "Compression", 
+    EXTREME = "Compression extreme"
+}
