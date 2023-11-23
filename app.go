@@ -84,7 +84,7 @@ func (a *App) ChooseCompressionMode() string {
 		CancelButton: "Annuler",
 	}
 
-	iconFile, err := os.ReadFile("./assets/images/compress.png")
+	iconFile, err := os.ReadFile("./assets/images/compress.svg")
 	if err == nil {
 		dialogOptions.Icon = iconFile
 	}

@@ -1,14 +1,14 @@
 
 ## Must have
-- (spinner, backdrop, etc)
 - add logger
 - keep mem usage in check
 - convert images to A4 format...
 - build pipeline
 - prerequisites.md
-- replace icon in Dialog
+- replace icon in dock
 
 ## Nice to have
+- style toasts
 - open dir after actions
 - optmize after compression ?
 - setup husky

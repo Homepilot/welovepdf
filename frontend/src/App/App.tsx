@@ -3,8 +3,7 @@ import {useMemo, useState} from 'react';
 import { Toaster } from 'react-hot-toast';
 
 import './App.css';
-import Logo from '../assets/images/logo_light.svg';
-import { AppHeader } from '../components';
+import { AppFooter, AppHeader } from '../components';
 import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from '../pages';
 import { PageName } from '../types';
 
@@ -36,9 +35,7 @@ export function App() {
             <div id="app-container">
                 { pageComponent}
             </div>
-            <div id="app-footer">
-                <div><img src={Logo} /><span>by Homepilot</span> </div>
-            </div>
+            <AppFooter/>
             <Toaster position="bottom-right"/>
          </div>
     )
