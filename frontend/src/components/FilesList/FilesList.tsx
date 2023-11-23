@@ -1,6 +1,6 @@
 import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react-beautiful-dnd";
 
-import { FileType } from '../types';
+import { FileType } from '../../types';
 
 import { FileCard } from './FileCard';
 

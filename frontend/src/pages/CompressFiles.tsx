@@ -1,4 +1,4 @@
-import { compressFiles } from '../actions';
+import { compressFiles } from '../api/actions';
 import { GenericPage } from '../components';
 
 export const CompressFilesPage: React.FC = () => (

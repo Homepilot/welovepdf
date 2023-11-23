@@ -1,4 +1,4 @@
-import { mergeFiles } from '../actions';
+import { mergeFiles } from '../api/actions';
 import { GenericPage } from '../components';
 
 export const MergeFilesPage: React.FC = () =>  (

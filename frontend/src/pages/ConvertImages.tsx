@@ -1,4 +1,4 @@
-import { convertFiles } from '../actions';
+import { convertFiles } from '../api/actions';
 import { GenericPage } from '../components';
 import { FileType } from '../types';
 

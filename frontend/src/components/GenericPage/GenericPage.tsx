@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import toast from 'react-hot-toast';
 
-import { selectMultipleFiles } from '../actions';
-import { FilesList } from '../components';
-import { FileType } from '../types';
+import { selectMultipleFiles } from '../../api/actions';
+import { FileType } from '../../types';
+import { FilesList } from '../FilesList';
 
 import './GenericPage.css';
 

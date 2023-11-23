@@ -1,6 +1,6 @@
 import { FilePlus, Image, Minimize2 } from "react-feather";
 
-import { PageName } from "../types";
+import { PageName } from "../../types";
 import "./Home.css";
 
 type HomePageProps = {
