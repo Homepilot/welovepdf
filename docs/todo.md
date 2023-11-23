@@ -1,6 +1,6 @@
 
 ## Must have
-- style 2 (Abde ?) (spinner, backdrop, etc)
+- (spinner, backdrop, etc)
 - add logger
 - keep mem usage in check
 - convert images to A4 format...

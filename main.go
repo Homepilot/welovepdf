@@ -35,7 +35,7 @@ func main() {
 	startErr := wails.Run(&options.App{
 		Title:  "We   ❤   PDF",
 		Width:  777,
-		Height: 555,
+		Height: 777,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

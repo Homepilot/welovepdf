@@ -6,6 +6,8 @@ import { selectMultipleFiles } from '../actions';
 import { FilesList } from '../components';
 import { FileType } from '../types';
 
+import './GenericPage.css';
+
 type GenericPageProps = {
     headerText: string;
     filesType?: FileType;
@@ -87,30 +89,32 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     }
 
     return (
-        <div className='container'>
-            <div>
-                <h3>{headerText}</h3>
+        <>
+            <div id="page-header">
+                <div id="page-header-text">
+                    <h3>{headerText}</h3>
+                </div>
+                <div id='btn-container'>
+                    <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
+                    <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
+                    <span
+                        onClick={runHandler}
+                        className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
+                    >
+                        { action.btnLabel}
+                    </span>
+                </div>
             </div>
-            <div className='btn-container'>
-                <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'hp-btn' : 'hp-btn-disabled'}>Vider la liste</span>
-                <span onClick={selectFiles} className="hp-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
-                <span
-                    onClick={runHandler}
-                    className={selectedFiles.length >= action.minFilesLength ? 'hp-btn' : 'hp-btn-disabled'}
-                >
-                    { action.btnLabel}
-                </span>
+            <div id="page-body">
+                <FilesList 
+                    selectedFiles={selectedFiles}
+                    onRemoveFileFromList={removeFileFromList}
+                    filesType={filesType} 
+                    onSelectionUpdated={setSelectedFiles} 
+                    selectFilesPrompt={selectFilesPrompt || headerText}
+                />
             </div>
-            <hr/>
-            <FilesList 
-                selectedFiles={selectedFiles}
-                onRemoveFileFromList={removeFileFromList}
-                filesType={filesType} 
-                onSelectionUpdated={setSelectedFiles} 
-                selectFilesPrompt={selectFilesPrompt || headerText}
-            >
-            </FilesList>
-        </div>
+        </>
     )
 }
 

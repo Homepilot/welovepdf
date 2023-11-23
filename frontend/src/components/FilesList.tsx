@@ -110,8 +110,8 @@ function getItemStyle (isDragging: boolean, draggableStyle) {
 function getListStyle(isDraggingOver: boolean){
     return {
         background: isDraggingOver ? "#484848" : "#282824",
-        padding: grid,
+        padding: '0.5rem 0',
         width: '99%',
-        margin: '2rem auto',
+        margin: '0 auto',
     }
 }

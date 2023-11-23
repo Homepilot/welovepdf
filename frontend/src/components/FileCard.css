@@ -15,5 +15,6 @@
 }
 
 .delete-icon {
-    color: rgb(148, 23, 23)
+    color: var(--theme-red);
+    cursor: pointer;
 }

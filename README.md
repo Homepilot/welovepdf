@@ -1,4 +1,10 @@
-# README
+![Alt text](assets/images/logo.svg)
+
+
+# WE LOVE PDF
+
+At Homepilot, we love PDFs! And in order not to share our customers' documents to third parties, we decided to develop this simple tool for internal use.
+As it relies on GhostScript which is Open Source, it felt logical to make it Open Source and freely available on the MacOS App Store.
 
 ## ℹ️ About
 This application allows the user to convert images to PDF, compress PDFs sizes and merge PDF files.

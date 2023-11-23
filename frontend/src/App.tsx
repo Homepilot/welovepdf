@@ -3,6 +3,7 @@ import {useMemo, useState} from 'react';
 import { Toaster } from 'react-hot-toast';
 
 import './App.css';
+import Logo from './assets/images/logo.svg';
 import { AppHeader } from './components';
 import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from './pages';
 import { PageName } from './types';
@@ -26,12 +27,17 @@ function App() {
 
     return (
         <div id="app">
-            <div id="app-container">
+            <div id="app-header">
                 <AppHeader 
                     shouldDisplayHomeBtn={currentPage !== PageName.HOME}
                     onNavigateHome={() => onNavigate(PageName.HOME)}    
                     />
+            </div>
+            <div id="app-container">
                 { pageComponent}
+            </div>
+            <div id="app-footer">
+                <div><img src={Logo} /><span>by Homepilot</span> </div>
             </div>
             <Toaster position="bottom-right"/>
          </div>

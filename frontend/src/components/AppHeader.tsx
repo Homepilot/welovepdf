@@ -15,9 +15,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ shouldDisplayHomeBtn, onNa
         }
         <div className="header-container">
             <h1>We</h1>
-            <Heart size={40} color="red"/> 
+            <Heart size={40} color="#de2410"/> 
             <h1>PDF</h1>
         </div>
-        <h3 className="header-subtitle">by Homepilot</h3>
     </div>
 )

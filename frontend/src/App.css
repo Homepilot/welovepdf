@@ -1,3 +1,13 @@
+
+
+:root {
+    --theme-light: #dbdbda;
+    --theme-grey: #9c9c9c;
+    --theme-dark-grey: #484848;
+    --theme-dark:  #282824;
+    --theme-red: #de2410;
+}
+
 html, body, #root {
     width: 100%;
     padding: 0;
@@ -5,26 +15,94 @@ html, body, #root {
     text-align: center;
     /* background: white */
 }
+
+html {
+    background-color: var(--theme-dark);
+    text-align: center;
+    color: var(--theme-light);
+}
+
+body {
+    margin: 0;
+    color: var(--theme-light);
+    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 400;
+    src: local(""),
+    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+}
+
 #app {
-    width: 99%;
-    height: 95%;
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-x: hidden;
     padding: 0;
     margin: 0 auto;
     text-align: center;
+    
+    display: grid;
+    grid-template-columns: 2rem 1fr 5fr 1fr 2rem;
+    grid-gap: 0;
+    grid-template-rows: 1rem 5vh 5fr 2.5rem 1rem;
     /* background: white */
 }
+
 #app-container {
-    width: 99%;
-    padding: 0;
-    margin: 0 auto;
     text-align: center;
+    grid-column: 2 / 5;
+    grid-row: 3;
     /* background: white */
+    padding-top: 2rem;
+    display: grid;
+    grid-gap: 0.2rem;
+    grid-template-rows: 10rem 1fr;
+}
+
+#app-header {
+    grid-column: 3;
+    grid-row: 2;
+
+}
+
+#app-footer {
+    grid-column: 1 / 5;
+    grid-row: 4 / 5;
+    background-color: var(--theme-dark);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+#app-footer div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 20rem;
+}
+
+#app-footer img {
+    max-width: 3rem;
+    margin-right: 1.2rem;
 }
 
 
-.container {
-    padding: 2rem 0;
 
+.hp-btn {
+    cursor: pointer;
+    border: solid var(--theme-light) 1px;
+    border-radius: 3px;
+    padding: 1rem;
+    margin: 1rem;
 }
 
-
+.hp-btn:hover {
+    background-color: var(--theme-light);
+    color: var(--theme-dark);
+}
