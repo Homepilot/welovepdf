@@ -61,7 +61,7 @@ func getMacAboutOptions() *mac.AboutInfo {
 		Message: "by Homepilot @ 2023",
 	}
 
-	iconFile, err := os.ReadFile("./assets/images/logo.svg")
+	iconFile, err := os.ReadFile("./assets/images/logo_light.svg")
 	if err == nil {
 		about.Icon = iconFile
 	}
