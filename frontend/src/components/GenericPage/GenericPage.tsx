@@ -57,7 +57,10 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         const includedFiles = [...selectedFiles];
         const result = await action.handler(includedFiles.map(({id}) => id));
         
-        if(result === null) return;
+        if(!result) {
+            setIsLoading(false);
+            return;
+        }
         
         if(!Array.isArray(result)){
             if(result) {

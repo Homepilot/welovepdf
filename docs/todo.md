@@ -5,7 +5,8 @@
 - convert images to A4 format...
 - build pipeline
 - prerequisites.md
-- replace icon in dock
+- fix icon in dock
+- isLoading false after cancel
 
 ## Nice to have
 - style toasts
