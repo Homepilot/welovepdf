@@ -74,7 +74,7 @@ func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool 
 func (p *PdfUtils) CompressSinglePageFile(filePath string, targetDirPath string, targetImageQuality int64) bool {
 	tempFilePath := path.Join(targetDirPath, getFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
 
-	convertHQCmd := exec.Command("assets/bin/gs", "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
+	convertHQCmd := exec.Command(GS_BINARY_PATH, "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
 	err := convertHQCmd.Run()
 	if err != nil {
 		log.Printf("Error converting file to JPEG: %s", err.Error())

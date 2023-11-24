@@ -80,6 +80,7 @@ func ensureGhostScriptSetup() {
 		panic(err)
 	}
 
+	ensureDirectory(filepath.Dir(GS_BINARY_PATH))
 	file, err := os.Create(GS_BINARY_PATH)
 	if err != nil {
 		log.Fatalf("Error creating GhostScript binary file: %s", err.Error())
