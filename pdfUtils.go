@@ -50,54 +50,6 @@ func (p *PdfUtils) OptimizePdfFile(filePath string) bool {
 	return true
 }
 
-func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool {
-	log.Println("ConvertImageToPdf: operation starting")
-
-	targetDirPath := getTargetDirectoryPath()
-	if len(targetDir) > 0 {
-		targetDirPath = targetDir[0]
-	}
-
-	targetFilePath := targetDirPath + "/" + getFileNameWoExtensionFromPath(filePath) + ".pdf"
-	conversionError := pdfApi.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
-
-	if conversionError != nil {
-		log.Printf("Error importing image: %s", conversionError.Error())
-		return false
-	}
-
-	log.Println("Conversion to PDF succeeded")
-
-	return true
-}
-
-func (p *PdfUtils) CompressSinglePageFile(filePath string, targetDirPath string, targetImageQuality int64) bool {
-	tempFilePath := path.Join(targetDirPath, getFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
-
-	convertHQCmd := exec.Command(GS_BINARY_PATH, "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
-	err := convertHQCmd.Run()
-	if err != nil {
-		log.Printf("Error converting file to JPEG: %s", err.Error())
-		return false
-	}
-
-	log.Printf("Success converting file to JPEG: %s \n", tempFilePath)
-
-	isSuccess := p.ConvertImageToPdf(tempFilePath, targetDirPath)
-
-	if !isSuccess {
-		log.Printf("Error converting file back to PDF: %s", tempFilePath)
-	}
-
-	removeErr := os.Remove(tempFilePath)
-	if removeErr != nil {
-		log.Printf("Error removing tempFile: %s \n", tempFilePath)
-	}
-
-	log.Printf("One page compression succeeded")
-	return true
-}
-
 func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool {
 	tempDirPath1 := baseDirectory + "/temp/compress"
 	tempDirPath2 := baseDirectory + "/temp/compress2"
@@ -121,7 +73,7 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 
 	log.Printf("found %d compressed files to compress", len(filesToCompress))
 	for _, file := range filesToCompress {
-		isCompressionSuccess := p.CompressSinglePageFile(path.Join(tempDirPath1, file.Name()), tempDirPath2, targetImageQuality)
+		isCompressionSuccess := p.compressSinglePageFile(path.Join(tempDirPath1, file.Name()), tempDirPath2, targetImageQuality)
 		if isCompressionSuccess != true {
 			return false
 		}
@@ -164,5 +116,52 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 	os.RemoveAll(tempDirPath1)
 	os.RemoveAll(tempDirPath2)
 
+	return true
+}
+
+func (p *PdfUtils) ConvertImageToPdf(filePath string) bool {
+	return p.convertImageToPdf(filePath, baseDirectory)
+}
+
+func (p *PdfUtils) convertImageToPdf(filePath string, targetDirPath string) bool {
+	log.Println("convertImageToPdf: operation starting")
+
+	targetFilePath := targetDirPath + "/" + getFileNameWoExtensionFromPath(filePath) + ".pdf"
+	conversionError := pdfApi.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
+
+	if conversionError != nil {
+		log.Printf("Error importing image: %s", conversionError.Error())
+		return false
+	}
+
+	log.Println("Conversion to PDF succeeded")
+
+	return true
+}
+
+func (p *PdfUtils) compressSinglePageFile(filePath string, targetDirPath string, targetImageQuality int64) bool {
+	tempFilePath := path.Join(targetDirPath, getFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
+
+	convertHQCmd := exec.Command(GS_BINARY_PATH, "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
+	err := convertHQCmd.Run()
+	if err != nil {
+		log.Printf("Error converting file to JPEG: %s", err.Error())
+		return false
+	}
+
+	log.Printf("Success converting file to JPEG: %s \n", tempFilePath)
+
+	isSuccess := p.convertImageToPdf(tempFilePath, targetDirPath)
+
+	if !isSuccess {
+		log.Printf("Error converting file back to PDF: %s", tempFilePath)
+	}
+
+	removeErr := os.Remove(tempFilePath)
+	if removeErr != nil {
+		log.Printf("Error removing tempFile: %s \n", tempFilePath)
+	}
+
+	log.Printf("One page compression succeeded")
 	return true
 }

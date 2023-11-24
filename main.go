@@ -72,6 +72,8 @@ func ensureGhostScriptSetup() {
 
 	if err == nil {
 		log.Println("GhostScript already setup")
+		// Remove gsBinary from memory
+		gsBinary = nil
 		return
 	}
 
@@ -102,5 +104,5 @@ func ensureGhostScriptSetup() {
 	}
 
 	// Remove gsBinary from memory
-	gsBinary = []byte{}
+	gsBinary = nil
 }
