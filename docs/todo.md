@@ -1,7 +1,8 @@
 ## Must have
+- handle temp files properly
+- refactor to make the frontend the puppet master
 - add logger
 - keep mem usage in check
-- convert images to A4 format...
 - build pipeline
 - prerequisites.md
 

@@ -25,12 +25,16 @@ var logoLightIcon []byte
 var assets embed.FS
 
 var baseDirectory string
+var LOCAL_ASSETS_DIR_NAME string = ".welovepdf"
+var LOCAL_ASSETS_DIR_PATH string
 var GS_BINARY_PATH string
 
 func main() {
 	// Set globals
 	homeDirPath, _ := os.UserHomeDir()
-	GS_BINARY_PATH = filepath.Join(homeDirPath, ".welovepdf/gs_binary")
+	LOCAL_ASSETS_DIR_PATH = filepath.Join(homeDirPath, LOCAL_ASSETS_DIR_NAME)
+	GS_BINARY_PATH = filepath.Join(LOCAL_ASSETS_DIR_PATH, "gs_binary")
+	ensureDirectory(LOCAL_ASSETS_DIR_PATH)
 	ensureGhostScriptSetup()
 	baseDirectory = homeDirPath + "/Documents/welovepdf"
 	ensureDirectory(baseDirectory)
@@ -82,7 +86,6 @@ func ensureGhostScriptSetup() {
 		panic(err)
 	}
 
-	ensureDirectory(filepath.Dir(GS_BINARY_PATH))
 	file, err := os.Create(GS_BINARY_PATH)
 	if err != nil {
 		log.Fatalf("Error creating GhostScript binary file: %s", err.Error())

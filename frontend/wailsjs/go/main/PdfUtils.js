@@ -6,8 +6,8 @@ export function CompressFile(arg1, arg2) {
   return window['go']['main']['PdfUtils']['CompressFile'](arg1, arg2);
 }
 
-export function ConvertImageToPdf(arg1) {
-  return window['go']['main']['PdfUtils']['ConvertImageToPdf'](arg1);
+export function ConvertImageToPdf(arg1, arg2) {
+  return window['go']['main']['PdfUtils']['ConvertImageToPdf'](arg1, arg2);
 }
 
 export function MergePdfFiles(arg1, arg2) {

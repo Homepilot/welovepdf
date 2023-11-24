@@ -6,9 +6,10 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
-	pdfApi "github.com/pdfcpu/pdfcpu/pkg/api"
+	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
 type PdfUtils struct{}
@@ -19,9 +20,8 @@ func NewPdfUtils() *PdfUtils {
 
 func (p *PdfUtils) MergePdfFiles(targetFilePath string, filePathes []string) bool {
 	log.Println("MergePdfFiles: operation starting")
-	// EnsureTargetDirPath()
 
-	err := pdfApi.MergeCreateFile(filePathes, targetFilePath, pdfApi.LoadConfiguration())
+	err := pdfcpu.MergeCreateFile(filePathes, targetFilePath, pdfcpu.LoadConfiguration())
 	if err != nil {
 		log.Printf("Error merging files: %s", err.Error())
 		return false
@@ -39,7 +39,7 @@ func (p *PdfUtils) OptimizePdfFile(filePath string) bool {
 	nameParts[len(nameParts)-2] = nameParts[len(nameParts)-2] + "_compressed"
 	targetFilePath := getTargetDirectoryPath() + "/" + strings.Join(nameParts, ".")
 
-	err := pdfApi.OptimizeFile(filePath, targetFilePath, pdfApi.LoadConfiguration())
+	err := pdfcpu.OptimizeFile(filePath, targetFilePath, pdfcpu.LoadConfiguration())
 	if err != nil {
 		log.Printf("Error retrieving targetPath: %s", err.Error())
 		return false
@@ -58,7 +58,7 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 	ensureDirectory(tempDirPath1)
 	ensureDirectory(tempDirPath2)
 
-	err := pdfApi.SplitFile(filePath, tempDirPath1, 1, nil)
+	err := pdfcpu.SplitFile(filePath, tempDirPath1, 1, nil)
 	if err != nil {
 		log.Printf("Error splitting file, compression aborted, error: %s\n", err.Error())
 		return false
@@ -119,15 +119,32 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 	return true
 }
 
-func (p *PdfUtils) ConvertImageToPdf(filePath string) bool {
-	return p.convertImageToPdf(filePath, baseDirectory)
+func (p *PdfUtils) ConvertImageToPdf(filePath string, canResize bool) bool {
+
+	convertedFilePath := filepath.Join(baseDirectory, getFileNameWoExtensionFromPath(filePath)+"_converted.pdf")
+	isSuccess := p.convertImageToPdf(filePath, convertedFilePath)
+	if isSuccess == false {
+		return false
+	}
+
+	if !canResize {
+		return true
+	}
+
+	targetFilePath := filepath.Join(baseDirectory, getFileNameWoExtensionFromPath(filePath)+"_resized.pdf")
+	isSuccess = resizePDFToA4(convertedFilePath, targetFilePath)
+	if isSuccess == false {
+		return true // file is converted, even though not resized
+	}
+
+	os.Remove(convertedFilePath)
+	return true
 }
 
-func (p *PdfUtils) convertImageToPdf(filePath string, targetDirPath string) bool {
+func (p *PdfUtils) convertImageToPdf(filePath string, targetFilePath string) bool {
 	log.Println("convertImageToPdf: operation starting")
 
-	targetFilePath := targetDirPath + "/" + getFileNameWoExtensionFromPath(filePath) + ".pdf"
-	conversionError := pdfApi.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
+	conversionError := pdfcpu.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
 
 	if conversionError != nil {
 		log.Printf("Error importing image: %s", conversionError.Error())
@@ -142,8 +159,8 @@ func (p *PdfUtils) convertImageToPdf(filePath string, targetDirPath string) bool
 func (p *PdfUtils) compressSinglePageFile(filePath string, targetDirPath string, targetImageQuality int64) bool {
 	tempFilePath := path.Join(targetDirPath, getFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
 
-	convertHQCmd := exec.Command(GS_BINARY_PATH, "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
-	err := convertHQCmd.Run()
+	convertToLowQualityJpegCmd := exec.Command(GS_BINARY_PATH, "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
+	err := convertToLowQualityJpegCmd.Run()
 	if err != nil {
 		log.Printf("Error converting file to JPEG: %s", err.Error())
 		return false
@@ -163,5 +180,28 @@ func (p *PdfUtils) compressSinglePageFile(filePath string, targetDirPath string,
 	}
 
 	log.Printf("One page compression succeeded")
+	return true
+}
+
+func resizePDFToA4(sourceFilePath string, targetFilePath string) bool {
+	log.Printf("Starting resize w/ source : %s, target : %s", sourceFilePath, targetFilePath)
+	resizePdfToA4Cmd := exec.Command(
+		GS_BINARY_PATH,
+		"-o",
+		targetFilePath,
+		"-sDEVICE=pdfwrite",
+		"-sPAPERSIZE=a4",
+		"-dFIXEDMEDIA",
+		"-dPDFFitPage",
+		"-dCompatibilityLevel=1.4",
+		sourceFilePath)
+
+	err := resizePdfToA4Cmd.Run()
+	if err != nil {
+		log.Printf("Error resizing file : %s", err.Error())
+		return false
+	}
+
+	log.Println("Resize succeeded")
 	return true
 }

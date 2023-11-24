@@ -40,12 +40,17 @@ func getCurrentDateString() string {
 	return formattedDateStr
 }
 
-func getFileNameFromPath(filePath string) string {
-	pathParts := strings.Split(filePath, "/")
+func getFileNameFromPath(inputFilePath string) string {
+	pathParts := strings.Split(inputFilePath, "/")
 	return pathParts[len(pathParts)-1]
 }
 
-func getFileNameWoExtensionFromPath(filePath string) string {
-	pathParts := strings.Split(getFileNameFromPath(filePath), ".")
+func getFileExtensionFromPath(inputFilePath string) string {
+	pathParts := strings.Split(inputFilePath, ".")
+	return pathParts[len(pathParts)-1]
+}
+
+func getFileNameWoExtensionFromPath(inputFilePath string) string {
+	pathParts := strings.Split(getFileNameFromPath(inputFilePath), ".")
 	return strings.Join(pathParts[:len(pathParts)-1], ".")
 }
