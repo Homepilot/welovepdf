@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func EnsureDirectory(dirPath string) {
+func ensureDirectory(dirPath string) {
 	stats, err := os.Stat(dirPath)
 	if err == nil && stats.IsDir() {
 		log.Println("Target directory successfully found")
@@ -27,25 +27,25 @@ func EnsureDirectory(dirPath string) {
 	}
 }
 
-func GetTargetDirectoryPath() string {
-	targetDirPath := baseDirectory + "/" + GetCurrentDateString()
-	EnsureDirectory(targetDirPath)
+func getTargetDirectoryPath() string {
+	targetDirPath := baseDirectory + "/" + getCurrentDateString()
+	ensureDirectory(targetDirPath)
 	return targetDirPath
 }
 
-func GetCurrentDateString() string {
+func getCurrentDateString() string {
 	currentTime := time.Now()
 	dateStr := strings.Split(currentTime.String(), " ")[0]
 	formattedDateStr := strings.Join(strings.Split(dateStr, "-"), "")
 	return formattedDateStr
 }
 
-func GetFileNameFromPath(filePath string) string {
+func getFileNameFromPath(filePath string) string {
 	pathParts := strings.Split(filePath, "/")
 	return pathParts[len(pathParts)-1]
 }
 
-func GetFileNameWoExtensionFromPath(filePath string) string {
-	pathParts := strings.Split(GetFileNameFromPath(filePath), ".")
+func getFileNameWoExtensionFromPath(filePath string) string {
+	pathParts := strings.Split(getFileNameFromPath(filePath), ".")
 	return strings.Join(pathParts[:len(pathParts)-1], ".")
 }

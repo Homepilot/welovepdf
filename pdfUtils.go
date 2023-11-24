@@ -35,9 +35,9 @@ func (p *PdfUtils) MergePdfFiles(targetFilePath string, filePathes []string) boo
 func (p *PdfUtils) OptimizePdfFile(filePath string) bool {
 	log.Println("OptimizePdfFile: operation starting")
 
-	nameParts := strings.Split(GetFileNameFromPath(filePath), ".")
+	nameParts := strings.Split(getFileNameFromPath(filePath), ".")
 	nameParts[len(nameParts)-2] = nameParts[len(nameParts)-2] + "_compressed"
-	targetFilePath := GetTargetDirectoryPath() + "/" + strings.Join(nameParts, ".")
+	targetFilePath := getTargetDirectoryPath() + "/" + strings.Join(nameParts, ".")
 
 	err := pdfApi.OptimizeFile(filePath, targetFilePath, pdfApi.LoadConfiguration())
 	if err != nil {
@@ -53,12 +53,12 @@ func (p *PdfUtils) OptimizePdfFile(filePath string) bool {
 func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool {
 	log.Println("ConvertImageToPdf: operation starting")
 
-	targetDirPath := GetTargetDirectoryPath()
+	targetDirPath := getTargetDirectoryPath()
 	if len(targetDir) > 0 {
 		targetDirPath = targetDir[0]
 	}
 
-	targetFilePath := targetDirPath + "/" + GetFileNameWoExtensionFromPath(filePath) + ".pdf"
+	targetFilePath := targetDirPath + "/" + getFileNameWoExtensionFromPath(filePath) + ".pdf"
 	conversionError := pdfApi.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
 
 	if conversionError != nil {
@@ -72,9 +72,9 @@ func (p *PdfUtils) ConvertImageToPdf(filePath string, targetDir ...string) bool 
 }
 
 func (p *PdfUtils) CompressSinglePageFile(filePath string, targetDirPath string, targetImageQuality int64) bool {
-	tempFilePath := path.Join(targetDirPath, GetFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
-	// log.Println=4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=output.pdf input.pdf
-	convertHQCmd := exec.Command("./assets/bin/gs", "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
+	tempFilePath := path.Join(targetDirPath, getFileNameWoExtensionFromPath(filePath)+"_compressed.jpeg")
+
+	convertHQCmd := exec.Command("assets/bin/gs", "-sDEVICE=jpeg", "-o", tempFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", filePath)
 	err := convertHQCmd.Run()
 	if err != nil {
 		log.Printf("Error converting file to JPEG: %s", err.Error())
@@ -103,8 +103,8 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 	tempDirPath2 := baseDirectory + "/temp/compress2"
 	os.RemoveAll(tempDirPath1)
 	os.RemoveAll(tempDirPath2)
-	EnsureDirectory(tempDirPath1)
-	EnsureDirectory(tempDirPath2)
+	ensureDirectory(tempDirPath1)
+	ensureDirectory(tempDirPath2)
 
 	err := pdfApi.SplitFile(filePath, tempDirPath1, 1, nil)
 	if err != nil {
@@ -145,7 +145,7 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 		filesPathesToMerge = append(filesPathesToMerge, path.Join(tempDirPath2, v.Name()))
 	}
 
-	outFilePath := path.Join(GetTargetDirectoryPath(), GetFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
+	outFilePath := path.Join(getTargetDirectoryPath(), getFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
 	isMergeSuccess := p.MergePdfFiles(outFilePath, filesPathesToMerge)
 
 	// err = os.RemoveAll(tempDirPath2)
@@ -166,44 +166,3 @@ func (p *PdfUtils) CompressFile(filePath string, targetImageQuality int64) bool 
 
 	return true
 }
-
-// func (p *PdfUtils) CompressFile(filePath string) bool {
-// 	tempDirPath1 := baseDirectory + "/temp/compress"
-// 	tempDirPath2 := baseDirectory + "/temp/compress2"
-// 	os.RemoveAll(tempDirPath1)
-// 	os.RemoveAll(tempDirPath2)
-// 	EnsureDirectory(tempDirPath1)
-// 	EnsureDirectory(tempDirPath2)
-
-// 	doc, err := fitz.New(filePath)
-// 	if err != nil {
-// 		log.Printf("Error opening PDf file: %s", err.Error())
-// 		return false
-// 	}
-
-// 	defer doc.Close()
-
-// 	// Extract pages as images
-// 	for n := 0; n < doc.NumPage(); n++ {
-// 		img, err := doc.Image(n)
-// 		if err != nil {
-// 			log.Printf("Error converting page %d to image: %s", n, err.Error())
-// 			return false
-// 		}
-
-// 		f, err := os.Create(path.Join(tempDirPath1, GetFileNameWoExtensionFromPath(filePath)+fmt.Sprintf("%d.jpg", n)))
-// 		if err != nil {
-// 			log.Printf("Error creating JPEG file for page %d: %s", n, err.Error())
-// 			return false
-// 		}
-
-// 		err = jpeg.Encode(f, img, &jpeg.Options{jpeg.DefaultQuality})
-// 		if err != nil {
-// 			log.Printf("Error encoding page %d to JPEG file: %s", n, err.Error())
-// 			return false
-// 		}
-
-// 		f.Close()
-// 	}
-// 	return true
-// }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -65,7 +64,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 
 func (a *App) OpenSaveFileDialog() string {
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		DefaultDirectory: GetTargetDirectoryPath(),
+		DefaultDirectory: getTargetDirectoryPath(),
 	})
 
 	if err != nil {
@@ -77,19 +76,13 @@ func (a *App) OpenSaveFileDialog() string {
 }
 
 func (a *App) ChooseCompressionMode() string {
-	dialogOptions := runtime.MessageDialogOptions{
+	selection, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
 		Title:        "Mode de compression",
 		Message:      "Choississez un mode de compression",
 		Buttons:      []string{"Optimisation", "Compression", "Compression extrême", "Annuler"},
 		CancelButton: "Annuler",
-	}
-
-	iconFile, err := os.ReadFile("./assets/images/compress.svg")
-	if err == nil {
-		dialogOptions.Icon = iconFile
-	}
-
-	selection, err := runtime.MessageDialog(a.ctx, dialogOptions)
+		Icon:         compressIcon,
+	})
 
 	if err != nil {
 		runtime.LogErrorf(a.ctx, "Error retrieving target compression mode : %s", err.Error())
