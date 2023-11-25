@@ -8,24 +8,15 @@ import (
 	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
-func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *DirToDirOperationConfig) bool {
-	// For each page
-	filesToCompress, err := os.ReadDir(config.SourceDirPath)
+func MergePdfFiles(targetFilePath string, filePathes []string) bool {
+	err := pdfcpu.MergeCreateFile(filePathes, targetFilePath, pdfcpu.LoadConfiguration())
 	if err != nil {
-		log.Printf("Error reading files in dir : %s", config.SourceDirPath)
+		log.Printf("Error merging files: %s", err.Error())
 		return false
 	}
 
-	log.Printf("found %d compressed files to compress", len(filesToCompress))
-	for _, file := range filesToCompress {
-		isCompressionSuccess := CompressSinglePageFile(tempDirPath, targetImageQuality, &FileToFileOperationConfig{
-			SourceFilePath: path.Join(config.SourceDirPath, file.Name()),
-			TargetFilePath: config.TargetDirPath,
-		})
-		if isCompressionSuccess != true {
-			return false
-		}
-	}
+	log.Println("Merge succeeded")
+
 	return true
 }
 
@@ -36,10 +27,15 @@ func MergeAllFilesInDir(sourceDirPath string, targetFilePath string) bool {
 		return false
 	}
 
+	if len(filesToMerge) < 1 {
+		log.Println("No files to merge, aborting")
+		return false
+	}
+
 	log.Printf("found %d compressed files to merge", len(filesToMerge))
 	filesPathesToMerge := []string{}
-	for _, v := range filesToMerge {
-		filesPathesToMerge = append(filesPathesToMerge, path.Join(sourceDirPath, v.Name()))
+	for v := 0; v < len(filesToMerge); v += 1 {
+		filesPathesToMerge = append(filesPathesToMerge, path.Join(sourceDirPath, filesToMerge[v].Name()))
 	}
 
 	return MergePdfFiles(targetFilePath, filesPathesToMerge)
@@ -84,14 +80,23 @@ func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compress
 	return true
 }
 
-func MergePdfFiles(targetFilePath string, filePathes []string) bool {
-	err := pdfcpu.MergeCreateFile(filePathes, targetFilePath, pdfcpu.LoadConfiguration())
+func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *DirToDirOperationConfig) bool {
+	// For each page
+	filesToCompress, err := os.ReadDir(config.SourceDirPath)
 	if err != nil {
-		log.Printf("Error merging files: %s", err.Error())
+		log.Printf("Error reading files in dir : %s", config.SourceDirPath)
 		return false
 	}
 
-	log.Println("Merge succeeded")
-
+	log.Printf("found %d compressed files to compress", len(filesToCompress))
+	for _, file := range filesToCompress {
+		isCompressionSuccess := CompressSinglePageFile(tempDirPath, targetImageQuality, &FileToFileOperationConfig{
+			SourceFilePath: path.Join(config.SourceDirPath, file.Name()),
+			TargetFilePath: config.TargetDirPath,
+		})
+		if isCompressionSuccess != true {
+			return false
+		}
+	}
 	return true
 }

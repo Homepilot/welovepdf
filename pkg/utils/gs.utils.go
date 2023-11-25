@@ -13,21 +13,25 @@ func EnsureGhostScriptSetup(gsBinaryPath string, binaryContent []byte) {
 		return
 	}
 
+	log.Println("setting up GhostScript")
 	file, err := os.Create(gsBinaryPath)
 	if err != nil {
 		LogFatalAndPanic("Error creating GhostScript binary file: %s", err)
 	}
 	defer file.Close()
 
-	err = file.Chmod(755)
+	err = file.Chmod(0755)
 	if err != nil {
 		LogFatalAndPanic("Error make GhostScript binary file executable: %s", err)
 	}
+	log.Println("GhostScript binary file permissions set")
 
 	_, err = file.Write(binaryContent)
 	if err != nil {
 		LogFatalAndPanic("Error writing GhostScript binary to target file: %s", err)
 	}
+
+	log.Println("Ghostscript binary successfully setup")
 }
 
 func IsGhostScriptSetup(gsBinaryPath string) bool {

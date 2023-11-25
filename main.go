@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"welovepdf/pkg/models"
@@ -129,4 +130,12 @@ func onAppClose(_ context.Context) {
 	log.Println("found no files or directory in output dir, remove output dir")
 	_ = os.RemoveAll(OUTPUT_DIR)
 	log.Println("OnAppClose done")
+}
+
+func Fooer(input int) string {
+	isfoo := (input % 3) == 0
+	if isfoo {
+		return "Foo"
+	}
+	return strconv.Itoa(input)
 }

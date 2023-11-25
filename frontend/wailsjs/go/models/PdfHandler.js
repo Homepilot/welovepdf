@@ -14,8 +14,8 @@ export function CreateTempFilesFromUpload(arg1) {
   return window['go']['models']['PdfHandler']['CreateTempFilesFromUpload'](arg1);
 }
 
-export function MergePdfFiles(arg1, arg2) {
-  return window['go']['models']['PdfHandler']['MergePdfFiles'](arg1, arg2);
+export function MergePdfFiles(arg1, arg2, arg3) {
+  return window['go']['models']['PdfHandler']['MergePdfFiles'](arg1, arg2, arg3);
 }
 
 export function OptimizePdfFile(arg1) {

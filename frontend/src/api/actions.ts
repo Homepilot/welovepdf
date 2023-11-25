@@ -21,9 +21,6 @@ export async function selectMultipleFiles(fileType: FileType = FileType.PDF, sel
 }
 
 export async function resizeToA4(filesPathes: string[]) {
-    const shouldResize = await chooseShouldResize();
-    if(shouldResize === null) return null
-
     const result = await Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
     console.log({ conversionSuccess: result })
     return result;
@@ -45,9 +42,12 @@ export async function mergeFiles (filesPathes: string[]) {
         return false;
     }
     const targetFilePath = await OpenSaveFileDialog();
+    console.log({ targetFilePath })
     if(!targetFilePath) return null;
+    const shouldResize = await chooseShouldResize();
+    if(shouldResize === null) return null;
 
-    const result = await MergePdfFiles(targetFilePath, [...filesPathes])
+    const result = await MergePdfFiles(targetFilePath, [...filesPathes], shouldResize)
     console.log({ mergeSuccess: result })
     return result;
 }

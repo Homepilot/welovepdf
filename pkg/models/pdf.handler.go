@@ -12,7 +12,7 @@ import (
 
 type PdfHandler struct {
 	outputDir string
-	TempDir   string
+	tempDir   string
 }
 
 func NewPdfHandler(
@@ -21,12 +21,28 @@ func NewPdfHandler(
 ) *PdfHandler {
 	return &PdfHandler{
 		outputDir: outputDir,
-		TempDir:   tempDir,
+		tempDir:   tempDir,
 	}
 }
 
-func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string) bool {
-	return utils.MergePdfFiles(targetFilePath, filePathes)
+func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, canResize bool) bool {
+	if !canResize {
+		return utils.MergePdfFiles(targetFilePath, filePathes)
+	}
+
+	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
+	os.Chmod(tempFilePath, 0755)
+	defer os.Remove(tempFilePath)
+
+	isSuccess := utils.MergePdfFiles(tempFilePath, filePathes)
+	if !isSuccess {
+		log.Printf("Error Merging pdf files")
+		return false
+	}
+	return utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+		TargetFilePath: targetFilePath,
+		SourceFilePath: tempFilePath,
+	})
 }
 
 func (p *PdfHandler) OptimizePdfFile(filePath string) bool {
@@ -51,15 +67,15 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 
 	pageCount, err := pdfcpu.PageCountFile(filePath)
 	if pageCount == 1 {
-		return utils.CompressSinglePageFile(p.TempDir, targetImageQuality, &utils.FileToFileOperationConfig{
+		return utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
 			SourceFilePath: filePath,
 			TargetFilePath: resultFilePath,
 		})
 	}
 
 	fileId := uuid.New().String()
-	tempDirPath1 := path.Join(p.TempDir, fileId, "compress_jpg")
-	tempDirPath2 := path.Join(p.TempDir, fileId, "compress_pdf")
+	tempDirPath1 := path.Join(p.tempDir, fileId, "compress_jpg")
+	tempDirPath2 := path.Join(p.tempDir, fileId, "compress_pdf")
 	utils.EnsureDirectory(tempDirPath1)
 	utils.EnsureDirectory(tempDirPath2)
 	defer os.RemoveAll(tempDirPath1)
@@ -73,7 +89,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 	}
 
 	// 2. Compress the splitted files
-	isCompressionSuccess := utils.CompressAllFilesInDir(p.TempDir, targetImageQuality, &utils.DirToDirOperationConfig{
+	isCompressionSuccess := utils.CompressAllFilesInDir(p.tempDir, targetImageQuality, &utils.DirToDirOperationConfig{
 		SourceDirPath: tempDirPath1,
 		TargetDirPath: tempDirPath2,
 	})
@@ -98,7 +114,7 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_resized.pdf")
 	tempFilePath := targetFilePath
 	if canResize {
-		tempFilePath = utils.GetNewTempFilePath(p.TempDir, "pdf")
+		tempFilePath = utils.GetNewTempFilePath(p.tempDir, "pdf")
 		defer os.Remove(tempFilePath)
 	}
 
@@ -131,8 +147,8 @@ func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
 }
 
 func (p *PdfHandler) CreateTempFilesFromUpload(fileAsBase64 []byte) string {
-	newFilePath := utils.GetNewTempFilePath(p.TempDir, "pdf")
-	err := os.WriteFile(newFilePath, []byte(fileAsBase64), 755)
+	newFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
+	err := os.WriteFile(newFilePath, []byte(fileAsBase64), 0755)
 	if err != nil {
 		log.Printf("Error saving data to file : %s", err.Error())
 		return ""

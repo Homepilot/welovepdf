@@ -7,7 +7,7 @@ export function ConvertImageToPdf(arg1:string,arg2:boolean):Promise<boolean>;
 
 export function CreateTempFilesFromUpload(arg1:Array<number>):Promise<string>;
 
-export function MergePdfFiles(arg1:string,arg2:Array<string>):Promise<boolean>;
+export function MergePdfFiles(arg1:string,arg2:Array<string>,arg3:boolean):Promise<boolean>;
 
 export function OptimizePdfFile(arg1:string):Promise<boolean>;
 

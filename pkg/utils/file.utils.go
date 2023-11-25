@@ -12,7 +12,11 @@ import (
 
 func getFileExtensionFromPath(inputFilePath string) string {
 	pathParts := strings.Split(inputFilePath, ".")
-	return pathParts[len(pathParts)-1]
+	ext := pathParts[len(pathParts)-1]
+	if len(ext) < 2 || len(ext) > 3 {
+		return ""
+	}
+	return ext
 }
 
 func EnsureDirectory(dirPath string) error {
@@ -54,6 +58,9 @@ func GetNewTempFilePath(tempDirPath string, extension string) string {
 
 func AddSuffixToFileName(fileName string, suffix string) string {
 	nameParts := strings.Split(GetFileNameFromPath(fileName), ".")
+	if len(nameParts) < 2 {
+		return fileName + suffix
+	}
 	nameParts[len(nameParts)-2] = nameParts[len(nameParts)-2] + suffix
 	return strings.Join(nameParts, ".")
 }

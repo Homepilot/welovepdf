@@ -1,12 +1,14 @@
 ## Must have                      7h30 + ???
-- debug
+- add tests                       2h30
+  - backend       1h
+  - frontend      1h30
+- bug on cancel select file
 - build pipeline                  2h
 - add logger                      30min
 - add reflected logs              1h
-- add tests                       2h30
-  - frontend      1h30
-  - backend       1h
 - keep mem usage in check         ???
+- different loader messages
+- split PDF ?
 
 ## Nice to have                 2h30 + ???
 - style toasts                  30min
@@ -15,3 +17,17 @@
 - buttons as component          30min
 - refactor layout css           30min
 - open dir after actions        ???
+
+## Tests
+### Merge
+- [] Merge w/o resize
+- [] Merge w/ resize
+### Compression
+- [] Optimisaton
+- [] Compression
+- [] Compression Extreme
+### Convert image
+- [] Convert image w/o Resize
+- [] Convert image w Resize
+### Format
+- [] Format to A4

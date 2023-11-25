@@ -77,7 +77,6 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
 
 // a little function to help us with reordering the result
 function reorder (list: FileInfo[], startIndex: number, endIndex: number) {
-    console.log('REORDER')
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);

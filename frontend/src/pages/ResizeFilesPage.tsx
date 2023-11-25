@@ -6,10 +6,10 @@ export const ResizeFilesPage: React.FC<{onNavigateHome(): void}> = ({onNavigateH
     <GenericPage 
         inputFilesType={FileType.PDF}
         onNavigateHome={onNavigateHome}
-        headerText='Veuillez sélectionner les fichiers à comprimer' 
+        headerText='Veuillez sélectionner les fichiers à formatter' 
         action={{
             handler: resizeToA4,
-            btnLabel: 'Comprimer les fichiers',
+            btnLabel: 'Formatter les fichiers',
             minFilesLength: 1
         }}  
     />

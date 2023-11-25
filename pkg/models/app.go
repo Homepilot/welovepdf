@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -125,7 +126,7 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 	}
 
 	selection, err := runtime.MessageDialog(a.ctx, dialogOptions)
-
+	log.Printf("selection : %s", selection)
 	if err != nil {
 		runtime.LogErrorf(a.ctx, "Error retrieving target compression mode : %s", err.Error())
 		return ""
