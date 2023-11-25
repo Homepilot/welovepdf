@@ -30,15 +30,18 @@ func TestCompressAllFilesInDir(t *testing.T) {
 
 // TestMergeAllFilesInDir tests the MergeAllFilesInDir function.
 // This test assumes that the directory for merging exists and contains PDF files.
-// func TestMergeAllFilesInDir(t *testing.T) {
-// 	sourceDirPath := filepath.Join(os.TempDir(), "test_merge_source")
-// 	targetFilePath := filepath.Join(os.TempDir(), "merged.pdf")
-// 	os.MkdirAll(sourceDirPath, 0755)
-// 	defer os.RemoveAll(sourceDirPath)
+func TestMergeAllFilesInDir(t *testing.T) {
+	sourceDirPath := "../../test/assets/pdf"
+	targetFilePath := filepath.Join(os.TempDir(), "merged.pdf")
+	os.MkdirAll(sourceDirPath, 0755)
+	defer os.Remove(targetFilePath)
 
-// 	success := MergeAllFilesInDir(sourceDirPath, targetFilePath)
-// 	assert.True(t, success)
-// }
+	success := MergeAllFilesInDir(sourceDirPath, targetFilePath)
+	assert.True(t, success)
+	stats, err := os.Stat(targetFilePath)
+	assert.Nil(t, err)
+	assert.False(t, stats.IsDir())
+}
 
 // TestConvertImageToPdf tests the ConvertImageToPdf function.
 // This test assumes that the source image file exists.

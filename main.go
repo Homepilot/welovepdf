@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 
 	"welovepdf/pkg/models"
@@ -45,7 +44,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := models.NewApp(OUTPUT_DIR, TEMP_DIR, logoLightIcon, compressIcon, resizeA4Icon)
-	pdfHandler := models.NewPdfHandler(OUTPUT_DIR, TEMP_DIR)
+	pdfHandler := models.NewPdfHandler(OUTPUT_DIR, TEMP_DIR, GS_BINARY_PATH)
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
@@ -130,12 +129,4 @@ func onAppClose(_ context.Context) {
 	log.Println("found no files or directory in output dir, remove output dir")
 	_ = os.RemoveAll(OUTPUT_DIR)
 	log.Println("OnAppClose done")
-}
-
-func Fooer(input int) string {
-	isfoo := (input % 3) == 0
-	if isfoo {
-		return "Foo"
-	}
-	return strconv.Itoa(input)
 }

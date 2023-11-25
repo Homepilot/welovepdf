@@ -92,7 +92,8 @@ func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *D
 	for _, file := range filesToCompress {
 		isCompressionSuccess := CompressSinglePageFile(tempDirPath, targetImageQuality, &FileToFileOperationConfig{
 			SourceFilePath: path.Join(config.SourceDirPath, file.Name()),
-			TargetFilePath: config.TargetDirPath,
+			TargetFilePath: path.Join(config.TargetDirPath, file.Name()),
+			BinaryPath:     config.BinaryPath,
 		})
 		if isCompressionSuccess != true {
 			return false

@@ -11,17 +11,21 @@ import (
 )
 
 type PdfHandler struct {
-	outputDir string
-	tempDir   string
+	outputDir  string
+	tempDir    string
+	binaryPath string
 }
 
 func NewPdfHandler(
 	outputDir string,
 	tempDir string,
+	binaryPath string,
 ) *PdfHandler {
+	log.Printf("PdfHandler w/ binaryPath : %s", binaryPath)
 	return &PdfHandler{
-		outputDir: outputDir,
-		tempDir:   tempDir,
+		outputDir:  outputDir,
+		tempDir:    tempDir,
+		binaryPath: binaryPath,
 	}
 }
 
@@ -39,9 +43,11 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 		log.Printf("Error Merging pdf files")
 		return false
 	}
+	log.Printf("binary path in p : %s", p.binaryPath)
 	return utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		TargetFilePath: targetFilePath,
 		SourceFilePath: tempFilePath,
+		BinaryPath:     p.binaryPath,
 	})
 }
 
@@ -70,6 +76,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 		return utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
 			SourceFilePath: filePath,
 			TargetFilePath: resultFilePath,
+			BinaryPath:     p.binaryPath,
 		})
 	}
 
@@ -92,6 +99,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 	isCompressionSuccess := utils.CompressAllFilesInDir(p.tempDir, targetImageQuality, &utils.DirToDirOperationConfig{
 		SourceDirPath: tempDirPath1,
 		TargetDirPath: tempDirPath2,
+		BinaryPath:    p.binaryPath,
 	})
 	if !isCompressionSuccess {
 		log.Printf("Error compressing files in dir : %s to dir %s", tempDirPath1, tempDirPath2)
@@ -111,7 +119,11 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 }
 
 func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
-	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_resized.pdf")
+	log.Printf("can resize : %t", canResize)
+	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+".pdf")
+	if canResize {
+		targetFilePath = path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameWoExtensionFromPath(filePath), "_resized.pdf"))
+	}
 	tempFilePath := targetFilePath
 	if canResize {
 		tempFilePath = utils.GetNewTempFilePath(p.tempDir, "pdf")
@@ -130,6 +142,7 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 	isSuccess = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		TargetFilePath: targetFilePath,
 		SourceFilePath: tempFilePath,
+		BinaryPath:     p.binaryPath,
 	})
 
 	if !isSuccess {
@@ -141,6 +154,7 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 
 func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
 	return utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+		BinaryPath:     p.binaryPath,
 		SourceFilePath: filePath,
 		TargetFilePath: path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameFromPath(filePath), "_resized")),
 	})

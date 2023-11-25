@@ -20,14 +20,14 @@
 
 ## Tests
 ### Merge
-- [] Merge w/o resize
-- [] Merge w/ resize
+- [x] Merge w/o resize
+- [x] Merge w/ resize
 ### Compression
-- [] Optimisaton
+- [x] Optimisaton
 - [] Compression
 - [] Compression Extreme
 ### Convert image
-- [] Convert image w/o Resize
-- [] Convert image w Resize
+- [x] Convert image w/o Resize
+- [x] Convert image w Resize
 ### Format
-- [] Format to A4
+- [x] Format to A4

@@ -59,6 +59,7 @@ func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperation
 }
 
 func ResizePdfToA4(config *FileToFileOperationConfig) bool {
+	log.Printf("binaryPath : %s", config.BinaryPath)
 	log.Printf("Starting resize w/ source : %s, target : %s", config.SourceFilePath, config.TargetFilePath)
 	resizePdfToA4Cmd := exec.Command(
 		config.BinaryPath,
