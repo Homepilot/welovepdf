@@ -18,6 +18,13 @@ type FilesListProps = {
     selectFilesPrompt: string;
 }
 
+const NoFileSelectedDisclaimer: React.FC = () => (
+    <div className="no-files-disclaimer">
+        <h3 className="disclaimer-title">Aucun fichier sélectionné</h3>
+        <h4 className="disclaimer-subtitle">💡 Vous pouvez aussi glisser des fichiers ici 💡</h4>
+    </div>
+)
+
 export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, onRemoveFileFromList, selectedFiles }) => {
 
     const onDragEnd: OnDragEndResponder = (result) => {
@@ -40,7 +47,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
 
             {
                 !selectedFiles.length ?  
-                <h3>Aucun fichier sélectionné</h3> : 
+                <NoFileSelectedDisclaimer/> : 
                 (
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="droppable">

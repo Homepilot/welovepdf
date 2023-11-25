@@ -1,0 +1,15 @@
+.dropzone {
+    width: 100%;
+    height: 100%;
+    border: none;
+    /* border: dashed 2px var(--theme-light);
+    border-bottom: none;
+    border-top: none; */
+    border-radius: 3px;
+}
+/* width: 100%;
+height: 98vh; */
+.dropzone input {
+    width: 100%;
+    height: 100%;
+}

@@ -2,18 +2,18 @@ import { useState } from 'react';
 
 import toast from 'react-hot-toast';
 
-import { selectMultipleFiles } from '../../api/actions';
+import { createTempFilesFromUpload, selectMultipleFiles } from '../../api/actions';
 import { FileType } from '../../types';
 import { AppFooter } from '../AppFooter';
 import { AppHeader } from '../AppHeader';
 import { Backdrop } from '../Backdrop';
+import { DragDrop } from '../DragNDropFiles';
 import { FilesList } from '../FilesList';
-
 import './GenericPage.css';
 
 type GenericPageProps = {
     headerText: string;
-    filesType?: FileType;
+    inputFilesType: FileType;
     action: {
         btnLabel: string;
         handler(filesToHandle: string[]): Promise<boolean | boolean[] | null>;
@@ -23,15 +23,20 @@ type GenericPageProps = {
     onNavigateHome(): void;
 }
 
+type FileInfo = {
+    name: string;
+    id: string;
+}
+
 export const GenericPage: React.FC<GenericPageProps> = ({
     headerText,
     action,
-    filesType,
+    inputFilesType,
     selectFilesPrompt,
     onNavigateHome
 }) => {
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<FileInfo[]>([]);
 
     // TODO : should use useCallback here ?
     const removeFileFromList = (fileId: string) => {
@@ -43,10 +48,8 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     // TODO : should use useCallback here ?
     const selectFiles = async () => {
         setIsLoading(true);
-        const files = await selectMultipleFiles(filesType, selectFilesPrompt ?? headerText);
-        const newSelection = Array.from(new Set([...selectedFiles.map(({id}) => id), ...files]));
-        const selectionWithIds = newSelection.map(id => ({id}))
-        setSelectedFiles(selectionWithIds);
+        const files = await selectMultipleFiles(inputFilesType, selectFilesPrompt ?? headerText);
+        addFilesToSelectionList(files.map((filePath: string) => ({ name: filePath, id: filePath })))
         setIsLoading(false);
     }
     
@@ -55,6 +58,17 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         setSelectedFiles([]);
     }
     
+    const addFilesToSelectionList = (files: FileInfo[]) => {
+        const newSelectionMap = [...selectedFiles, ...files].reduce<Map<string, FileInfo>>((map, fileInfo) => {
+            if(!map.has(fileInfo.id)){
+                map.set(fileInfo.id, fileInfo)
+            } 
+            return map;
+        }, new Map())
+        
+        setSelectedFiles(Object.values(newSelectionMap));
+    }
+
     // TODO : should use useCallback here ?
     async function runHandler(){
         setIsLoading(true);
@@ -105,45 +119,51 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             setIsLoading(false);
     }
 
+    function handleFileDrop(files: File[]){
+        console.log(files)
+        const filesArray = Array.from(files)
+        const newFilePath = createTempFilesFromUpload(filesArray)
+        console.log({ newFilePath })
+    }
+
+
     return (
-        <>
-            <Backdrop isVisible={isLoading} />
-            <div id="layout">
-                <div id="generic-page-header">
-                    <AppHeader 
-                        shouldDisplayHomeBtn={true}
-                        onNavigateHome={onNavigateHome}    
-                        />
-                </div>
-                <div id="generic-page-container">
-                    <div id="page-header">
-                        <div id="page-header-text">
-                            <h3>{headerText}</h3>
-                        </div>
-                        <div id='btn-container'>
-                            <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
-                            <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
-                            <span
-                                onClick={runHandler}
-                                className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
-                            >
-                                { action.btnLabel}
-                            </span>
-                        </div>
+        <div id="generic-layout">
+                <Backdrop isVisible={isLoading} />
+                    <div id="generic-page-header">
+                        <AppHeader 
+                            shouldDisplayHomeBtn={true}
+                            onNavigateHome={onNavigateHome}    
+                            />
                     </div>
-                    <div id="page-body">
-                        <FilesList 
-                            selectedFiles={selectedFiles}
-                            onRemoveFileFromList={removeFileFromList}
-                            filesType={filesType} 
-                            onSelectionUpdated={setSelectedFiles} 
-                            selectFilesPrompt={selectFilesPrompt || headerText}
-                        />
+                    <div id="generic-page-container">
+                        <div id="page-header">
+                            <div id="page-header-text">
+                                <h3>{headerText}</h3>
+                            </div>
+                            <div id='btn-container'>
+                                <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
+                                <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
+                                <span
+                                    onClick={runHandler}
+                                    className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
+                                >
+                                    { action.btnLabel}
+                                </span>
+                            </div>
+                        </div>
+                        <DragDrop filesType={inputFilesType} onFilesDropped={handleFileDrop} >
+                            <FilesList 
+                                selectedFiles={selectedFiles}
+                                onRemoveFileFromList={removeFileFromList}
+                                filesType={inputFilesType} 
+                                onSelectionUpdated={addFilesToSelectionList} 
+                                selectFilesPrompt={selectFilesPrompt || headerText}
+                            />
+                        </DragDrop>
                     </div>
+                    <AppFooter/>
                 </div>
-                <AppFooter/>
-            </div>
-        </>
     )
 }
 

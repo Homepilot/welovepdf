@@ -1,4 +1,18 @@
-
+#generic-layout {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0 auto;
+    text-align: center;
+    
+    display: grid;
+    grid-template-columns: 2rem 1fr 5fr 1fr 2rem;
+    grid-gap: 0;
+    grid-template-rows: 4rem 5vh 5fr 5rem 1rem;
+    /* background: white */
+}
 
 #generic-page-container {
     text-align: center;
@@ -70,6 +84,9 @@
     /* overflo */
     max-height: 58vh;
     overflow-y: scroll;
+    background-color: var(--theme-grey);
+    background:  0.1;
+    border-radius: 3px;
 }
 
 #btn-container {

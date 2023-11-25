@@ -4,6 +4,15 @@
     width: 99%;
     max-width: 60rem;
 }
+
+.no-files-disclaimer {
+    margin-top: 5rem;
+
+}
+
+.disclaimer-subtitle {
+    margin-top: 5rem;
+}
 /* 
 .files-list div {
     max-width: 99%;

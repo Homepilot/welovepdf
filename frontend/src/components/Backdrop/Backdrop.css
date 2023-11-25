@@ -2,7 +2,7 @@
     background: var(--theme-dark);
     z-index: 1000;
     opacity: 0.9;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     height: 100vh;

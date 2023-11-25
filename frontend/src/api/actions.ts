@@ -101,3 +101,8 @@ export async function chooseShouldResize(): Promise<boolean | null>{
 export function openLinkInBrowser(url: string){
     return BrowserOpenURL(url)
 }
+
+export function createTempFilesFromUpload(files: File[]){
+
+    return files.map(file => ({name: file.name, path: file.name  }))
+}
