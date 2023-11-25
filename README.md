@@ -52,3 +52,5 @@ It uses :
 Compress icon : 
     - Image by OpenClipart-Vectors from [Pixabay](https://pixabay.com/vectors/compression-archiver-compress-149782/)
     - [License](https://pixabay.com/service/license-summary/)
+Drag n Drop icon: 
+    - [Image by icon 54 for the Noun Project](https://thenounproject.com/browse/icons/term/drag-and-drop)

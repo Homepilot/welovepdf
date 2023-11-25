@@ -2,6 +2,7 @@ import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react
 
 import { FileInfo, FileType } from '../../types';
 
+import { EmptyList } from "./EmptyList";
 import { FileCard } from './FileCard';
 
 import './FilesList.css';
@@ -13,13 +14,6 @@ type FilesListProps = {
     filesType?: FileType;
     selectFilesPrompt: string;
 }
-
-const NoFileSelectedDisclaimer: React.FC = () => (
-    <div className="no-files-disclaimer">
-        <h3 className="disclaimer-title">Aucun fichier sélectionné</h3>
-        <p className="disclaimer-subtitle">💡 Vous pouvez aussi glisser des fichiers ici 💡</p>
-    </div>
-)
 
 export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, onRemoveFileFromList, selectedFiles }) => {
 
@@ -43,7 +37,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
 
             {
                 !selectedFiles.length ?  
-                <NoFileSelectedDisclaimer/> : 
+                <EmptyList/> : 
                 (
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="droppable">
