@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"embed"
+	"log"
 	"os"
 	"path"
+	"strings"
 
 	"welovepdf/pkg/models"
 	"welovepdf/pkg/utils"
@@ -17,6 +19,9 @@ import (
 
 //go:embed assets/bin/gs
 var gsBinary []byte
+
+//go:embed assets/images/resize_A4.svg
+var resizeA4Icon []byte
 
 //go:embed assets/images/compress.svg
 var compressIcon []byte
@@ -38,7 +43,7 @@ func main() {
 	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
 	// Create an instance of the app structure
-	app := models.NewApp(OUTPUT_DIR, TEMP_DIR, compressIcon)
+	app := models.NewApp(OUTPUT_DIR, TEMP_DIR, logoLightIcon, compressIcon, resizeA4Icon)
 	pdfHandler := models.NewPdfHandler(OUTPUT_DIR, TEMP_DIR)
 
 	// Create application with options
@@ -80,7 +85,7 @@ func initGlobals() {
 	localBinDir = path.Join(localAssetsDir, "bin")
 
 	OUTPUT_DIR = utils.GetTodaysOutputDir(userHomeDir)
-	TEMP_DIR = path.Join(localBinDir, "temp")
+	TEMP_DIR = path.Join(localAssetsDir, "temp")
 	GS_BINARY_PATH = path.Join(localBinDir, "ghostscript_welovepdf")
 
 }
@@ -103,14 +108,25 @@ func ensureRequiredDirectories() {
 }
 
 func onAppClose(_ context.Context) {
-	tempDirContent, _ := os.ReadDir(TEMP_DIR)
-	if len(tempDirContent) > 0 {
-		_ = os.Remove(TEMP_DIR)
-	}
+	log.Println("OnAppClose fired")
+
+	_ = os.RemoveAll(TEMP_DIR)
 
 	outputDirContent, _ := os.ReadDir(OUTPUT_DIR)
-	if len(outputDirContent) > 0 {
-		return
+	for i := 0; i < len(outputDirContent); i += 1 {
+		if outputDirContent[i].IsDir() {
+			log.Println("OnAppClose done")
+			return
+		}
+
+		if !strings.HasPrefix(outputDirContent[i].Name(), ".") {
+			log.Println("OnAppClose done")
+			return
+		}
+
 	}
-	_ = os.Remove(TEMP_DIR)
+
+	log.Println("found no files or directory in output dir, remove output dir")
+	_ = os.RemoveAll(OUTPUT_DIR)
+	log.Println("OnAppClose done")
 }

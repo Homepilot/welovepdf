@@ -1,6 +1,6 @@
 import {
-    ChooseCompressionMode,
     OpenSaveFileDialog,
+    PromptUserSelect,
     SelectMultipleFiles
 } from '../../wailsjs/go/models/App';
 import {
@@ -9,6 +9,9 @@ import {
     MergePdfFiles,
     OptimizePdfFile
 } from '../../wailsjs/go/models/PdfHandler';
+import {
+    BrowserOpenURL
+} from '../../wailsjs/runtime/runtime';
 import { CompressionMode, FileType } from '../types';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
@@ -16,7 +19,10 @@ export async function selectMultipleFiles(fileType: FileType = FileType.PDF, sel
 }
 
 export async function convertFiles(filesPathes: string[]) {
-    const result = await Promise.all(filesPathes.map((ConvertImageToPdf as (index: string) => Promise<boolean>)))
+    const shouldResize = await chooseShouldResize();
+    if(shouldResize === null) return null
+
+    const result = await Promise.all(filesPathes.map(path => ConvertImageToPdf(path, shouldResize)));
     console.log({ conversionSuccess: result })
     return result;
 }
@@ -44,7 +50,7 @@ export async function optimizeFiles (filesPathes: string[]) {
 export async function compressFiles (filesPathes: string[]): Promise<boolean[] | null> {
     const resultsArray = [];
 
-    const chosenCompressionMode = await ChooseCompressionMode() as CompressionMode | '';
+    const chosenCompressionMode = await chooseCompressionMode() as CompressionMode | '';
 
     if(!chosenCompressionMode) return null;
 
@@ -59,4 +65,29 @@ export async function compressFiles (filesPathes: string[]): Promise<boolean[] |
 
     console.log({ compressionSuccess: resultsArray })
     return resultsArray;
+}
+
+export function chooseCompressionMode(){
+    return PromptUserSelect({
+        Title:        "Mode de compression",
+		Message:      "Choississez un mode de compression",
+		Buttons:      ["Optimisation", "Compression", "Compression extrême"],
+        Icon:         "compress",
+    })
+}
+
+export async function chooseShouldResize(): Promise<boolean | null>{
+    const result = await PromptUserSelect({
+        Title:        "Formattage A4",
+		Message:      "Souhaitez convertir le fichier au format A4?",
+		Buttons:      ["Oui", "Non"],
+        Icon:         "resizeA4",
+    })
+
+    if(result === "") return null;
+    return result === 'Oui'
+}
+
+export function openLinkInBrowser(url: string){
+    return BrowserOpenURL(url)
 }
