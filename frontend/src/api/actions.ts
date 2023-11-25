@@ -2,13 +2,13 @@ import {
     ChooseCompressionMode,
     OpenSaveFileDialog,
     SelectMultipleFiles
-} from '../../wailsjs/go/main/App';
+} from '../../wailsjs/go/models/App';
 import {
     ConvertImageToPdf,
     CompressFile,
     MergePdfFiles,
     OptimizePdfFile
-} from '../../wailsjs/go/main/PdfUtils';
+} from '../../wailsjs/go/models/PdfHandler';
 import { CompressionMode, FileType } from '../types';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){

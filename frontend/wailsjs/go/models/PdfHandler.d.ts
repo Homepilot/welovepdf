@@ -8,3 +8,5 @@ export function ConvertImageToPdf(arg1:string,arg2:boolean):Promise<boolean>;
 export function MergePdfFiles(arg1:string,arg2:Array<string>):Promise<boolean>;
 
 export function OptimizePdfFile(arg1:string):Promise<boolean>;
+
+export function ResizePdfFileToA4(arg1:string):Promise<void>;

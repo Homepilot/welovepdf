@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"embed"
-	"log"
 	"os"
 	"path"
-	"strings"
-	"time"
+
+	"welovepdf/pkg/models"
+	"welovepdf/pkg/utils"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -35,11 +35,11 @@ var GS_BINARY_PATH string
 func main() {
 	initGlobals()
 	ensureRequiredDirectories()
-	ensureGhostScriptSetup(gsBinary)
+	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
 	// Create an instance of the app structure
-	app := NewApp()
-	pdfUtils := NewPdfUtils()
+	app := models.NewApp(OUTPUT_DIR, TEMP_DIR, compressIcon)
+	pdfHandler := models.NewPdfHandler(OUTPUT_DIR, TEMP_DIR)
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
@@ -51,10 +51,10 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 42, G: 47, B: 38, A: 1},
-		OnStartup:        app.startup,
+		OnStartup:        app.Startup,
 		Bind: []interface{}{
 			app,
-			pdfUtils,
+			pdfHandler,
 		},
 		Mac: &mac.Options{
 			About: &mac.AboutInfo{
@@ -73,47 +73,44 @@ func main() {
 func initGlobals() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		logFatalAndPanic("Error retrieving the user's home directory", err)
+		utils.LogFatalAndPanic("Error retrieving the user's home directory", err)
 	}
 
 	var localAssetsDir = path.Join(userHomeDir, "Documents", ".welovepdf")
 	localBinDir = path.Join(localAssetsDir, "bin")
 
-	OUTPUT_DIR = path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateString())
+	OUTPUT_DIR = utils.GetTodaysOutputDir(userHomeDir)
 	TEMP_DIR = path.Join(localBinDir, "temp")
 	GS_BINARY_PATH = path.Join(localBinDir, "ghostscript_welovepdf")
 
 }
 
 func ensureRequiredDirectories() {
-	err := ensureDirectory(localBinDir)
+	err := utils.EnsureDirectory(localBinDir)
 	if err != nil {
-		logFatalAndPanic("Error creating local bin directory", err)
+		utils.LogFatalAndPanic("Error creating local bin directory", err)
 	}
 
-	err = ensureDirectory(OUTPUT_DIR)
+	err = utils.EnsureDirectory(OUTPUT_DIR)
 	if err != nil {
-		logFatalAndPanic("Error creating target directory", err)
+		utils.LogFatalAndPanic("Error creating target directory", err)
 	}
 
-	err = ensureDirectory(TEMP_DIR)
+	err = utils.EnsureDirectory(TEMP_DIR)
 	if err != nil {
-		logFatalAndPanic("Error creating temp directory", err)
+		utils.LogFatalAndPanic("Error creating temp directory", err)
 	}
 }
 
-func onAppClose(ctx context.Context) {
+func onAppClose(_ context.Context) {
+	tempDirContent, _ := os.ReadDir(TEMP_DIR)
+	if len(tempDirContent) > 0 {
+		_ = os.Remove(TEMP_DIR)
+	}
 
-}
-
-func logFatalAndPanic(msg string, err error) {
-	log.Fatalf("%s : %s", msg, err.Error())
-	panic(err)
-}
-
-func getCurrentDateString() string {
-	currentTime := time.Now()
-	dateStr := strings.Split(currentTime.String(), " ")[0]
-	formattedDateStr := strings.Join(strings.Split(dateStr, "-"), "")
-	return formattedDateStr
+	outputDirContent, _ := os.ReadDir(OUTPUT_DIR)
+	if len(outputDirContent) > 0 {
+		return
+	}
+	_ = os.Remove(TEMP_DIR)
 }

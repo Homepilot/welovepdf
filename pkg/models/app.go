@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"context"
@@ -8,17 +8,28 @@ import (
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx          context.Context
+	outputDir    string
+	tempDir      string
+	compressIcon []byte
 }
 
 // NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
+func NewApp(
+	outputDir string,
+	tempDir string,
+	compressIcon []byte,
+) *App {
+	return &App{
+		outputDir:    outputDir,
+		tempDir:      tempDir,
+		compressIcon: compressIcon,
+	}
 }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
+func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
@@ -64,7 +75,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 
 func (a *App) OpenSaveFileDialog() string {
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		DefaultDirectory: OUTPUT_DIR,
+		DefaultDirectory: a.outputDir,
 	})
 
 	if err != nil {
@@ -81,7 +92,7 @@ func (a *App) ChooseCompressionMode() string {
 		Message:      "Choississez un mode de compression",
 		Buttons:      []string{"Optimisation", "Compression", "Compression extrême", "Annuler"},
 		CancelButton: "Annuler",
-		Icon:         compressIcon,
+		Icon:         a.compressIcon,
 	})
 
 	if err != nil {
