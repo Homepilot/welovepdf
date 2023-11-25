@@ -9,11 +9,12 @@ import {
     MergePdfFiles,
     OptimizePdfFile,
     ResizePdfFileToA4,
+    CreateTempFilesFromUpload,
 } from '../../wailsjs/go/models/PdfHandler';
 import {
     BrowserOpenURL
 } from '../../wailsjs/runtime/runtime';
-import { CompressionMode, FileType } from '../types';
+import { CompressionMode, FileInfo, FileType } from '../types';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
     return SelectMultipleFiles(fileType, selectFilesPrompt);
@@ -102,7 +103,35 @@ export function openLinkInBrowser(url: string){
     return BrowserOpenURL(url)
 }
 
-export function createTempFilesFromUpload(files: File[]){
 
-    return files.map(file => ({name: file.name, path: file.name  }))
+export async function createTempFilesFromUpload(files: File[]): Promise<FileInfo[]> {
+    const filesAsArrBuff = await Promise.all(files.map(file => file.arrayBuffer()));
+    const filesAsUint8Arr = filesAsArrBuff.map(arrBuff => new Uint8Array(arrBuff));
+    const result = await Promise.all(filesAsUint8Arr.map<Promise<string>>(file => CreateTempFilesFromUpload([...file])))
+
+    const newFileInfos = result.reduce<FileInfo[]>((fileInfos, filePath, i) => {
+        if(!filePath) return fileInfos;
+        
+        return [...fileInfos, {
+            id: filePath,
+            name: files[i].name
+        }]
+    }, [] as FileInfo[])
+    
+    console.log({newFileInfos})
+    return newFileInfos
 }
+
+
+// type FnToRun<Args extends unknown[], Return = boolean> = (...args: Args) => Return | Promise<Return>;
+
+// async function noFail<T extends unknown[], R>(fnToRun: FnToRun<T, R>, errorValue: R, ...args: T): Promise<R>{
+//     try {
+//         let result = fnToRun(...args);
+//         if(result instanceof Promise) result = await result;
+//         return result; 
+//     } catch (error) {
+//         console.error(`Error running fn "${fnToRun.name}"`, args)
+//         return errorValue
+//     }
+// }

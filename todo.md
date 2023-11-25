@@ -1,6 +1,6 @@
 ## Must have                      7h30 + ???
 - debug
-- drag & drop files into window   1h30min
+- drag & drop icon                20 min
 - build pipeline                  2h
 - add logger                      30min
 - add reflected logs              1h

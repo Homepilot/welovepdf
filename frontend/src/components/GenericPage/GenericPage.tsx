@@ -3,7 +3,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { createTempFilesFromUpload, selectMultipleFiles } from '../../api/actions';
-import { FileType } from '../../types';
+import { FileInfo, FileType } from '../../types';
 import { AppFooter } from '../AppFooter';
 import { AppHeader } from '../AppHeader';
 import { Backdrop } from '../Backdrop';
@@ -23,10 +23,7 @@ type GenericPageProps = {
     onNavigateHome(): void;
 }
 
-type FileInfo = {
-    name: string;
-    id: string;
-}
+
 
 export const GenericPage: React.FC<GenericPageProps> = ({
     headerText,
@@ -65,11 +62,13 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             } 
             return map;
         }, new Map())
-        
-        setSelectedFiles(Object.values(newSelectionMap));
+
+        const updatedSelection = [...newSelectionMap].map(([, fileInfo]) => fileInfo)
+        setSelectedFiles(updatedSelection);
     }
 
     // TODO : should use useCallback here ?
+    // TODO Should split
     async function runHandler(){
         setIsLoading(true);
         const includedFiles = [...selectedFiles];
@@ -119,11 +118,13 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             setIsLoading(false);
     }
 
-    function handleFileDrop(files: File[]){
+    async function handleFileDrop(files: File[]){
+        setIsLoading(true)
         console.log(files)
         const filesArray = Array.from(files)
-        const newFilePath = createTempFilesFromUpload(filesArray)
-        console.log({ newFilePath })
+        const newFileInfos = await createTempFilesFromUpload(filesArray)
+        addFilesToSelectionList(newFileInfos)
+        setIsLoading(false)
     }
 
 

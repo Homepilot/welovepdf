@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"path"
-
 	"welovepdf/pkg/utils"
 
 	"github.com/google/uuid"
@@ -129,4 +128,14 @@ func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
 		SourceFilePath: filePath,
 		TargetFilePath: path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameFromPath(filePath), "_resized")),
 	})
+}
+
+func (p *PdfHandler) CreateTempFilesFromUpload(fileAsBase64 []byte) string {
+	newFilePath := utils.GetNewTempFilePath(p.TempDir, "pdf")
+	err := os.WriteFile(newFilePath, []byte(fileAsBase64), 755)
+	if err != nil {
+		log.Printf("Error saving data to file : %s", err.Error())
+		return ""
+	}
+	return newFilePath
 }

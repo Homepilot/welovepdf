@@ -1,14 +1,10 @@
 import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react-beautiful-dnd";
 
-import { FileType } from '../../types';
+import { FileInfo, FileType } from '../../types';
 
 import { FileCard } from './FileCard';
 
 import './FilesList.css';
-
-type FileInfo = {
-    id: string;
-}
 
 type FilesListProps = {
     onSelectionUpdated(newSelection: FileInfo[]): void;
@@ -21,7 +17,7 @@ type FilesListProps = {
 const NoFileSelectedDisclaimer: React.FC = () => (
     <div className="no-files-disclaimer">
         <h3 className="disclaimer-title">Aucun fichier sélectionné</h3>
-        <h4 className="disclaimer-subtitle">💡 Vous pouvez aussi glisser des fichiers ici 💡</h4>
+        <p className="disclaimer-subtitle">💡 Vous pouvez aussi glisser des fichiers ici 💡</p>
     </div>
 )
 
@@ -69,7 +65,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
                                             provided.draggableProps.style
                                         )}
                                     >
-                                        <FileCard fileName={item.id} onDeleteCard={() => onRemoveFileFromList(item.id)} />
+                                        <FileCard fileName={item.name} onDeleteCard={() => onRemoveFileFromList(item.id)} />
                                     </div>
                                 )}
                                 </Draggable>
@@ -86,7 +82,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
 }
 
 // a little function to help us with reordering the result
-function reorder (list: {id: string}[], startIndex: number, endIndex: number) {
+function reorder (list: FileInfo[], startIndex: number, endIndex: number) {
     console.log('REORDER')
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);

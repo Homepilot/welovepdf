@@ -16,3 +16,8 @@ export enum CompressionMode {
     COMPRESS = "Compression", 
     EXTREME = "Compression extreme"
 }
+
+export type FileInfo = {
+    name: string;
+    id: string;
+}
