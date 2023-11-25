@@ -45,30 +45,7 @@ body {
     overflow-x: hidden;
     padding: 0;
     margin: 0 auto;
-    text-align: center;
-    
-    display: grid;
-    grid-template-columns: 2rem 1fr 5fr 1fr 2rem;
-    grid-gap: 0;
-    grid-template-rows: 1rem 5vh 5fr 2.5rem 1rem;
     /* background: white */
-}
-
-#app-container {
-    text-align: center;
-    grid-column: 2 / 5;
-    grid-row: 3;
-    /* background: white */
-    padding-top: 2rem;
-    display: grid;
-    grid-gap: 0.2rem;
-    grid-template-rows: 10rem 1fr;
-}
-
-#app-header {
-    grid-column: 3;
-    grid-row: 2;
-
 }
 
 #app-footer {
@@ -79,6 +56,8 @@ body {
     justify-content: center;
     align-items: flex-end;
 }
+
+
 
 #app-footer div {
     display: flex;
@@ -91,8 +70,6 @@ body {
     max-width: 3rem;
     margin-right: 1.2rem;
 }
-
-
 
 .hp-btn {
     cursor: pointer;

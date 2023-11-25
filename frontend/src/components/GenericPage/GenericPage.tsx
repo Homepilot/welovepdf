@@ -4,6 +4,8 @@ import toast from 'react-hot-toast';
 
 import { selectMultipleFiles } from '../../api/actions';
 import { FileType } from '../../types';
+import { AppFooter } from '../AppFooter';
+import { AppHeader } from '../AppHeader';
 import { Backdrop } from '../Backdrop';
 import { FilesList } from '../FilesList';
 
@@ -18,6 +20,7 @@ type GenericPageProps = {
         minFilesLength: number;
     };
     selectFilesPrompt?: string;
+    onNavigateHome(): void;
 }
 
 export const GenericPage: React.FC<GenericPageProps> = ({
@@ -25,6 +28,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     action,
     filesType,
     selectFilesPrompt,
+    onNavigateHome
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<{ id: string}[]>([]);
@@ -104,29 +108,40 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     return (
         <>
             <Backdrop isVisible={isLoading} />
-                        <div id="page-header">
-                <div id="page-header-text">
-                    <h3>{headerText}</h3>
+            <div id="layout">
+                <div id="generic-page-header">
+                    <AppHeader 
+                        shouldDisplayHomeBtn={true}
+                        onNavigateHome={onNavigateHome}    
+                        />
                 </div>
-                <div id='btn-container'>
-                    <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
-                    <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
-                    <span
-                        onClick={runHandler}
-                        className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
-                    >
-                        { action.btnLabel}
-                    </span>
+                <div id="generic-page-container">
+                    <div id="page-header">
+                        <div id="page-header-text">
+                            <h3>{headerText}</h3>
+                        </div>
+                        <div id='btn-container'>
+                            <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
+                            <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
+                            <span
+                                onClick={runHandler}
+                                className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
+                            >
+                                { action.btnLabel}
+                            </span>
+                        </div>
+                    </div>
+                    <div id="page-body">
+                        <FilesList 
+                            selectedFiles={selectedFiles}
+                            onRemoveFileFromList={removeFileFromList}
+                            filesType={filesType} 
+                            onSelectionUpdated={setSelectedFiles} 
+                            selectFilesPrompt={selectFilesPrompt || headerText}
+                        />
+                    </div>
                 </div>
-            </div>
-            <div id="page-body">
-                <FilesList 
-                    selectedFiles={selectedFiles}
-                    onRemoveFileFromList={removeFileFromList}
-                    filesType={filesType} 
-                    onSelectionUpdated={setSelectedFiles} 
-                    selectFilesPrompt={selectFilesPrompt || headerText}
-                />
+                <AppFooter/>
             </div>
         </>
     )

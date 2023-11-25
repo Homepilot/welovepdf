@@ -3,8 +3,7 @@ import {useMemo, useState} from 'react';
 import { Toaster } from 'react-hot-toast';
 
 import './App.css';
-import { AppFooter, AppHeader } from '../components';
-import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage } from '../pages';
+import { CompressFilesPage, ConvertImagesPage, HomePage, MergeFilesPage, ResizeFilesPage } from '../pages';
 import { PageName } from '../types';
 
 
@@ -17,25 +16,17 @@ export function App() {
 
     const pageComponent = useMemo(() => {
         switch(currentPage){
-            case PageName.COMPRESS: return <CompressFilesPage />;
-            case PageName.CONVERT_IMG: return <ConvertImagesPage />;
-            case PageName.MERGE: return <MergeFilesPage />;
+            case PageName.COMPRESS: return <CompressFilesPage onNavigateHome={() => onNavigate(PageName.HOME)} />;
+            case PageName.CONVERT_IMG: return <ConvertImagesPage onNavigateHome={() => onNavigate(PageName.HOME)} />;
+            case PageName.MERGE: return <MergeFilesPage onNavigateHome={() => onNavigate(PageName.HOME)} />;
+            case PageName.RESIZE: return <ResizeFilesPage onNavigateHome={() => onNavigate(PageName.HOME)} />;
             default: return <HomePage onNavigate={onNavigate}/>;
         }
     }, [currentPage]);
 
     return (
         <div id="app">
-            <div id="app-header">
-                <AppHeader 
-                    shouldDisplayHomeBtn={currentPage !== PageName.HOME}
-                    onNavigateHome={() => onNavigate(PageName.HOME)}    
-                    />
-            </div>
-            <div id="app-container">
-                { pageComponent}
-            </div>
-            <AppFooter/>
+            { pageComponent}
             <Toaster position="bottom-right"/>
          </div>
     )
