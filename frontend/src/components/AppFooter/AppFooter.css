@@ -1,0 +1,25 @@
+
+#app-footer {
+    grid-column: 1 / 5;
+    grid-row: 4 / 5;
+    background-color: var(--theme-dark);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+
+
+#app-footer div {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 20rem;
+    border-top: solid 1px var(--theme-light);
+}
+
+#app-footer img {
+    max-width: 3rem;
+    margin-right: 1.2rem;
+}
