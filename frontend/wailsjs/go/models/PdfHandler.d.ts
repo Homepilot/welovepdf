@@ -9,4 +9,4 @@ export function MergePdfFiles(arg1:string,arg2:Array<string>):Promise<boolean>;
 
 export function OptimizePdfFile(arg1:string):Promise<boolean>;
 
-export function ResizePdfFileToA4(arg1:string):Promise<void>;
+export function ResizePdfFileToA4(arg1:string):Promise<boolean>;

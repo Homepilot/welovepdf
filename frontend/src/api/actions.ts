@@ -7,7 +7,8 @@ import {
     ConvertImageToPdf,
     CompressFile,
     MergePdfFiles,
-    OptimizePdfFile
+    OptimizePdfFile,
+    ResizePdfFileToA4,
 } from '../../wailsjs/go/models/PdfHandler';
 import {
     BrowserOpenURL
@@ -16,6 +17,15 @@ import { CompressionMode, FileType } from '../types';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
     return SelectMultipleFiles(fileType, selectFilesPrompt);
+}
+
+export async function resizeToA4(filesPathes: string[]) {
+    const shouldResize = await chooseShouldResize();
+    if(shouldResize === null) return null
+
+    const result = await Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
+    console.log({ conversionSuccess: result })
+    return result;
 }
 
 export async function convertFiles(filesPathes: string[]) {

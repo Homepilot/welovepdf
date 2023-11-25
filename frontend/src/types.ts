@@ -8,6 +8,7 @@ export enum PageName {
     MERGE = 'MERGE',
     CONVERT_IMG = 'CONVERT_IMG',
     COMPRESS = 'COMPRESS',
+    RESIZE = 'RESIZE',
 }
 
 export enum CompressionMode {

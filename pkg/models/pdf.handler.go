@@ -124,8 +124,8 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 	return true
 }
 
-func (p *PdfHandler) ResizePdfFileToA4(filePath string) {
-	utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
+	return utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		SourceFilePath: filePath,
 		TargetFilePath: path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameFromPath(filePath), "_resized")),
 	})
