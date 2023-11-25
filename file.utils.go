@@ -3,41 +3,32 @@ package main
 import (
 	"log"
 	"os"
+	"path"
 	"strings"
-	"time"
+
+	"github.com/google/uuid"
 )
 
-func ensureDirectory(dirPath string) {
+func ensureDirectory(dirPath string) error {
 	stats, err := os.Stat(dirPath)
 	if err == nil && stats.IsDir() {
 		log.Println("Target directory successfully found")
-		return
+		return err
 	}
 
 	if !os.IsNotExist((err)) {
 		log.Printf("Error ensuring target directory: %s", err.Error())
-		return
+		return err
 	}
 
 	creationErr := os.MkdirAll(dirPath, 0755)
 
 	if creationErr != nil {
 		log.Printf("Error creating target folder: %s", creationErr.Error())
-		return
+		return err
 	}
-}
 
-func getTargetDirectoryPath() string {
-	targetDirPath := baseDirectory + "/" + getCurrentDateString()
-	ensureDirectory(targetDirPath)
-	return targetDirPath
-}
-
-func getCurrentDateString() string {
-	currentTime := time.Now()
-	dateStr := strings.Split(currentTime.String(), " ")[0]
-	formattedDateStr := strings.Join(strings.Split(dateStr, "-"), "")
-	return formattedDateStr
+	return nil
 }
 
 func getFileNameFromPath(inputFilePath string) string {
@@ -53,4 +44,9 @@ func getFileExtensionFromPath(inputFilePath string) string {
 func getFileNameWoExtensionFromPath(inputFilePath string) string {
 	pathParts := strings.Split(getFileNameFromPath(inputFilePath), ".")
 	return strings.Join(pathParts[:len(pathParts)-1], ".")
+}
+
+func getNewTempFilePath(extension string) string {
+	newId := uuid.New().String()
+	return path.Join(TEMP_DIR, newId+"."+extension)
 }

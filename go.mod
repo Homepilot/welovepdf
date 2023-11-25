@@ -3,6 +3,7 @@ module changeme
 go 1.18
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/pdfcpu/pdfcpu v0.5.0
 	github.com/wailsapp/wails/v2 v2.6.0
 )
@@ -10,7 +11,6 @@ require (
 require (
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/hhrutter/lzw v1.0.0 // indirect
 	github.com/hhrutter/tiff v1.0.1 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect

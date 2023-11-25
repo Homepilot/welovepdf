@@ -64,7 +64,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 
 func (a *App) OpenSaveFileDialog() string {
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		DefaultDirectory: getTargetDirectoryPath(),
+		DefaultDirectory: OUTPUT_DIR,
 	})
 
 	if err != nil {

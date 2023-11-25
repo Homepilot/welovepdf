@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
 	"os"
-	"path/filepath"
+	"path"
+	"strings"
+	"time"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -24,20 +27,15 @@ var logoLightIcon []byte
 //go:embed all:frontend/dist
 var assets embed.FS
 
-var baseDirectory string
-var LOCAL_ASSETS_DIR_NAME string = ".welovepdf"
-var LOCAL_ASSETS_DIR_PATH string
+var localBinDir string
+var OUTPUT_DIR string
+var TEMP_DIR string
 var GS_BINARY_PATH string
 
 func main() {
-	// Set globals
-	homeDirPath, _ := os.UserHomeDir()
-	LOCAL_ASSETS_DIR_PATH = filepath.Join(homeDirPath, LOCAL_ASSETS_DIR_NAME)
-	GS_BINARY_PATH = filepath.Join(LOCAL_ASSETS_DIR_PATH, "gs_binary")
-	ensureDirectory(LOCAL_ASSETS_DIR_PATH)
-	ensureGhostScriptSetup()
-	baseDirectory = homeDirPath + "/Documents/welovepdf"
-	ensureDirectory(baseDirectory)
+	initGlobals()
+	ensureRequiredDirectories()
+	ensureGhostScriptSetup(gsBinary)
 
 	// Create an instance of the app structure
 	app := NewApp()
@@ -45,9 +43,10 @@ func main() {
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
-		Title:  "We   ❤   PDF",
-		Width:  700,
-		Height: 777,
+		Title:      "We   ❤   PDF",
+		Width:      700,
+		Height:     777,
+		OnShutdown: onAppClose,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -71,41 +70,50 @@ func main() {
 	}
 }
 
-func ensureGhostScriptSetup() {
-	_, err := os.Stat(GS_BINARY_PATH)
-
-	if err == nil {
-		log.Println("GhostScript already setup")
-		// Remove gsBinary from memory
-		gsBinary = nil
-		return
-	}
-
-	if !os.IsNotExist((err)) {
-		log.Fatalf("Error setting up GhostScript: %s", err.Error())
-		panic(err)
-	}
-
-	file, err := os.Create(GS_BINARY_PATH)
+func initGlobals() {
+	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatalf("Error creating GhostScript binary file: %s", err.Error())
-		panic(err)
+		logFatalAndPanic("Error retrieving the user's home directory", err)
 	}
 
-	defer file.Close()
+	var localAssetsDir = path.Join(userHomeDir, "Documents", ".welovepdf")
+	localBinDir = path.Join(localAssetsDir, "bin")
 
-	err = file.Chmod(755)
+	OUTPUT_DIR = path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateString())
+	TEMP_DIR = path.Join(localBinDir, "temp")
+	GS_BINARY_PATH = path.Join(localBinDir, "ghostscript_welovepdf")
+
+}
+
+func ensureRequiredDirectories() {
+	err := ensureDirectory(localBinDir)
 	if err != nil {
-		log.Fatalf("Error make GhostScript binary file executable: %s", err.Error())
-		panic(err)
+		logFatalAndPanic("Error creating local bin directory", err)
 	}
 
-	_, err = file.Write(gsBinary)
+	err = ensureDirectory(OUTPUT_DIR)
 	if err != nil {
-		log.Fatalf("Error writing GhostScript binary to target file: %s", err.Error())
-		panic(err)
+		logFatalAndPanic("Error creating target directory", err)
 	}
 
-	// Remove gsBinary from memory
-	gsBinary = nil
+	err = ensureDirectory(TEMP_DIR)
+	if err != nil {
+		logFatalAndPanic("Error creating temp directory", err)
+	}
+}
+
+func onAppClose(ctx context.Context) {
+
+}
+
+func logFatalAndPanic(msg string, err error) {
+	log.Fatalf("%s : %s", msg, err.Error())
+	panic(err)
+}
+
+func getCurrentDateString() string {
+	currentTime := time.Now()
+	dateStr := strings.Split(currentTime.String(), " ")[0]
+	formattedDateStr := strings.Join(strings.Split(dateStr, "-"), "")
+	return formattedDateStr
 }
