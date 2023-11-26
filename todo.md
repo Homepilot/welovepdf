@@ -1,5 +1,4 @@
 ## Must have                      7h30 + ???
-- build pipeline                  2h
 - create log strategy             1h
 - add logger                      30min
 - keep mem usage in check         ???
@@ -9,6 +8,8 @@
 - add tests                       2h30
   - backend       1h
   - frontend      1h30
+- test pipeline                  2h
+- SIGN BUILDS
 
 ## Nice to have                 2h30 + ???
 - style toasts                  30min

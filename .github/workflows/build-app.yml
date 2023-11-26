@@ -1,6 +1,6 @@
-name: "example"
-on: push
-  # workflow_dispatch:
+name: "Build & publish main image"
+on:
+  workflow_dispatch:
     # This Action only starts when you go to Actions and manually run the workflow.
 
 jobs:
