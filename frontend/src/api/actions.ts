@@ -68,7 +68,7 @@ export async function compressFiles (filesPathes: string[]): Promise<boolean[] |
 
     if(chosenCompressionMode === CompressionMode.OPTIMIZE) return optimizeFiles(filesPathes);
 
-    const targetImageQuality = CompressionMode.EXTREME ? 10 : 20;
+    const targetImageQuality = chosenCompressionMode === CompressionMode.EXTREME ? 10 : 20;
 
     for (const file of filesPathes){
         const result = await CompressFile(file, targetImageQuality)

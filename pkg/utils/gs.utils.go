@@ -49,7 +49,7 @@ func IsGhostScriptSetup(gsBinaryPath string) bool {
 
 func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperationConfig) bool {
 	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, config.BinaryPath, config.SourceFilePath, config.TargetFilePath)
-	convertToLowQualityJpegCmd := exec.Command(config.BinaryPath, "-sDEVICE=jpeg", "-o", config.SourceFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", config.TargetFilePath)
+	convertToLowQualityJpegCmd := exec.Command(config.BinaryPath, "-sDEVICE=jpeg", "-o", config.TargetFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", config.SourceFilePath)
 	err := convertToLowQualityJpegCmd.Run()
 	if err != nil {
 		log.Printf("Error converting file to JPEG: %s", err.Error())
