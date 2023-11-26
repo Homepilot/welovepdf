@@ -16,6 +16,7 @@ func TestGetFileExtensionFromPath(t *testing.T) {
 
 func TestEnsureDirectory(t *testing.T) {
 	tempDirPath := filepath.Join(os.TempDir(), "testdir")
+	os.RemoveAll(tempDirPath)
 	defer os.RemoveAll(tempDirPath)
 
 	err := EnsureDirectory(tempDirPath)
@@ -24,6 +25,10 @@ func TestEnsureDirectory(t *testing.T) {
 	dir, err := os.Stat(tempDirPath)
 	assert.NoError(t, err)
 	assert.True(t, dir.IsDir())
+
+	// If dir already exists
+	err = EnsureDirectory(tempDirPath)
+	assert.NoError(t, err)
 }
 
 func TestGetFileNameFromPath(t *testing.T) {

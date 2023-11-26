@@ -35,7 +35,6 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 	}
 
 	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
-	os.Chmod(tempFilePath, 0755)
 	defer os.Remove(tempFilePath)
 
 	isSuccess := utils.MergePdfFiles(tempFilePath, filePathes)

@@ -20,3 +20,8 @@ type DirToDirOperationConfig struct {
 	SourceDirPath string
 	TargetDirPath string
 }
+
+type FileToFileOperation func(c *FileToFileOperationConfig) bool
+type DirToFileOperation func(c *DirToFileOperationConfig) bool
+type FileToDirOperation func(c *FileToDirOperationConfig) bool
+type DirToDirOperation func(c *DirToDirOperationConfig) bool

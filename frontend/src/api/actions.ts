@@ -28,6 +28,7 @@ export async function resizeToA4(filesPathes: string[]) {
 
 export async function convertFiles(filesPathes: string[]) {
     const shouldResize = await chooseShouldResize();
+    console.log({shouldResize})
     if(shouldResize === null) return null
 
     const result = await Promise.all(filesPathes.map(path => ConvertImageToPdf(path, shouldResize)));
@@ -43,7 +44,7 @@ export async function mergeFiles (filesPathes: string[]) {
     }
     const targetFilePath = await OpenSaveFileDialog();
     console.log({ targetFilePath })
-    if(!targetFilePath) return null;
+    if(!targetFilePath || targetFilePath === '.pdf') return null;
     const shouldResize = await chooseShouldResize();
     if(shouldResize === null) return null;
 

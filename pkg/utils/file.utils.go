@@ -23,7 +23,7 @@ func EnsureDirectory(dirPath string) error {
 	stats, err := os.Stat(dirPath)
 	if err == nil && stats.IsDir() {
 		log.Println("Target directory successfully found")
-		return err
+		return nil
 	}
 
 	if !os.IsNotExist((err)) {

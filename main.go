@@ -78,7 +78,7 @@ func main() {
 func initGlobals() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		utils.LogFatalAndPanic("Error retrieving the user's home directory", err)
+		log.Fatalf("Error retrieving the user's home directory : %s", err.Error())
 	}
 
 	var localAssetsDir = path.Join(userHomeDir, "Documents", ".welovepdf")
@@ -93,17 +93,17 @@ func initGlobals() {
 func ensureRequiredDirectories() {
 	err := utils.EnsureDirectory(localBinDir)
 	if err != nil {
-		utils.LogFatalAndPanic("Error creating local bin directory", err)
+		log.Fatalf("Error creating local bin directory : %s", err.Error())
 	}
 
 	err = utils.EnsureDirectory(OUTPUT_DIR)
 	if err != nil {
-		utils.LogFatalAndPanic("Error creating target directory", err)
+		log.Fatalf("Error creating target directory : %s", err.Error())
 	}
 
 	err = utils.EnsureDirectory(TEMP_DIR)
 	if err != nil {
-		utils.LogFatalAndPanic("Error creating temp directory", err)
+		log.Fatalf("Error creating temp directory : %s", err.Error())
 	}
 }
 

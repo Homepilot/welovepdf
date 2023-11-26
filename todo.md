@@ -23,9 +23,9 @@
 - [x] Merge w/o resize
 - [x] Merge w/ resize
 ### Compression
-- [x] Optimisaton
-- [] Compression
-- [] Compression Extreme
+- [x] Optimisaton
+- [ ] Compression
+- [ ] Compression Extreme
 ### Convert image
 - [x] Convert image w/o Resize
 - [x] Convert image w Resize

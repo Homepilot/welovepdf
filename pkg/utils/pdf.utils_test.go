@@ -12,16 +12,16 @@ import (
 // This test assumes that the directory and files for compression exist.
 // You might want to set up a test directory with files before running this test.
 func TestCompressAllFilesInDir(t *testing.T) {
+	sourceDirPath := ("../../test/assets/pdf")
 	tempDirPath := filepath.Join(os.TempDir(), "test_compress")
-	sourceDirPath := filepath.Join(tempDirPath, "source")
 	targetDirPath := filepath.Join(tempDirPath, "target")
-	os.MkdirAll(sourceDirPath, 0755)
 	os.MkdirAll(targetDirPath, 0755)
-	defer os.RemoveAll(tempDirPath)
+	defer os.RemoveAll(targetDirPath)
 
 	config := &DirToDirOperationConfig{
 		SourceDirPath: sourceDirPath,
 		TargetDirPath: targetDirPath,
+		BinaryPath:    "test",
 	}
 
 	success := CompressAllFilesInDir(tempDirPath, 75, config)
