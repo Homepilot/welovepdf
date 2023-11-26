@@ -81,7 +81,7 @@ func initGlobals() {
 		log.Fatalf("Error retrieving the user's home directory : %s", err.Error())
 	}
 
-	var localAssetsDir = path.Join(userHomeDir, "Documents", ".welovepdf")
+	var localAssetsDir = path.Join(userHomeDir, ".welovepdf")
 	localBinDir = path.Join(localAssetsDir, "bin")
 
 	OUTPUT_DIR = utils.GetTodaysOutputDir(userHomeDir)

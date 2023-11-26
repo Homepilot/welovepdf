@@ -1,23 +1,44 @@
-## Must have                      7h30 + ???
-- create log strategy             1h
-- add logger                      30min
-- keep mem usage in check         ???
-  - use Writer & Reader instead ?
-- different loader messages
-- split PDF ?
-- add tests                       2h30
-  - backend       1h
-  - frontend      1h30
-- test pipeline                  2h
-- SIGN BUILDS
+## Must have                          
+| Must have 1 | 3h30 + ???
+| ---------------------| ----------|
+| Drag n Drop as last card / new grid item under files list    | 30min  |
+| Split PDF ?                                 | 30min |
+| Add Logger                                | 1h |
+| Frontend logs                         | 30min |
+| Backend logs                          | 1h |
+| keep mem usage in check    - use Writer & Reader instead       | ??? |
+<br/>
+<br/>
 
-## Nice to have                 2h30 + ???
-- style toasts                  30min
-- setup husky                   30min
-- font from backoffice ?        30min
-- buttons as component          30min
-- refactor layout css           30min
-- open dir after actions        ???
+| Must have 2 |                                3h15 + ?? |
+| ---------------------| ----------|
+| centrer footer||
+| warning dnd multiple scrollable parents||
+| css text overflow||
+| add tests          |                         2h30|
+| add tests backend   |    2h|
+| add tests frontend   |   2h30|
+| test pipeline         |                      30min|
+| Go file naming convention |                   15 min|
+| SIGN BUILDS                |                 ??|
+
+<br/>
+<br/>
+
+| Nice to have                 | 2h30 + ??? |
+| --------------------- | ----------|
+| style toasts                  | 30min |
+| different loader messages     | 30min |
+| setup husky                   | 30min |
+| font from backoffice ?        | 30min |
+| buttons as component          | 30min |
+| refactor layout css           | 30min |
+| open dir after actions        | ??? |
+| internal mode unlocked w/ PIN | |
+| paralellize when several files... | |
+
+<br/>
+<br/>
 
 ## Tests
 ### Merge
@@ -32,3 +53,5 @@
 - [x] Convert image w Resize
 ### Format
 - [x] Format to A4
+
+
