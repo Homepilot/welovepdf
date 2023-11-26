@@ -1,14 +1,14 @@
 ## Must have                      7h30 + ???
+- build pipeline                  2h
+- create log strategy             1h
+- add logger                      30min
+- keep mem usage in check         ???
+  - use Writer & Reader instead ?
+- different loader messages
+- split PDF ?
 - add tests                       2h30
   - backend       1h
   - frontend      1h30
-- bug on cancel select file
-- build pipeline                  2h
-- add logger                      30min
-- add reflected logs              1h
-- keep mem usage in check         ???
-- different loader messages
-- split PDF ?
 
 ## Nice to have                 2h30 + ???
 - style toasts                  30min

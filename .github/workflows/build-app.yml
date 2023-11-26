@@ -1,11 +1,14 @@
 name: "example"
-on:
-  workflow_dispatch:
+on: push
+  # workflow_dispatch:
     # This Action only starts when you go to Actions and manually run the workflow.
 
 jobs:
   package:
+    if: github.ref == 'refs/heads/main'
+    name: Build & publish main image
     strategy:
+      fail-fast: true
       matrix:
         platform: [macos-latest]
         go-version: [1.18]
@@ -19,10 +22,12 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 18
       # You may need to manually build you frontend here, unless you have configured frontend build and install commands in wails.json.
       - name: Get Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Get Ghostscript binary
+        run: curl --output ./assets/bin/gs https://homepilot-data-public.s3.eu-west-3.amazonaws.com/ghostscript/gsbinary
       - name: Build Wails app
         run: |
           wails build
