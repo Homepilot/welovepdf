@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"log"
+	"log/slog"
 	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -11,6 +12,7 @@ import (
 // App struct
 type App struct {
 	ctx          context.Context
+	logger       *slog.Logger
 	outputDir    string
 	tempDir      string
 	logoIcon     []byte
@@ -20,6 +22,7 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp(
+	logger *slog.Logger,
 	outputDir string,
 	tempDir string,
 	logoIcon []byte,
@@ -27,6 +30,7 @@ func NewApp(
 	resizeA4Icon []byte,
 ) *App {
 	return &App{
+		logger:       logger,
 		outputDir:    outputDir,
 		tempDir:      tempDir,
 		logoIcon:     logoIcon,
@@ -72,7 +76,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 		Filters: filters,
 	})
 	if err != nil {
-		runtime.LogPrintf(a.ctx, "Got an error !!")
+		a.logger.Error("Error in OpenMultipleFilesDialog", "reason", err.Error())
 		result.error = err.Error()
 		return []string{}
 	}
@@ -87,7 +91,7 @@ func (a *App) OpenSaveFileDialog() string {
 	})
 
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error retrieving targetPath: %s", err.Error())
+		a.logger.Error("Save dialog :error retrieving targetPath", "reason", err.Error())
 		return ""
 	}
 
@@ -128,7 +132,7 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 	selection, err := runtime.MessageDialog(a.ctx, dialogOptions)
 	log.Printf("selection : %s", selection)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error retrieving target compression mode : %s", err.Error())
+		a.logger.Error("Error retrieving user select value", "reason", err.Error())
 		return ""
 	}
 

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"embed"
-	"log"
+	"log/slog"
 	"os"
 	"path"
 	"strings"
@@ -37,18 +37,22 @@ var OUTPUT_DIR string
 var TEMP_DIR string
 var GS_BINARY_PATH string
 
+var logger *slog.Logger
+
 func main() {
 	initGlobals()
+	utils.RemoveEmptyLogsFiles(TEMP_DIR)
+	logger = utils.InitLogger(TEMP_DIR)
 	ensureRequiredDirectories()
 	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
 	// Create an instance of the app structure
-	app := models.NewApp(OUTPUT_DIR, TEMP_DIR, logoLightIcon, compressIcon, resizeA4Icon)
-	pdfHandler := models.NewPdfHandler(OUTPUT_DIR, TEMP_DIR, GS_BINARY_PATH)
+	app := models.NewApp(logger, OUTPUT_DIR, TEMP_DIR, logoLightIcon, compressIcon, resizeA4Icon)
+	pdfHandler := models.NewPdfHandler(logger, OUTPUT_DIR, TEMP_DIR, GS_BINARY_PATH)
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
-		Title:      "We   ❤   PDF",
+		Title:      "We Love PDF",
 		Width:      700,
 		Height:     777,
 		OnShutdown: onAppClose,
@@ -60,6 +64,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			pdfHandler,
+			logger,
 		},
 		Mac: &mac.Options{
 			About: &mac.AboutInfo{
@@ -71,14 +76,17 @@ func main() {
 	})
 
 	if startErr != nil {
-		println("Error:", startErr.Error())
+		logger.Error("Error starting app", "reason", startErr.Error())
+		panic(startErr)
 	}
+
+	logger.Info("Application successfully started")
 }
 
 func initGlobals() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatalf("Error retrieving the user's home directory : %s", err.Error())
+		logger.Error("Error retrieving the user's home directory", "reason", err.Error())
 	}
 
 	var localAssetsDir = path.Join(userHomeDir, ".welovepdf")
@@ -93,40 +101,42 @@ func initGlobals() {
 func ensureRequiredDirectories() {
 	err := utils.EnsureDirectory(localBinDir)
 	if err != nil {
-		log.Fatalf("Error creating local bin directory : %s", err.Error())
+		logger.Error("Error creating local bin directory", "reason", err.Error())
 	}
 
 	err = utils.EnsureDirectory(OUTPUT_DIR)
 	if err != nil {
-		log.Fatalf("Error creating target directory : %s", err.Error())
+		logger.Error("Error creating target directory", "reason", err.Error())
 	}
 
 	err = utils.EnsureDirectory(TEMP_DIR)
 	if err != nil {
-		log.Fatalf("Error creating temp directory : %s", err.Error())
+		logger.Error("Error creating temp directory", "reason", err.Error())
 	}
 }
 
 func onAppClose(_ context.Context) {
-	log.Println("OnAppClose fired")
+	logger.Info("OnAppClose fired")
 
 	_ = os.RemoveAll(TEMP_DIR)
 
 	outputDirContent, _ := os.ReadDir(OUTPUT_DIR)
 	for i := 0; i < len(outputDirContent); i += 1 {
 		if outputDirContent[i].IsDir() {
-			log.Println("OnAppClose done")
+			logger.Info("OnAppClose done")
 			return
 		}
 
 		if !strings.HasPrefix(outputDirContent[i].Name(), ".") {
-			log.Println("OnAppClose done")
+			logger.Info("OnAppClose done")
 			return
 		}
 
 	}
 
-	log.Println("found no files or directory in output dir, remove output dir")
+	utils.RemoveEmptyLogsFiles(TEMP_DIR)
+
+	logger.Info("found no files or directory in output dir, remove output dir")
 	_ = os.RemoveAll(OUTPUT_DIR)
-	log.Println("OnAppClose done")
+	logger.Info("OnAppClose done")
 }

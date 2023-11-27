@@ -2,6 +2,7 @@ package models
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"path"
 	"welovepdf/pkg/utils"
@@ -11,18 +12,21 @@ import (
 )
 
 type PdfHandler struct {
+	logger     *slog.Logger
 	outputDir  string
 	tempDir    string
 	binaryPath string
 }
 
 func NewPdfHandler(
+	logger *slog.Logger,
 	outputDir string,
 	tempDir string,
 	binaryPath string,
 ) *PdfHandler {
-	log.Printf("PdfHandler w/ binaryPath : %s", binaryPath)
+	logger.Info("PdfHandler w/ binaryPath : %s", binaryPath)
 	return &PdfHandler{
+		logger:     logger,
 		outputDir:  outputDir,
 		tempDir:    tempDir,
 		binaryPath: binaryPath,
@@ -39,44 +43,55 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 
 	isSuccess := utils.MergePdfFiles(tempFilePath, filePathes)
 	if !isSuccess {
-		log.Printf("Error Merging pdf files")
+		p.logger.Error("Error merging PDF files", "files", filePathes)
 		return false
 	}
-	log.Printf("binary path in p : %s", p.binaryPath)
-	return utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+
+	result := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		TargetFilePath: targetFilePath,
 		SourceFilePath: tempFilePath,
 		BinaryPath:     p.binaryPath,
 	})
+
+	if !result {
+		p.logger.Error("Error merging files", "files", filePathes)
+		return false
+	}
+	return true
 }
 
 func (p *PdfHandler) OptimizePdfFile(filePath string) bool {
-	log.Println("OptimizePdfFile: operation starting")
+	p.logger.Info("OptimizePdfFile: operation starting")
 
 	newFileName := utils.AddSuffixToFileName(utils.GetFileNameFromPath(filePath), "_compressed")
 	targetFilePath := path.Join(p.outputDir, newFileName)
 
 	err := pdfcpu.OptimizeFile(filePath, targetFilePath, pdfcpu.LoadConfiguration())
 	if err != nil {
-		log.Printf("Error retrieving targetPath: %s", err.Error())
+		p.logger.Error("Error optimizing file", "file", filePath, "reason", err.Error())
 		return false
 	}
 
-	log.Println("Optimization succeeded")
-
+	p.logger.Info("OptimizePdfFile: operation succeeded")
 	return true
 }
 
 func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool {
+	p.logger.Info("CompressPdfFile: operation starting", "targetQuality", targetImageQuality)
 	resultFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
 
 	pageCount, err := pdfcpu.PageCountFile(filePath)
-	if pageCount == 1 {
-		return utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
+	if err == nil && pageCount == 1 {
+		result := utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
 			SourceFilePath: filePath,
 			TargetFilePath: resultFilePath,
 			BinaryPath:     p.binaryPath,
 		})
+		if !result {
+			p.logger.Error("Error compressing single page file", "file", filePath, "targetQuality", targetImageQuality)
+			return false
+		}
+		return true
 	}
 
 	fileId := uuid.New().String()
