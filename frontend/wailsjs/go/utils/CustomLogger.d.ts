@@ -4,6 +4,10 @@ import {slog} from '../models';
 
 export function Close():Promise<void>;
 
+export function Debug(arg1:string,arg2:Array<slog.Attr>):Promise<void>;
+
 export function Error(arg1:string,arg2:Array<slog.Attr>):Promise<void>;
 
 export function Info(arg1:string,arg2:Array<slog.Attr>):Promise<void>;
+
+export function Warn(arg1:string,arg2:Array<slog.Attr>):Promise<void>;

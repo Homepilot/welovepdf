@@ -35,15 +35,15 @@ var assets embed.FS
 var localBinDir string
 var OUTPUT_DIR string
 var TEMP_DIR string
+var LOGS_DIR string
 var GS_BINARY_PATH string
 
-var logtailSourceToken string = ""
+var logtailSourceToken string = "eEUGryMaDBULCSbtc7358Z6s"
 var logger *utils.CustomLogger
 
 func main() {
 	initGlobals()
-	utils.RemoveEmptyLogsFiles(TEMP_DIR)
-	logger := utils.InitLogger(TEMP_DIR, logtailSourceToken)
+	logger := utils.NewLogger(LOGS_DIR, logtailSourceToken)
 	ensureRequiredDirectories()
 	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
@@ -95,6 +95,7 @@ func initGlobals() {
 
 	OUTPUT_DIR = utils.GetTodaysOutputDir(userHomeDir)
 	TEMP_DIR = path.Join(localAssetsDir, "temp")
+	LOGS_DIR = path.Join(localAssetsDir, "logs")
 	GS_BINARY_PATH = path.Join(localBinDir, "ghostscript_welovepdf")
 
 }
@@ -113,6 +114,11 @@ func ensureRequiredDirectories() {
 	err = utils.EnsureDirectory(TEMP_DIR)
 	if err != nil {
 		logger.Error("Error creating temp directory", slog.String("reason", err.Error()))
+	}
+
+	err = utils.EnsureDirectory(LOGS_DIR)
+	if err != nil {
+		logger.Error("Error creating logs directory", slog.String("reason", err.Error()))
 	}
 }
 
@@ -137,7 +143,6 @@ func onAppClose(_ context.Context) {
 
 	logger.Info("OnAppClose done")
 	logger.Close()
-	utils.RemoveEmptyLogsFiles(TEMP_DIR)
 
 	_ = os.RemoveAll(OUTPUT_DIR)
 }

@@ -1,32 +1,30 @@
 ## Must have                          
-| Must have 1 | 3h30 + ???
+| Must have 1 | 1h + ??? + ??
 | ---------------------| ----------|
-| Drag n Drop as last card / new grid item under files list    | 30min  |
-| Split PDF ?                                 | 30min |
-| Add Logger                                | 1h |
 | Frontend logs                         | 30min |
-| Backend logs                          | 1h |
-| keep mem usage in check    - use Writer & Reader instead       | ??? |
+| Backend logs                          | 30min |
+| keep mem usage in check (use Writer & Reader instead if file api?)       | ??? |
+| SIGN BUILDS                |                 ??|
 <br/>
 <br/>
 
-| Must have 2 |                                3h15 + ?? |
+| Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|
-| centrer footer||
 | warning dnd multiple scrollable parents||
-| css text overflow||
+| final style touch (Abde)||
+| Logger - send logs by batches ?                                | 15min |
 | add tests          |                         2h30|
 | add tests backend   |    2h|
 | add tests frontend   |   2h30|
 | test pipeline         |                      30min|
 | Go file naming convention |                   15 min|
-| SIGN BUILDS                |                 ??|
 
 <br/>
 <br/>
 
 | Nice to have                 | 2h30 + ??? |
 | --------------------- | ----------|
+| Split PDF ?                                 | 30min |
 | style toasts                  | 30min |
 | different loader messages     | 30min |
 | setup husky                   | 30min |

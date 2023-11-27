@@ -6,10 +6,18 @@ export function Close() {
   return window['go']['utils']['CustomLogger']['Close']();
 }
 
+export function Debug(arg1, arg2) {
+  return window['go']['utils']['CustomLogger']['Debug'](arg1, arg2);
+}
+
 export function Error(arg1, arg2) {
   return window['go']['utils']['CustomLogger']['Error'](arg1, arg2);
 }
 
 export function Info(arg1, arg2) {
   return window['go']['utils']['CustomLogger']['Info'](arg1, arg2);
+}
+
+export function Warn(arg1, arg2) {
+  return window['go']['utils']['CustomLogger']['Warn'](arg1, arg2);
 }
