@@ -9,26 +9,52 @@ import (
 
 	"github.com/elastic/go-sysinfo"
 	"github.com/google/uuid"
+	slogmulti "github.com/samber/slog-multi"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // TODO : https://go.dev/play/p/0yJNk065ftB
 
-func getLogWriters(tempDir string) io.Writer {
+type CustomLogger struct {
+	Logger     *slog.Logger
+	lumberjack *lumberjack.Logger
+}
+
+func (c *CustomLogger) Close() {
+	c.lumberjack.Close()
+}
+
+func getLogFileWriter(tempDir string) io.Writer {
 	logsDir := path.Join(tempDir, "..", "logs")
 	EnsureDirectory(logsDir)
-	logFilePath := path.Join(logsDir, uuid.NewString()+".log")
+	logFilePath := path.Join(logsDir, uuid.NewString()+".json")
 	tempFile, _ := os.Create(logFilePath)
 	defer tempFile.Close()
-	tempFile.Chmod(0755)
+	os.Chmod(logFilePath, 0755)
 	logFileWriter := bufio.NewWriter(tempFile)
 
-	// return io.MultiWriter(logFileWriter, os.Stdout)
 	return logFileWriter
 }
 
-func InitLogger(tempDir string) *slog.Logger {
-	handler := slog.NewJSONHandler(getLogWriters(tempDir), nil)
-	logger := slog.New(handler)
+func InitLogger(tempDir string) *CustomLogger {
+	logsDir := path.Join(tempDir, "..", "logs")
+	EnsureDirectory(logsDir)
+	logFilePath := path.Join(logsDir, uuid.NewString()+".log")
+
+	lj := &lumberjack.Logger{
+		Filename:   logFilePath,
+		MaxSize:    500, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28,   //days
+		Compress:   true, // disabled by default
+	}
+
+	logger := slog.New(slogmulti.Fanout(
+		// slog.NewJSONHandler(getLogFileWriter(tempDir), &slog.HandlerOptions{}),
+		slog.NewJSONHandler(lj, &slog.HandlerOptions{}),
+		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}),
+		// slog.NewJSONHandler(getLogWriters(tempDir), nil),
+	))
 
 	goInfo := sysinfo.Go()
 	host, _ := sysinfo.Host()
@@ -63,7 +89,10 @@ func InitLogger(tempDir string) *slog.Logger {
 
 	slog.SetDefault(enrichedLogger)
 
-	return enrichedLogger
+	return &CustomLogger{
+		Logger:     enrichedLogger,
+		lumberjack: lj,
+	}
 }
 
 func RemoveEmptyLogsFiles(tempDir string) {

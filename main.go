@@ -37,12 +37,14 @@ var OUTPUT_DIR string
 var TEMP_DIR string
 var GS_BINARY_PATH string
 
+var customLogger *utils.CustomLogger
 var logger *slog.Logger
 
 func main() {
 	initGlobals()
 	utils.RemoveEmptyLogsFiles(TEMP_DIR)
-	logger = utils.InitLogger(TEMP_DIR)
+	customLogger := utils.InitLogger(TEMP_DIR)
+	logger = customLogger.Logger
 	ensureRequiredDirectories()
 	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
@@ -134,9 +136,9 @@ func onAppClose(_ context.Context) {
 
 	}
 
+	logger.Info("OnAppClose done")
+	customLogger.Close()
 	utils.RemoveEmptyLogsFiles(TEMP_DIR)
 
-	logger.Info("found no files or directory in output dir, remove output dir")
 	_ = os.RemoveAll(OUTPUT_DIR)
-	logger.Info("OnAppClose done")
 }

@@ -1,0 +1,32 @@
+{
+    "time":"2023-11-27T11:36:19.510098+01:00",
+    "level":"INFO",
+    "msg":"GhostScript already setup",
+    "sysinfo":{
+        "OS":"darwin",
+        "Arch":"arm64",
+        "MaxProcs":10,
+        "Version":"go1.21.4"
+    },
+    "hostinfo":{
+        "Architecture":"arm64",
+        "BootTime":"2023-11-23T01:51:33.434546+01:00",
+        "Hostname":"macbook-pro-de-gregoire.local",
+        "KernelVersion":"23.1.0",
+        "Timezone":"CET",
+        "TimezoneOffsetSec":3600,
+        "UniqueID":"4A3AB735-15E8-59FA-9CFC-C5D9F0991456"
+    },
+    "osinfo": {
+            "Type":"macos",
+            "Family":"darwin",
+            "Platform":"darwin",
+            "Name":"macOS",
+            "Version":"14.1.1",
+            "Major":14,
+            "Minor":1,
+            "Patch":1,
+            "Build":"23B81",
+            "Codename":""
+    }
+}

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"log/slog"
 	"os"
 	"path"
@@ -24,7 +23,7 @@ func NewPdfHandler(
 	tempDir string,
 	binaryPath string,
 ) *PdfHandler {
-	logger.Info("PdfHandler w/ binaryPath : %s", binaryPath)
+	logger.Info("PdfHandler w/ binaryPath", "binarypath", binaryPath)
 	return &PdfHandler{
 		logger:     logger,
 		outputDir:  outputDir,
@@ -34,8 +33,15 @@ func NewPdfHandler(
 }
 
 func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, canResize bool) bool {
+	p.logger.Info("MergePdfFiles: operation starting")
 	if !canResize {
-		return utils.MergePdfFiles(targetFilePath, filePathes)
+		result := utils.MergePdfFiles(targetFilePath, filePathes)
+		if !result {
+			p.logger.Error("MergePdfFiles operation failed")
+			return false
+		}
+		p.logger.Info("MergePdfFiles: operation succeeded")
+		return true
 	}
 
 	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
@@ -44,6 +50,7 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 	isSuccess := utils.MergePdfFiles(tempFilePath, filePathes)
 	if !isSuccess {
 		p.logger.Error("Error merging PDF files", "files", filePathes)
+		p.logger.Info("MergePdfFiles: operation failed")
 		return false
 	}
 
@@ -55,8 +62,10 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 
 	if !result {
 		p.logger.Error("Error merging files", "files", filePathes)
+		p.logger.Info("MergePdfFiles: operation failed")
 		return false
 	}
+	p.logger.Info("MergePdfFiles: operation succeeded")
 	return true
 }
 
@@ -77,7 +86,7 @@ func (p *PdfHandler) OptimizePdfFile(filePath string) bool {
 }
 
 func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool {
-	p.logger.Info("CompressPdfFile: operation starting", "targetQuality", targetImageQuality)
+	p.logger.Info("CompressFile: operation starting", "targetQuality", targetImageQuality)
 	resultFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
 
 	pageCount, err := pdfcpu.PageCountFile(filePath)
@@ -88,9 +97,11 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 			BinaryPath:     p.binaryPath,
 		})
 		if !result {
-			p.logger.Error("Error compressing single page file", "file", filePath, "targetQuality", targetImageQuality)
+			p.logger.Error("CompressFile : error compressing single page file", "file", filePath, "targetQuality", targetImageQuality)
+			p.logger.Error("CompressFile operation failed")
 			return false
 		}
+		p.logger.Info("CompressFile operation succeeded")
 		return true
 	}
 
@@ -105,7 +116,8 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 	// 1. Split file into 1 file per page
 	err = pdfcpu.SplitFile(filePath, tempDirPath1, 1, nil)
 	if err != nil {
-		log.Printf("Error splitting file, compression aborted, error: %s\n", err.Error())
+		p.logger.Error("CompressFile : error splitting file, compression aborted", "reason", err.Error())
+		p.logger.Error("CompressFile operation failed")
 		return false
 	}
 
@@ -116,24 +128,26 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 		BinaryPath:    p.binaryPath,
 	})
 	if !isCompressionSuccess {
-		log.Printf("Error compressing files in dir : %s to dir %s", tempDirPath1, tempDirPath2)
+		p.logger.Error("Error compressing files in dir", "tempDirPath1", tempDirPath1, "tempDirPath2", tempDirPath2)
+		p.logger.Error("CompressFile operation failed")
 		return false
 	}
 
 	// 3. Merge all compressed files back into 1
 	isMergeSuccess := utils.MergeAllFilesInDir(resultFilePath, tempDirPath2)
 	if isMergeSuccess != true {
-		log.Println("Error during final merge !")
+		p.logger.Error("CompressFile : error during final merge !")
+		p.logger.Error("CompressFile operation failed")
 		return false
 	}
 
-	log.Printf("File compression successful: %s", resultFilePath)
+	p.logger.Info("CompressFile operation succeeded")
 
 	return true
 }
 
 func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
-	log.Printf("can resize : %t", canResize)
+	p.logger.Info("ConvertImageToPdf : operation started")
 	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+".pdf")
 	if canResize {
 		targetFilePath = path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameWoExtensionFromPath(filePath), "_resized.pdf"))
@@ -146,10 +160,12 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 
 	isSuccess := utils.ConvertImageToPdf(filePath, tempFilePath)
 	if !isSuccess {
+		p.logger.Error("ConvertImageToPdf : operation failed")
 		return false
 	}
 
 	if !canResize {
+		p.logger.Info("ConvertImageToPdf : operation succeeded")
 		return true
 	}
 
@@ -160,26 +176,37 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 	})
 
 	if !isSuccess {
+		p.logger.Error("ConvertImageToPdf : operation failed at ResizePdfFileToA4")
 		return true // file is converted, even though not resized
 	}
 
+	p.logger.Info("ConvertImageToPdf : operation succeeded")
 	return true
 }
 
 func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
-	return utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+	p.logger.Info("CreateTempFilesFromUpload : operation started")
+	result := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		BinaryPath:     p.binaryPath,
 		SourceFilePath: filePath,
 		TargetFilePath: path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameFromPath(filePath), "_resized")),
 	})
+	if !result {
+		p.logger.Error("ResizePdfFileToA4 : operation failed")
+		return false
+	}
+	p.logger.Info("CreateTempFilesFromUpload : operation succeeded")
+	return true
 }
 
 func (p *PdfHandler) CreateTempFilesFromUpload(fileAsBase64 []byte) string {
+	p.logger.Info("CreateTempFilesFromUpload : operation started")
 	newFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	err := os.WriteFile(newFilePath, []byte(fileAsBase64), 0755)
 	if err != nil {
-		log.Printf("Error saving data to file : %s", err.Error())
+		p.logger.Error("Error saving data to file", "reason", err.Error())
 		return ""
 	}
+	p.logger.Info("CreateTempFilesFromUpload : operation succeeded")
 	return newFilePath
 }

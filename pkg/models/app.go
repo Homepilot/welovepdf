@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"strings"
 
@@ -130,7 +129,6 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 	}
 
 	selection, err := runtime.MessageDialog(a.ctx, dialogOptions)
-	log.Printf("selection : %s", selection)
 	if err != nil {
 		a.logger.Error("Error retrieving user select value", "reason", err.Error())
 		return ""

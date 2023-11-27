@@ -1,13 +1,17 @@
 module welovepdf
 
-go 1.18
+go 1.21
+
+toolchain go1.21.4
 
 require (
 	github.com/elastic/go-sysinfo v1.11.1
 	github.com/google/uuid v1.3.0
 	github.com/pdfcpu/pdfcpu v0.5.0
+	github.com/samber/slog-multi v1.0.2
 	github.com/stretchr/testify v1.8.4
 	github.com/wailsapp/wails/v2 v2.6.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
@@ -44,7 +48,7 @@ require (
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/image v0.11.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
