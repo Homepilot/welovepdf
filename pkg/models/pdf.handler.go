@@ -1,6 +1,7 @@
 package models
 
 import (
+	"log/slog"
 	"os"
 	"path"
 	"welovepdf/pkg/utils"
@@ -22,7 +23,7 @@ func NewPdfHandler(
 	tempDir string,
 	binaryPath string,
 ) *PdfHandler {
-	logger.Info("PdfHandler w/ binaryPath", "binarypath", binaryPath)
+	logger.Info("PdfHandler w/ binaryPath", slog.String("binarypath", binaryPath))
 	return &PdfHandler{
 		logger:     logger,
 		outputDir:  outputDir,
@@ -48,7 +49,7 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 
 	isSuccess := utils.MergePdfFiles(tempFilePath, filePathes)
 	if !isSuccess {
-		p.logger.Error("Error merging PDF files", "files", filePathes)
+		p.logger.Error("Error merging PDF files", slog.Int("nbOfFiles", len(filePathes)))
 		p.logger.Info("MergePdfFiles: operation failed")
 		return false
 	}
@@ -60,7 +61,7 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 	})
 
 	if !result {
-		p.logger.Error("Error merging files", "files", filePathes)
+		p.logger.Error("Error merging files", slog.Int("nbOfFiles", len(filePathes)))
 		p.logger.Info("MergePdfFiles: operation failed")
 		return false
 	}
@@ -76,7 +77,7 @@ func (p *PdfHandler) OptimizePdfFile(filePath string) bool {
 
 	err := pdfcpu.OptimizeFile(filePath, targetFilePath, pdfcpu.LoadConfiguration())
 	if err != nil {
-		p.logger.Error("Error optimizing file", "file", filePath, "reason", err.Error())
+		p.logger.Error("Error optimizing file", slog.String("file", filePath), slog.String("reason", err.Error()))
 		return false
 	}
 
@@ -85,7 +86,7 @@ func (p *PdfHandler) OptimizePdfFile(filePath string) bool {
 }
 
 func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool {
-	p.logger.Info("CompressFile: operation starting", "targetQuality", targetImageQuality)
+	p.logger.Info("CompressFile: operation starting", slog.Int("targetQuality", targetImageQuality))
 	resultFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
 
 	pageCount, err := pdfcpu.PageCountFile(filePath)
@@ -96,7 +97,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 			BinaryPath:     p.binaryPath,
 		})
 		if !result {
-			p.logger.Error("CompressFile : error compressing single page file", "file", filePath, "targetQuality", targetImageQuality)
+			p.logger.Error("CompressFile : error compressing single page file", slog.String("file", filePath), slog.Int("targetQuality", targetImageQuality))
 			p.logger.Error("CompressFile operation failed")
 			return false
 		}
@@ -115,7 +116,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 	// 1. Split file into 1 file per page
 	err = pdfcpu.SplitFile(filePath, tempDirPath1, 1, nil)
 	if err != nil {
-		p.logger.Error("CompressFile : error splitting file, compression aborted", "reason", err.Error())
+		p.logger.Error("CompressFile : error splitting file, compression aborted", slog.String("reason", err.Error()))
 		p.logger.Error("CompressFile operation failed")
 		return false
 	}
@@ -127,7 +128,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 		BinaryPath:    p.binaryPath,
 	})
 	if !isCompressionSuccess {
-		p.logger.Error("Error compressing files in dir", "tempDirPath1", tempDirPath1, "tempDirPath2", tempDirPath2)
+		p.logger.Error("Error compressing files in dir", slog.String("tempDirPath1", tempDirPath1), slog.String("tempDirPath2", tempDirPath2))
 		p.logger.Error("CompressFile operation failed")
 		return false
 	}
@@ -203,7 +204,7 @@ func (p *PdfHandler) CreateTempFilesFromUpload(fileAsBase64 []byte) string {
 	newFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	err := os.WriteFile(newFilePath, []byte(fileAsBase64), 0755)
 	if err != nil {
-		p.logger.Error("Error saving data to file", "reason", err.Error())
+		p.logger.Error("Error saving data to file", slog.String("reason", err.Error()))
 		return ""
 	}
 	p.logger.Info("CreateTempFilesFromUpload : operation succeeded")

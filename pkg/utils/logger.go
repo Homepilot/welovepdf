@@ -26,7 +26,7 @@ func (c *CustomLogger) Close() {
 	c.lumberjack.Close()
 }
 
-func (c *CustomLogger) sendLogToLogtail(msg string, args ...any) {
+func (c *CustomLogger) sendLogToLogtail(msg string, args []slog.Attr) {
 	logTailUrl := "https://in.logs.betterstack.com/"
 	bodyStr := getJsonBodyFromArgs(msg, args)
 	body := []byte(bodyStr)
@@ -49,7 +49,7 @@ func (c *CustomLogger) sendLogToLogtail(msg string, args ...any) {
 	fmt.Println("Sending to LOGTAIL done")
 }
 
-func (c *CustomLogger) Info(msg string, args ...any) {
+func (c *CustomLogger) Info(msg string, args ...slog.Attr) {
 	c.logger.Info(msg, args)
 	if c.logtailToken == "" {
 		return
@@ -57,7 +57,7 @@ func (c *CustomLogger) Info(msg string, args ...any) {
 	c.sendLogToLogtail(msg, args)
 }
 
-func (c *CustomLogger) Error(msg string, args ...any) {
+func (c *CustomLogger) Error(msg string, args ...slog.Attr) {
 	c.logger.Error(msg, args)
 	if c.logtailToken == "" {
 		return
@@ -98,12 +98,13 @@ func enrichLoggerWithSysInfo(logger *slog.Logger) *slog.Logger {
 	)
 }
 
-func getJsonBodyFromArgs(msg string, args ...any) string {
-	jsonStr := `{ "message": "` + msg
-	// for i := 0; i < len(args); i = 1 {
-	// 	fmt.Printf("field: %s", args[i])
-	// }
-	return jsonStr + `" }`
+func getJsonBodyFromArgs(msg string, args []slog.Attr) string {
+	jsonStr := `{ "message": "` + msg + `"`
+	for i := 0; i < len(args); i = 1 {
+		jsonStr += `, "` + args[i].Key + `": "` + args[i].Value.Kind().String() + `"`
+		// fmt.Printf("field: %s", args[i])
+	}
+	return jsonStr + ` }`
 }
 
 func InitLogger(tempDir string, logtailToken string) *CustomLogger {

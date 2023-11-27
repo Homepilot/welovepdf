@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 	"welovepdf/pkg/utils"
 
@@ -75,7 +76,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 		Filters: filters,
 	})
 	if err != nil {
-		a.logger.Error("Error in OpenMultipleFilesDialog", "reason", err.Error())
+		a.logger.Error("Error in OpenMultipleFilesDialog", slog.String("reason", err.Error()))
 		result.error = err.Error()
 		return []string{}
 	}
@@ -90,7 +91,7 @@ func (a *App) OpenSaveFileDialog() string {
 	})
 
 	if err != nil {
-		a.logger.Error("Save dialog :error retrieving targetPath", "reason", err.Error())
+		a.logger.Error("Save dialog :error retrieving targetPath", slog.String("reason", err.Error()))
 		return ""
 	}
 
@@ -130,7 +131,7 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 
 	selection, err := runtime.MessageDialog(a.ctx, dialogOptions)
 	if err != nil {
-		a.logger.Error("Error retrieving user select value", "reason", err.Error())
+		a.logger.Error("Error retrieving user select value", slog.String("reason", err.Error()))
 		return ""
 	}
 

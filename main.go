@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"log/slog"
 	"os"
 	"path"
 	"strings"
@@ -76,7 +77,7 @@ func main() {
 	})
 
 	if startErr != nil {
-		logger.Error("Error starting app", "reason", startErr.Error())
+		logger.Error("Error starting app", slog.String("reason", startErr.Error()))
 		panic(startErr)
 	}
 
@@ -86,7 +87,7 @@ func main() {
 func initGlobals() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
-		logger.Error("Error retrieving the user's home directory", "reason", err.Error())
+		logger.Error("Error retrieving the user's home directory", slog.String("reason", err.Error()))
 	}
 
 	var localAssetsDir = path.Join(userHomeDir, ".welovepdf")
@@ -101,17 +102,17 @@ func initGlobals() {
 func ensureRequiredDirectories() {
 	err := utils.EnsureDirectory(localBinDir)
 	if err != nil {
-		logger.Error("Error creating local bin directory", "reason", err.Error())
+		logger.Error("Error creating local bin directory", slog.String("reason", err.Error()))
 	}
 
 	err = utils.EnsureDirectory(OUTPUT_DIR)
 	if err != nil {
-		logger.Error("Error creating target directory", "reason", err.Error())
+		logger.Error("Error creating target directory", slog.String("reason", err.Error()))
 	}
 
 	err = utils.EnsureDirectory(TEMP_DIR)
 	if err != nil {
-		logger.Error("Error creating temp directory", "reason", err.Error())
+		logger.Error("Error creating temp directory", slog.String("reason", err.Error()))
 	}
 }
 
