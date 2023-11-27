@@ -1,7 +1,7 @@
 
 #app-footer {
-    grid-column: 1 / 5;
-    grid-row: 4 / 5;
+    grid-column: 2 / 5;
+    grid-row: 5 / 6;
     background-color: var(--theme-dark);
     display: flex;
     justify-content: center;
@@ -16,7 +16,7 @@
     justify-content: center;
     align-items: center;
     min-width: 20rem;
-    border-top: solid 1px var(--theme-light);
+    /* border-top: solid 1px var(--theme-light); */
 }
 
 #app-footer img {

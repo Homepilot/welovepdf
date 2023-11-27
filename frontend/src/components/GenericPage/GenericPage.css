@@ -10,7 +10,7 @@
     display: grid;
     grid-template-columns: 2rem 1fr 5fr 1fr 2rem;
     grid-gap: 0;
-    grid-template-rows: 4rem 5vh 5fr 5rem 1rem;
+    grid-template-rows: 4rem 5vh 5fr 8rem 5rem 1rem;
     /* background: white */
 }
 
@@ -28,7 +28,6 @@
 #generic-page-header {
     grid-column: 3;
     grid-row: 2;
-
 }
 
 .hp-btn {

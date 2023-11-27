@@ -2,15 +2,15 @@ import { useEffect } from "react";
 
 import { FileUploader } from "react-drag-drop-files";
 
+import DragNDropIcon from '../../assets/images/drag_n_drop.svg'
 import { FileType } from "../../types";
 import "./DragNDropFiles.css"
 
 const imgFileExtensions = ["JPG", "JPEG", "PNG", "GIF"];
 
-export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType, onFilesDropped(file:File[]): void }> = ({
+export const DragDrop: React.FC<{ filesType: FileType, onFilesDropped(file:File[]): void }> = ({
     filesType,
     onFilesDropped,
-    children,
 }) => {
     const allowedExtensions = filesType === FileType.IMAGE ? imgFileExtensions : ['PDF']
 
@@ -33,17 +33,20 @@ export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType,
 
   return (
     <FileUploader 
-        handleChange={onFilesDropped} 
-        onClick={() => {}}
-        hoverTitle="Glisser des fichiers dans la denêtre pour les ajouter à la liste" 
+        handleChange={onFilesDropped}
+        hoverTitle="Glisser des fichiers dans la f+enêtre pour les ajouter à la liste" 
         multiple={true} 
         name="file" 
+        label="Vous pouvez aussi glisser des fichiers ici"
         maxSize={50}
         types={allowedExtensions} 
         classes={["dropzone"]}
     >
-      {children}
-      </FileUploader>
+      <div className="drop-container">
+        <img className="drag-n-drop-icon" src={DragNDropIcon} />
+        <span>Vous pouvez aussi glisser des fichiers ici</span>
+      </div>
+    </FileUploader>
   );
 }
 

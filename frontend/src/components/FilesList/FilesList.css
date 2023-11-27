@@ -3,6 +3,7 @@
     margin: 0 auto;
     width: 99%;
     max-width: 60rem;
+    overflow-y: scroll;
 }
 
 .no-files-disclaimer {
@@ -19,7 +20,3 @@
     background-color: transparent !important;
 } */
 
-.drag-n-drop-icon {
-    margin-top: 3rem;
-    width: 64px;
-}

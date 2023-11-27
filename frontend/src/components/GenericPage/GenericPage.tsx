@@ -153,7 +153,6 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                                 </span>
                             </div>
                         </div>
-                        <DragDrop filesType={inputFilesType} onFilesDropped={handleFileDrop} >
                             <FilesList 
                                 selectedFiles={selectedFiles}
                                 onRemoveFileFromList={removeFileFromList}
@@ -161,8 +160,8 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                                 onSelectionUpdated={addFilesToSelectionList} 
                                 selectFilesPrompt={selectFilesPrompt || headerText}
                             />
-                        </DragDrop>
                     </div>
+                    <DragDrop filesType={inputFilesType} onFilesDropped={handleFileDrop} />
                     <AppFooter/>
                 </div>
     )
