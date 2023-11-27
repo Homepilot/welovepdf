@@ -2,8 +2,8 @@ package models
 
 import (
 	"context"
-	"log/slog"
 	"strings"
+	"welovepdf/pkg/utils"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -11,7 +11,7 @@ import (
 // App struct
 type App struct {
 	ctx          context.Context
-	logger       *slog.Logger
+	logger       *utils.CustomLogger
 	outputDir    string
 	tempDir      string
 	logoIcon     []byte
@@ -21,7 +21,7 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp(
-	logger *slog.Logger,
+	logger *utils.CustomLogger,
 	outputDir string,
 	tempDir string,
 	logoIcon []byte,

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log/slog"
 	"os"
 	"path"
 	"welovepdf/pkg/utils"
@@ -11,14 +10,14 @@ import (
 )
 
 type PdfHandler struct {
-	logger     *slog.Logger
+	logger     *utils.CustomLogger
 	outputDir  string
 	tempDir    string
 	binaryPath string
 }
 
 func NewPdfHandler(
-	logger *slog.Logger,
+	logger *utils.CustomLogger,
 	outputDir string,
 	tempDir string,
 	binaryPath string,

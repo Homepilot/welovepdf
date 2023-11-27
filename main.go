@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"embed"
-	"log/slog"
 	"os"
 	"path"
 	"strings"
@@ -37,14 +36,13 @@ var OUTPUT_DIR string
 var TEMP_DIR string
 var GS_BINARY_PATH string
 
-var customLogger *utils.CustomLogger
-var logger *slog.Logger
+var logtailSourceToken string = ""
+var logger *utils.CustomLogger
 
 func main() {
 	initGlobals()
 	utils.RemoveEmptyLogsFiles(TEMP_DIR)
-	customLogger := utils.InitLogger(TEMP_DIR)
-	logger = customLogger.Logger
+	logger := utils.InitLogger(TEMP_DIR, logtailSourceToken)
 	ensureRequiredDirectories()
 	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
@@ -137,7 +135,7 @@ func onAppClose(_ context.Context) {
 	}
 
 	logger.Info("OnAppClose done")
-	customLogger.Close()
+	logger.Close()
 	utils.RemoveEmptyLogsFiles(TEMP_DIR)
 
 	_ = os.RemoveAll(OUTPUT_DIR)
