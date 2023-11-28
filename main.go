@@ -1,16 +1,15 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"log/slog"
 	"os"
 	"path"
-	"strings"
 
 	"welovepdf/pkg/models"
 	"welovepdf/pkg/utils"
 
+	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -38,7 +37,7 @@ var TEMP_DIR string
 var LOGS_DIR string
 var GS_BINARY_PATH string
 
-var logtailSourceToken string = "eEUGryMaDBULCSbtc7358Z6s"
+var logtailSourceToken string
 var logger *utils.CustomLogger
 
 func main() {
@@ -54,15 +53,19 @@ func main() {
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
-		Title:      "We Love PDF",
-		Width:      700,
-		Height:     777,
-		OnShutdown: onAppClose,
+		Title:            "We Love PDF",
+		Width:            700,
+		Height:           777,
+		MinWidth:         700,
+		MinHeight:        777,
+		BackgroundColour: &options.RGBA{R: 42, G: 47, B: 38, A: 1},
+		OnStartup:        app.Startup,
+		OnDomReady:       app.Ready,
+		OnBeforeClose:    app.BeforeClose,
+		OnShutdown:       app.Shutdown,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 42, G: 47, B: 38, A: 1},
-		OnStartup:        app.Startup,
 		Bind: []interface{}{
 			app,
 			pdfHandler,
@@ -81,11 +84,11 @@ func main() {
 		logger.Error("Error starting app", slog.String("reason", startErr.Error()))
 		panic(startErr)
 	}
-
-	logger.Info("Application successfully started")
 }
 
 func initGlobals() {
+	godotenv.Load()
+	logtailSourceToken = os.Getenv("LOGTAIL_TOKEN")
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		logger.Error("Error retrieving the user's home directory", slog.String("reason", err.Error()))
@@ -121,29 +124,4 @@ func ensureRequiredDirectories() {
 	if err != nil {
 		logger.Error("Error creating logs directory", slog.String("reason", err.Error()))
 	}
-}
-
-func onAppClose(_ context.Context) {
-	logger.Info("OnAppClose fired")
-
-	_ = os.RemoveAll(TEMP_DIR)
-
-	outputDirContent, _ := os.ReadDir(OUTPUT_DIR)
-	for i := 0; i < len(outputDirContent); i += 1 {
-		if outputDirContent[i].IsDir() {
-			logger.Info("OnAppClose done")
-			return
-		}
-
-		if !strings.HasPrefix(outputDirContent[i].Name(), ".") {
-			logger.Info("OnAppClose done")
-			return
-		}
-
-	}
-
-	logger.Info("OnAppClose done")
-	logger.Close()
-
-	_ = os.RemoveAll(OUTPUT_DIR)
 }

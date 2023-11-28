@@ -1,9 +1,6 @@
 ## Must have                          
-| Must have 1 | 1h + ??? + ??
+| Must have 1
 | ---------------------| ----------|
-| Backend logs                          | 30min |
-|    - app closed
-|    - 🏆 unexpected errors 🏆
 | SIGN BUILDS                |                 ??|
 | keep mem usage in check (use Writer & Reader instead if file api?)       | ??? |
 <br/>
@@ -13,11 +10,11 @@
 | ---------------------| ----------|
 | warning dnd multiple scrollable parents||
 | reorder not working||
-| crash on close||
 
 | Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|
 | hide file names in logs (personal info) replace only letters for easier debugging ||
+| Backend logs - 🏆 unexpected errors 🏆
 | frontend css layout v3||
 | warning dnd multiple scrollable parents||
 | final style touch (Abde)||

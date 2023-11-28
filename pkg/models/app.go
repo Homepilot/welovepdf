@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"log/slog"
+	"os"
 	"strings"
 	"welovepdf/pkg/utils"
 
@@ -43,6 +44,34 @@ func NewApp(
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	a.logger.Debug("Application starting")
+}
+
+func (a *App) Ready(ctx context.Context) {
+	a.logger.Info("Application successfully started")
+}
+
+func (a *App) Shutdown(ctx context.Context) {
+	defer a.logger.Close()
+	a.logger.Info("Application closed with no errors")
+}
+
+func (a *App) BeforeClose(ctx context.Context) bool {
+	a.logger.Debug("BeforeClose fired")
+	defer a.logger.Debug("BeforeClose done")
+
+	tempDirRemovalErr := os.RemoveAll(a.tempDir)
+	if tempDirRemovalErr != nil {
+		a.logger.Warn("BeforeClose : temp dir removed", slog.String("reason", tempDirRemovalErr.Error()))
+	} else {
+		a.logger.Debug("BeforeClose : temp dir removed")
+	}
+
+	outputDirRemovalErr := os.Remove(a.outputDir)
+	if outputDirRemovalErr != nil && !os.IsExist(outputDirRemovalErr) {
+		a.logger.Warn("BeforeClose : error removing output dir", slog.String("reason", outputDirRemovalErr.Error()))
+	}
+	return false
 }
 
 type SelectFilesResult struct {

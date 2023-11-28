@@ -65,10 +65,12 @@ func AddSuffixToFileName(fileName string, suffix string) string {
 	return strings.Join(nameParts, ".")
 }
 
-func GetTodaysOutputDir(userHomeDir string) string {
+func getCurrentDateStr() string {
 	currentTime := time.Now()
 	dateStr := strings.Split(currentTime.String(), " ")[0]
-	formattedDateStr := strings.Join(strings.Split(dateStr, "-"), "")
+	return strings.Join(strings.Split(dateStr, "-"), "")
+}
 
-	return path.Join(userHomeDir, "Documents", "welovepdf", formattedDateStr)
+func GetTodaysOutputDir(userHomeDir string) string {
+	return path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateStr())
 }

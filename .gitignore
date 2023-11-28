@@ -4,3 +4,4 @@ frontend/dist
 assets/bin/gs
 *.gz
 temp
+.env

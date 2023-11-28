@@ -23,7 +23,7 @@ func NewPdfHandler(
 	tempDir string,
 	binaryPath string,
 ) *PdfHandler {
-	logger.Info("PdfHandler w/ binaryPath", slog.String("binarypath", binaryPath))
+	logger.Debug("PdfHandler w/ binaryPath", slog.String("binarypath", binaryPath))
 	return &PdfHandler{
 		logger:     logger,
 		outputDir:  outputDir,
