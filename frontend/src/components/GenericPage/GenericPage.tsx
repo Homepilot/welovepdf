@@ -21,7 +21,7 @@ type GenericPageProps = {
     inputFilesType: FileType;
     action: {
         btnLabel: string;
-        handler(filesToHandle: string[]): Promise<boolean | boolean[] | null>;
+        handler(filesToHandle: string[], batchId: string): Promise<boolean | boolean[] | null>;
         minFilesLength: number;
     };
     selectFilesPrompt?: string;
@@ -89,7 +89,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         logOperationStarted(pageName, batchId);
 
         const includedFiles = [...selectedFiles];
-        const result = await action.handler(includedFiles.map(({id}) => id));
+        const result = await action.handler(includedFiles.map(({id}) => id), batchId);
         
         if(!['boolean', 'object'].includes(typeof result)) {
             setIsLoading(false);

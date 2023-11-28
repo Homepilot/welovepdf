@@ -47,19 +47,14 @@ func IsGhostScriptSetup(gsBinaryPath string) bool {
 	return false
 }
 
-func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperationConfig) bool {
+func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperationConfig) error {
 	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, config.BinaryPath, config.SourceFilePath, config.TargetFilePath)
 	convertToLowQualityJpegCmd := exec.Command(config.BinaryPath, "-sDEVICE=jpeg", "-o", config.TargetFilePath, "-dJPEGQ="+fmt.Sprintf("%d", targetImageQuality), "-dNOPAUSE", "-dBATCH", "-dUseCropBox", "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4", "-r140", config.SourceFilePath)
 	err := convertToLowQualityJpegCmd.Run()
-	if err != nil {
-		log.Printf("Error converting file to JPEG: %s", err.Error())
-		return false
-	}
-
-	return true
+	return err
 }
 
-func ResizePdfToA4(config *FileToFileOperationConfig) bool {
+func ResizePdfToA4(config *FileToFileOperationConfig) error {
 	log.Printf("binaryPath : %s", config.BinaryPath)
 	log.Printf("Starting resize w/ source : %s, target : %s", config.SourceFilePath, config.TargetFilePath)
 	resizePdfToA4Cmd := exec.Command(
@@ -74,11 +69,5 @@ func ResizePdfToA4(config *FileToFileOperationConfig) bool {
 		config.SourceFilePath)
 
 	err := resizePdfToA4Cmd.Run()
-	if err != nil {
-		log.Printf("Error resizing file : %s", err.Error())
-		return false
-	}
-
-	log.Println("Resize succeeded")
-	return true
+	return err
 }

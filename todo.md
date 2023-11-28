@@ -2,11 +2,7 @@
 | Must have 1 | 1h + ??? + ??
 | ---------------------| ----------|
 | Backend logs                          | 30min |
-| Logs add timestamp                          | 10min |
 |    - app closed
-|    - errors in gs operations
-|    - errors in pdfcpu operations
-|    - errors in runtime operations
 |    - 🏆 unexpected errors 🏆
 | SIGN BUILDS                |                 ??|
 | keep mem usage in check (use Writer & Reader instead if file api?)       | ??? |
@@ -25,7 +21,7 @@
 | frontend css layout v3||
 | warning dnd multiple scrollable parents||
 | final style touch (Abde)||
-| Logger - send logs by batches ?                                | 15min |
+| Logger - send logs by batches ?                                | 30min |
 | add tests          |                         2h30|
 | add tests backend   |    2h|
 | add tests frontend   |   2h30|

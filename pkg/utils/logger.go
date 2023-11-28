@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/google/uuid"
 	slogmulti "github.com/samber/slog-multi"
@@ -83,10 +84,6 @@ func (c *CustomLogger) ErrorJson(msg string, argsMap map[string]any) {
 
 func (c *CustomLogger) DebugJson(msg string, argsMap map[string]any) {
 	c.logger.Debug(msg, []slog.Attr{})
-	if c.logtailToken == "" {
-		return
-	}
-	c.sendLogToLogtail(c.getJsonBodyFromMap(msg, slog.LevelDebug, argsMap))
 }
 
 func (c *CustomLogger) Info(msg string, args ...slog.Attr) {
@@ -115,10 +112,6 @@ func (c *CustomLogger) Error(msg string, args ...slog.Attr) {
 
 func (c *CustomLogger) Debug(msg string, args ...slog.Attr) {
 	c.logger.Debug(msg, args)
-	if c.logtailToken == "" {
-		return
-	}
-	c.sendLogToLogtail(c.getJsonBodyFromSlogArgs(msg, slog.LevelDebug, args))
 }
 
 func (c *CustomLogger) log(msg string, level slog.Level, args []slog.Attr) {
@@ -166,6 +159,7 @@ func (c *CustomLogger) getBaseLogBody(msg string, level slog.Level) map[string]a
 	logObj := map[string]any{
 		"message": msg,
 		"level":   level,
+		"dt":      time.Now().Unix(),
 	}
 	for k, v := range c.sysInfo {
 		logObj[k] = v

@@ -14,29 +14,35 @@ import {
 import {
     BrowserOpenURL
 } from '../../wailsjs/runtime/runtime';
-import { CompressionMode, FileInfo, FileType } from '../types';
+import { CompressionMode, FileInfo, FileType, PageName } from '../types';
+
+import { logOperationCanceledByUser } from './logger';
 
 export async function selectMultipleFiles(fileType: FileType = FileType.PDF, selectFilesPrompt: string){
     return SelectMultipleFiles(fileType, selectFilesPrompt);
 }
 
-export async function resizeToA4(filesPathes: string[]) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function resizeToA4(filesPathes: string[], _batchId: string = "unknown_batch") {
     const result = await Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
     console.log({ conversionSuccess: result })
     return result;
 }
 
-export async function convertFiles(filesPathes: string[]) {
+export async function convertFiles(filesPathes: string[], batchId: string = "unknown_batch") {
     const shouldResize = await chooseShouldResize();
     console.log({shouldResize})
-    if(shouldResize === null) return null
+    if(shouldResize === null) {
+        logOperationCanceledByUser(PageName.CONVERT_IMG, batchId)
+        return null
+    }
 
     const result = await Promise.all(filesPathes.map(path => ConvertImageToPdf(path, shouldResize)));
     console.log({ conversionSuccess: result })
     return result;
 }
 
-export async function mergeFiles (filesPathes: string[]) {
+export async function mergeFiles (filesPathes: string[], batchId: string = "unknown_batch") {
     
     if(filesPathes.length < 2) {
         console.error('Vous devez sélectionner au moins 2 fichiers');
@@ -44,27 +50,37 @@ export async function mergeFiles (filesPathes: string[]) {
     }
     const targetFilePath = await OpenSaveFileDialog();
     console.log({ targetFilePath })
-    if(!targetFilePath || targetFilePath === '.pdf') return null;
+    if(!targetFilePath || targetFilePath === '.pdf') {
+        logOperationCanceledByUser(PageName.MERGE, batchId)
+        return null
+    }
     const shouldResize = await chooseShouldResize();
-    if(shouldResize === null) return null;
+    if(shouldResize === null) {
+        logOperationCanceledByUser(PageName.MERGE, batchId)
+        return null
+    }
 
     const result = await MergePdfFiles(targetFilePath, [...filesPathes], shouldResize)
     console.log({ mergeSuccess: result })
     return result;
 }
 
-export async function optimizeFiles (filesPathes: string[]) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function optimizeFiles (filesPathes: string[], _batchId: string = "unknown_batch") {
     const result = await Promise.all(filesPathes.map(OptimizePdfFile))
     console.log({ optimizationSuccess: result })
     return result;
 }
 
-export async function compressFiles (filesPathes: string[]): Promise<boolean[] | null> {
+export async function compressFiles (filesPathes: string[], batchId: string = "unknown_batch"): Promise<boolean[] | null> {
     const resultsArray = [];
 
     const chosenCompressionMode = await chooseCompressionMode() as CompressionMode | '';
 
-    if(!chosenCompressionMode) return null;
+    if(!chosenCompressionMode){
+        logOperationCanceledByUser(PageName.COMPRESS, batchId)
+        return null
+    }
 
     if(chosenCompressionMode === CompressionMode.OPTIMIZE) return optimizeFiles(filesPathes);
 
@@ -79,13 +95,16 @@ export async function compressFiles (filesPathes: string[]): Promise<boolean[] |
     return resultsArray;
 }
 
-export function chooseCompressionMode(){
-    return PromptUserSelect({
+export async function chooseCompressionMode(): Promise<CompressionMode | null>{
+    const result = await PromptUserSelect({
         Title:        "Mode de compression",
 		Message:      "Choississez un mode de compression",
 		Buttons:      ["Optimisation", "Compression", "Compression extrême"],
         Icon:         "compress",
-    })
+    }) as CompressionMode | '';
+
+    if(result === "") return null;
+    return result;
 }
 
 export async function chooseShouldResize(): Promise<boolean | null>{
