@@ -1,15 +1,15 @@
 ## Must have                          
 | Must have 1 | 1h + ??? + ??
 | ---------------------| ----------|
-| Frontend logs - for every operation (started, result) | 30min |
 | Backend logs                          | 30min |
+| Logs add timestamp                          | 10min |
 |    - app closed
 |    - errors in gs operations
 |    - errors in pdfcpu operations
 |    - errors in runtime operations
 |    - 🏆 unexpected errors 🏆
-| keep mem usage in check (use Writer & Reader instead if file api?)       | ??? |
 | SIGN BUILDS                |                 ??|
+| keep mem usage in check (use Writer & Reader instead if file api?)       | ??? |
 <br/>
 <br/>
 
@@ -22,6 +22,7 @@
 | Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|
 | hide file names in logs (personal info) replace only letters for easier debugging ||
+| frontend css layout v3||
 | warning dnd multiple scrollable parents||
 | final style touch (Abde)||
 | Logger - send logs by batches ?                                | 15min |

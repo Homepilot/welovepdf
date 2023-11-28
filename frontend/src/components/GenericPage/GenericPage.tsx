@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
+import { v4 as uuidv4 } from 'uuid';
 
 import { createTempFilesFromUpload, 
+    notifyAndLogOperationsResult, 
     logPageVisited,
-    selectMultipleFiles } from '../../api';
+    selectMultipleFiles,
+    logOperationStarted, } from '../../api';
 import { FileInfo, FileType, PageName } from '../../types';
 import { AppFooter } from '../AppFooter';
 import { AppHeader } from '../AppHeader';
@@ -80,53 +82,37 @@ export const GenericPage: React.FC<GenericPageProps> = ({
 
     // TODO : should use useCallback here ?
     // TODO Should split
+
     async function runHandler(){
         setIsLoading(true);
+        const batchId = uuidv4();
+        logOperationStarted(pageName, batchId);
+
         const includedFiles = [...selectedFiles];
         const result = await action.handler(includedFiles.map(({id}) => id));
         
-        if(!result) {
+        if(!['boolean', 'object'].includes(typeof result)) {
             setIsLoading(false);
             return;
         }
-        
+
+        const { successes, failures } = 
+            !Array.isArray(result)
+            ? { successes: result ? 1 : 0, failures: result ? 0 : 1 }
+            : result.reduce<{successes: number, failures: number}>(
+                (acc, operationResult) => operationResult 
+                ? { successes: acc.successes + 1, failures: acc.failures } 
+                : { successes: acc.successes, failures: acc.failures + 1 }, 
+            { successes: 0, failures: 0 })
+
+
+        setIsLoading(false);
+        notifyAndLogOperationsResult(pageName, batchId, { successes, failures })
         if(!Array.isArray(result)){
-            if(result) {
-                toast.success('Opération réussie');
-                setIsLoading(false);
-                emptyList();
-                return;
-            }
-            toast.error("L'opération a échoué");
-            setIsLoading(false);
-            
+            emptyList();
             return;
         }
-        
-        const { success, failures } = result.reduce<{success: number, failures: number}>(
-            (acc, operationResult) => operationResult 
-            ? { success: acc.success + 1, failures: acc.failures } 
-            : { success: acc.success, failures: acc.failures + 1 }, 
-            { success: 0, failures: 0 })
-            
-            if(failures === 0) {
-                toast.success('Opération réussie pour tous les fichiers');
-                emptyList();
-                setIsLoading(false);
-                return;
-            }
-            
-            if(success === 0) {
-                toast.error("L'opération a échoué pour tous les fichiers");
-                setIsLoading(false);
-                return;
-            }
-            
-            toast.success(`L'opération a réussi pour ${success} fichiers`);
-            toast.error(`L'opération a échoué pour ${failures} fichiers`);
-            
-            setSelectedFiles(includedFiles.filter((_, index) => result[index]));
-            setIsLoading(false);
+        setSelectedFiles(includedFiles.filter((_, index) => result[index]));
     }
 
     async function handleFileDrop(files: File[]){
