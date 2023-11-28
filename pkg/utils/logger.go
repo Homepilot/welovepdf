@@ -57,12 +57,44 @@ func (c *CustomLogger) Close() {
 	removeEmptyLogsFiles(c.logsDirPath)
 }
 
+func (c *CustomLogger) InfoJson(msg string, argsMap map[string]any) {
+	c.logger.Info(msg, []slog.Attr{})
+	if c.logtailToken == "" {
+		return
+	}
+	c.sendLogToLogtail(c.getJsonBodyFromMap(msg, slog.LevelInfo, argsMap))
+}
+
+func (c *CustomLogger) WarnJson(msg string, argsMap map[string]any) {
+	c.logger.Warn(msg, []slog.Attr{})
+	if c.logtailToken == "" {
+		return
+	}
+	c.sendLogToLogtail(c.getJsonBodyFromMap(msg, slog.LevelWarn, argsMap))
+}
+
+func (c *CustomLogger) ErrorJson(msg string, argsMap map[string]any) {
+	c.logger.Error(msg, []slog.Attr{})
+	if c.logtailToken == "" {
+		return
+	}
+	c.sendLogToLogtail(c.getJsonBodyFromMap(msg, slog.LevelError, argsMap))
+}
+
+func (c *CustomLogger) DebugJson(msg string, argsMap map[string]any) {
+	c.logger.Debug(msg, []slog.Attr{})
+	if c.logtailToken == "" {
+		return
+	}
+	c.sendLogToLogtail(c.getJsonBodyFromMap(msg, slog.LevelDebug, argsMap))
+}
+
 func (c *CustomLogger) Info(msg string, args ...slog.Attr) {
 	c.logger.Info(msg, args)
 	if c.logtailToken == "" {
 		return
 	}
-	c.sendLogToLogtail(msg, slog.LevelInfo, args)
+	c.sendLogToLogtail(c.getJsonBodyFromSlogArgs(msg, slog.LevelInfo, args))
 }
 
 func (c *CustomLogger) Warn(msg string, args ...slog.Attr) {
@@ -70,7 +102,7 @@ func (c *CustomLogger) Warn(msg string, args ...slog.Attr) {
 	if c.logtailToken == "" {
 		return
 	}
-	c.sendLogToLogtail(msg, slog.LevelWarn, args)
+	c.sendLogToLogtail(c.getJsonBodyFromSlogArgs(msg, slog.LevelWarn, args))
 }
 
 func (c *CustomLogger) Error(msg string, args ...slog.Attr) {
@@ -78,7 +110,7 @@ func (c *CustomLogger) Error(msg string, args ...slog.Attr) {
 	if c.logtailToken == "" {
 		return
 	}
-	c.sendLogToLogtail(msg, slog.LevelError, args)
+	c.sendLogToLogtail(c.getJsonBodyFromSlogArgs(msg, slog.LevelError, args))
 }
 
 func (c *CustomLogger) Debug(msg string, args ...slog.Attr) {
@@ -86,12 +118,12 @@ func (c *CustomLogger) Debug(msg string, args ...slog.Attr) {
 	if c.logtailToken == "" {
 		return
 	}
-	c.sendLogToLogtail(msg, slog.LevelDebug, args)
+	c.sendLogToLogtail(c.getJsonBodyFromSlogArgs(msg, slog.LevelDebug, args))
 }
 
 func (c *CustomLogger) log(msg string, level slog.Level, args []slog.Attr) {
 	if c.logtailToken != "" {
-		_ = c.sendLogToLogtail(msg, slog.LevelDebug, args)
+		_ = c.sendLogToLogtail(c.getJsonBodyFromSlogArgs(msg, slog.LevelDebug, args))
 	}
 
 	switch level {
@@ -107,10 +139,10 @@ func (c *CustomLogger) log(msg string, level slog.Level, args []slog.Attr) {
 
 }
 
-func (c *CustomLogger) sendLogToLogtail(msg string, level slog.Level, args []slog.Attr) error {
+func (c *CustomLogger) sendLogToLogtail(body *bytes.Buffer) error {
 	logTailUrl := "https://in.logs.betterstack.com/"
 
-	req, err := http.NewRequest(http.MethodPost, logTailUrl, c.getJsonBodyFromArgs(msg, level, args))
+	req, err := http.NewRequest(http.MethodPost, logTailUrl, body)
 	if err != nil {
 		fmt.Printf("Sending to LOGTAIL failed at creating req : %s", err.Error())
 		return err
@@ -125,13 +157,12 @@ func (c *CustomLogger) sendLogToLogtail(msg string, level slog.Level, args []slo
 	}
 	defer res.Body.Close()
 	if res.StatusCode >= 200 && res.StatusCode < 400 {
-		fmt.Printf("LOGTAIL req status : %s", res.Status)
 		return nil
 	}
 	return fmt.Errorf("Response has status : %s", res.Status)
 }
 
-func (c *CustomLogger) getJsonBodyFromArgs(msg string, level slog.Level, args []slog.Attr) *bytes.Buffer {
+func (c *CustomLogger) getBaseLogBody(msg string, level slog.Level) map[string]any {
 	logObj := map[string]any{
 		"message": msg,
 		"level":   level,
@@ -139,11 +170,33 @@ func (c *CustomLogger) getJsonBodyFromArgs(msg string, level slog.Level, args []
 	for k, v := range c.sysInfo {
 		logObj[k] = v
 	}
+	return logObj
+}
 
+func (c *CustomLogger) getJsonBodyFromSlogArgs(msg string, level slog.Level, args []slog.Attr) *bytes.Buffer {
+	logObj := c.getBaseLogBody(msg, level)
 	for i := 0; i < len(args); i = 1 {
 		logObj[args[i].Key] = args[i].Value.String()
-		fmt.Printf("adding args w/ name : %s and value : %s", args[i].Key, args[i].String())
 	}
+
+	data, err := json.Marshal(logObj)
+	if err != nil {
+		fmt.Printf("Error formatting JSON body : %s", err.Error())
+
+		body := []byte(`{ "level": "` + level.String() + `", "message": "` + msg + `" }`)
+		return bytes.NewBuffer(body)
+	}
+
+	body := []byte(data)
+	return bytes.NewBuffer(body)
+}
+
+func (c *CustomLogger) getJsonBodyFromMap(msg string, level slog.Level, argsMap map[string]any) *bytes.Buffer {
+	logObj := c.getBaseLogBody(msg, level)
+	for k, v := range argsMap {
+		logObj[k] = v
+	}
+
 	data, err := json.Marshal(logObj)
 	if err != nil {
 		fmt.Printf("Error formatting JSON body : %s", err.Error())

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import toast from 'react-hot-toast';
 
-import { createTempFilesFromUpload, selectMultipleFiles } from '../../api/actions';
-import { FileInfo, FileType } from '../../types';
+import { createTempFilesFromUpload, 
+    logPageVisited,
+    selectMultipleFiles } from '../../api';
+import { FileInfo, FileType, PageName } from '../../types';
 import { AppFooter } from '../AppFooter';
 import { AppHeader } from '../AppHeader';
 import { Backdrop } from '../Backdrop';
@@ -12,6 +14,7 @@ import { FilesList } from '../FilesList';
 import './GenericPage.css';
 
 type GenericPageProps = {
+    pageName: PageName
     headerText: string;
     inputFilesType: FileType;
     action: {
@@ -30,11 +33,19 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     action,
     inputFilesType,
     selectFilesPrompt,
-    onNavigateHome
+    onNavigateHome,
+    pageName
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<FileInfo[]>([]);
-
+    
+    const logHomePageVisited = useCallback(async () => {
+        await logPageVisited(pageName)
+    }, [])
+    
+    useEffect(() => {
+        logHomePageVisited()
+    }, [])
     // TODO : should use useCallback here ?
     const removeFileFromList = (fileId: string) => {
         const newSelectionWithIds = selectedFiles.filter(({id}) => id !== fileId);

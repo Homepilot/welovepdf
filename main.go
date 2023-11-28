@@ -44,6 +44,7 @@ var logger *utils.CustomLogger
 func main() {
 	initGlobals()
 	logger := utils.NewLogger(LOGS_DIR, logtailSourceToken)
+	frontendLogger := models.NewFrontendLogger(logger)
 	ensureRequiredDirectories()
 	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
@@ -65,7 +66,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			pdfHandler,
-			logger,
+			frontendLogger,
 		},
 		Mac: &mac.Options{
 			About: &mac.AboutInfo{
