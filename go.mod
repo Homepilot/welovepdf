@@ -7,7 +7,6 @@ toolchain go1.21.4
 require (
 	github.com/elastic/go-sysinfo v1.11.1
 	github.com/google/uuid v1.3.0
-	github.com/joho/godotenv v1.5.1
 	github.com/pdfcpu/pdfcpu v0.5.0
 	github.com/samber/slog-multi v1.0.2
 	github.com/stretchr/testify v1.8.4

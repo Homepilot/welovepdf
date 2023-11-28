@@ -8,33 +8,12 @@ import (
 	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
-func MergePdfFiles(targetFilePath string, filePathes []string) error {
+func MergePdfFilesLegacy(targetFilePath string, filePathes []string) error {
 	return pdfcpu.MergeCreateFile(filePathes, targetFilePath, pdfcpu.LoadConfiguration())
 }
 
 func SplitFile(filePath string, targetDirPath string) error {
 	return pdfcpu.SplitFile(filePath, targetDirPath, 1, nil)
-}
-
-func MergeAllFilesInDir(sourceDirPath string, targetFilePath string) error {
-	filesToMerge, err := os.ReadDir(sourceDirPath)
-	if err != nil {
-		log.Printf("Error reading temp dir to merge: %s", err.Error())
-		return err
-	}
-
-	if len(filesToMerge) < 1 {
-		log.Println("No files to merge, aborting")
-		return nil
-	}
-
-	log.Printf("found %d compressed files to merge", len(filesToMerge))
-	filesPathesToMerge := []string{}
-	for v := 0; v < len(filesToMerge); v += 1 {
-		filesPathesToMerge = append(filesPathesToMerge, path.Join(sourceDirPath, filesToMerge[v].Name()))
-	}
-
-	return MergePdfFiles(targetFilePath, filesPathesToMerge)
 }
 
 func ConvertImageToPdf(filePath string, targetFilePath string) error {

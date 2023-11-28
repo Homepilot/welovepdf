@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
+	"strings"
 )
 
 func EnsureGhostScriptSetup(gsBinaryPath string, binaryContent []byte) {
@@ -54,8 +56,6 @@ func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperation
 }
 
 func ResizePdfToA4(config *FileToFileOperationConfig) error {
-	log.Printf("binaryPath : %s", config.BinaryPath)
-	log.Printf("Starting resize w/ source : %s, target : %s", config.SourceFilePath, config.TargetFilePath)
 	resizePdfToA4Cmd := exec.Command(
 		config.BinaryPath,
 		"-o",
@@ -69,4 +69,43 @@ func ResizePdfToA4(config *FileToFileOperationConfig) error {
 
 	err := resizePdfToA4Cmd.Run()
 	return err
+}
+
+func MergePdfFiles(config *FilesToFileOperationConfig) error {
+	mergePdfFilesCmd := exec.Command(
+		config.BinaryPath,
+		"-dNOPAUSE",
+		"-sDEVICE=pdfwrite",
+		"-sOUTPUTFILE="+config.TargetFilePath,
+		"-dBATCH",
+	)
+	mergePdfFilesCmd.Args = append(mergePdfFilesCmd.Args, config.SourceFilesPathes...)
+
+	err := mergePdfFilesCmd.Run()
+	return err
+}
+func MergeAllFilesInDir(config *DirToFileOperationConfig) error {
+	filesToMerge, err := os.ReadDir(config.SourceDirPath)
+	if err != nil {
+		log.Printf("Error reading temp dir to merge: %s", err.Error())
+		return err
+	}
+	if len(filesToMerge) < 1 {
+		log.Println("No files to merge, aborting")
+		return nil
+	}
+
+	log.Printf("found %d compressed files to merge", len(filesToMerge))
+	filesPathesToMerge := []string{}
+	for _, file := range filesToMerge {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".pdf") {
+			filesPathesToMerge = append(filesPathesToMerge, path.Join(config.SourceDirPath, file.Name()))
+		}
+	}
+
+	return MergePdfFiles(&FilesToFileOperationConfig{
+		BinaryPath:        config.BinaryPath,
+		SourceFilesPathes: filesPathesToMerge,
+		TargetFilePath:    config.TargetFilePath,
+	})
 }

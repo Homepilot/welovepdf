@@ -7,10 +7,9 @@ import {
     ConvertImageToPdf,
     CompressFile,
     MergePdfFiles,
-    OptimizePdfFile,
     ResizePdfFileToA4,
     CreateTempFilesFromUpload,
-} from '../../wailsjs/go/models/PdfHandler';
+} from '../../wailsjs/go/models/PdfService';
 import {
     BrowserOpenURL
 } from '../../wailsjs/runtime/runtime';
@@ -65,13 +64,6 @@ export async function mergeFiles (filesPathes: string[], batchId: string = "unkn
     return result;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function optimizeFiles (filesPathes: string[], _batchId: string = "unknown_batch") {
-    const result = await Promise.all(filesPathes.map(OptimizePdfFile))
-    console.log({ optimizationSuccess: result })
-    return result;
-}
-
 export async function compressFiles (filesPathes: string[], batchId: string = "unknown_batch"): Promise<boolean[] | null> {
     const resultsArray = [];
 
@@ -81,9 +73,6 @@ export async function compressFiles (filesPathes: string[], batchId: string = "u
         logOperationCanceledByUser(PageName.COMPRESS, batchId)
         return null
     }
-
-    if(chosenCompressionMode === CompressionMode.OPTIMIZE) return optimizeFiles(filesPathes);
-
     const targetImageQuality = chosenCompressionMode === CompressionMode.EXTREME ? 10 : 20;
 
     for (const file of filesPathes){
@@ -99,7 +88,7 @@ export async function chooseCompressionMode(): Promise<CompressionMode | null>{
     const result = await PromptUserSelect({
         Title:        "Mode de compression",
 		Message:      "Choississez un mode de compression",
-		Buttons:      ["Optimisation", "Compression", "Compression extrême"],
+		Buttons:      [ "Compression", "Compression extrême"],
         Icon:         "compress",
     }) as CompressionMode | '';
 

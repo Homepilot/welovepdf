@@ -10,21 +10,21 @@ import (
 	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
-type PdfHandler struct {
+type PdfService struct {
 	logger     *utils.CustomLogger
 	outputDir  string
 	tempDir    string
 	binaryPath string
 }
 
-func NewPdfHandler(
+func NewPdfService(
 	logger *utils.CustomLogger,
 	outputDir string,
 	tempDir string,
 	binaryPath string,
-) *PdfHandler {
-	logger.Debug("PdfHandler w/ binaryPath", slog.String("binarypath", binaryPath))
-	return &PdfHandler{
+) *PdfService {
+	logger.Debug("PdfService w/ binaryPath", slog.String("binarypath", binaryPath))
+	return &PdfService{
 		logger:     logger,
 		outputDir:  outputDir,
 		tempDir:    tempDir,
@@ -32,25 +32,30 @@ func NewPdfHandler(
 	}
 }
 
-func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, canResize bool) bool {
+func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string, canResize bool) bool {
 	p.logger.Debug("MergePdfFiles: operation starting")
-	if !canResize {
-		err := utils.MergePdfFiles(targetFilePath, filePathes)
-		if err != nil {
-			p.logger.Error("MergePdfFiles operation failed", slog.String("reason", err.Error()))
-			return false
-		}
-		p.logger.Debug("MergePdfFiles: operation succeeded")
-		return true
-	}
 
 	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	defer os.Remove(tempFilePath)
 
-	err := utils.MergePdfFiles(tempFilePath, filePathes)
+	err := utils.MergePdfFiles(&utils.FilesToFileOperationConfig{
+		BinaryPath:        p.binaryPath,
+		TargetFilePath:    tempFilePath,
+		SourceFilesPathes: filePathes,
+	})
 	if err != nil {
-		p.logger.Error("Error merging PDF files", slog.Int("nbOfFiles", len(filePathes)), slog.String("reason", err.Error()))
+		p.logger.Error("MergePdfFiles operation failed", slog.String("reason", err.Error()))
 		return false
+	}
+
+	if !canResize {
+		err := os.Rename(tempFilePath, targetFilePath)
+		if err != nil {
+			p.logger.Error("Error renamig temp file", slog.String("reason", err.Error()))
+			return false
+		}
+		p.logger.Debug("MergePdfFiles: operation succeeded")
+		return true
 	}
 
 	err = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
@@ -60,30 +65,14 @@ func (p *PdfHandler) MergePdfFiles(targetFilePath string, filePathes []string, c
 	})
 
 	if err != nil {
-		p.logger.Error("Error merging files", slog.Int("nbOfFiles", len(filePathes)), slog.String("reason", err.Error()))
+		p.logger.Error("MergePdfFiles : Error resizing merged file", slog.Int("nbOfFiles", len(filePathes)), slog.String("reason", err.Error()))
 		return false
 	}
 	p.logger.Debug("MergePdfFiles: operation succeeded")
 	return true
 }
 
-func (p *PdfHandler) OptimizePdfFile(filePath string) bool {
-	p.logger.Debug("OptimizePdfFile: operation starting")
-
-	newFileName := utils.AddSuffixToFileName(utils.GetFileNameFromPath(filePath), "_compressed")
-	targetFilePath := path.Join(p.outputDir, newFileName)
-
-	err := pdfcpu.OptimizeFile(filePath, targetFilePath, pdfcpu.LoadConfiguration())
-	if err != nil {
-		p.logger.Error("OptimizePdfFile : operation failed", slog.String("file", filePath), slog.String("reason", err.Error()))
-		return false
-	}
-
-	p.logger.Debug("OptimizePdfFile: operation succeeded")
-	return true
-}
-
-func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool {
+func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool {
 	p.logger.Debug("CompressFile: operation starting", slog.Int("targetQuality", targetImageQuality))
 	resultFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
 
@@ -129,7 +118,11 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 	}
 
 	// 3. Merge all compressed files back into 1
-	err = utils.MergeAllFilesInDir(resultFilePath, tempDirPath2)
+	err = utils.MergeAllFilesInDir(&utils.DirToFileOperationConfig{
+		BinaryPath:     p.binaryPath,
+		SourceDirPath:  tempDirPath2,
+		TargetFilePath: resultFilePath,
+	})
 	if err != nil {
 		p.logger.Error("CompressFile : error during final merge !", slog.String("reason", err.Error()))
 		return false
@@ -140,7 +133,7 @@ func (p *PdfHandler) CompressFile(filePath string, targetImageQuality int) bool 
 	return true
 }
 
-func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
+func (p *PdfService) ConvertImageToPdf(filePath string, canResize bool) bool {
 	p.logger.Debug("ConvertImageToPdf : operation started")
 	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+".pdf")
 	if canResize {
@@ -178,7 +171,7 @@ func (p *PdfHandler) ConvertImageToPdf(filePath string, canResize bool) bool {
 	return true
 }
 
-func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
+func (p *PdfService) ResizePdfFileToA4(filePath string) bool {
 	p.logger.Debug("CreateTempFilesFromUpload : operation started")
 	err := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		BinaryPath:     p.binaryPath,
@@ -193,7 +186,7 @@ func (p *PdfHandler) ResizePdfFileToA4(filePath string) bool {
 	return true
 }
 
-func (p *PdfHandler) CreateTempFilesFromUpload(fileAsBase64 []byte) string {
+func (p *PdfService) CreateTempFilesFromUpload(fileAsBase64 []byte) string {
 	p.logger.Debug("CreateTempFilesFromUpload : operation started")
 	newFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	err := os.WriteFile(newFilePath, []byte(fileAsBase64), 0755)

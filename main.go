@@ -9,7 +9,6 @@ import (
 	"welovepdf/pkg/models"
 	"welovepdf/pkg/utils"
 
-	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -49,7 +48,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := models.NewApp(logger, OUTPUT_DIR, TEMP_DIR, logoLightIcon, compressIcon, resizeA4Icon)
-	pdfHandler := models.NewPdfHandler(logger, OUTPUT_DIR, TEMP_DIR, GS_BINARY_PATH)
+	pdfHandler := models.NewPdfService(logger, OUTPUT_DIR, TEMP_DIR, GS_BINARY_PATH)
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
@@ -87,8 +86,8 @@ func main() {
 }
 
 func initGlobals() {
-	godotenv.Load()
-	logtailSourceToken = os.Getenv("LOGTAIL_TOKEN")
+	// godotenv.Load()
+	logtailSourceToken = ""
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		logger.Error("Error retrieving the user's home directory", slog.String("reason", err.Error()))

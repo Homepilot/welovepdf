@@ -1,5 +1,11 @@
 package utils
 
+type FilesToFileOperationConfig struct {
+	BinaryPath        string
+	SourceFilesPathes []string
+	TargetFilePath    string
+}
+
 type FileToFileOperationConfig struct {
 	BinaryPath     string
 	SourceFilePath string
@@ -22,6 +28,7 @@ type DirToDirOperationConfig struct {
 }
 
 type FileToFileOperation func(c *FileToFileOperationConfig) bool
+type FilesToFileOperation func(c *FilesToFileOperationConfig) bool
 type DirToFileOperation func(c *DirToFileOperationConfig) bool
 type FileToDirOperation func(c *FileToDirOperationConfig) bool
 type DirToDirOperation func(c *DirToDirOperationConfig) bool

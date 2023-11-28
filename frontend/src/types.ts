@@ -12,7 +12,6 @@ export enum PageName {
 }
 
 export enum CompressionMode {
-    OPTIMIZE = "Optimisation",
     COMPRESS = "Compression", 
     EXTREME = "Compression extreme"
 }
