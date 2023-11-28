@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	slogmulti "github.com/samber/slog-multi"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -27,7 +27,8 @@ type CustomLogger struct {
 
 func NewLogger(logsDir string, logtailToken string) *CustomLogger {
 	removeEmptyLogsFiles(logsDir)
-	logFilePath := path.Join(logsDir, uuid.NewString()+".log")
+	fileName := strings.Join(strings.Split(time.Now().Local().Format(time.DateTime), " "), "") + ".log"
+	logFilePath := path.Join(logsDir, fileName)
 
 	lj := &lumberjack.Logger{
 		Filename:   logFilePath,
@@ -38,8 +39,8 @@ func NewLogger(logsDir string, logtailToken string) *CustomLogger {
 	}
 
 	logger := slog.New(slogmulti.Fanout(
-		slog.NewJSONHandler(lj, &slog.HandlerOptions{AddSource: true}),
-		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}),
+		slog.NewTextHandler(lj, &slog.HandlerOptions{AddSource: true, Level: slog.LevelInfo}),
+		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 	))
 
 	slog.SetDefault(logger)
