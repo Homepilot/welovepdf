@@ -9,7 +9,6 @@ import (
 
 func EnsureGhostScriptSetup(gsBinaryPath string, binaryContent []byte) {
 	if IsGhostScriptSetup(gsBinaryPath) {
-		log.Println("GhostScript already setup")
 		return
 	}
 
