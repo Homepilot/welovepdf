@@ -17,6 +17,26 @@ func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperation
 	return err
 }
 
+func convertJpegToPdf(config *FileToFileOperationConfig) error {
+	viewJpegFilePath := "./assets/code/viewjpeg.ps"
+
+	convertCmd := exec.Command(
+		config.BinaryPath,
+		"-dNOSAFER",
+		"-sDEVICE=pdfwrite",
+		"-o",
+		config.TargetFilePath,
+		viewJpegFilePath,
+		"-c",
+		"("+config.SourceFilePath+")",
+		"viewJPEG",
+	)
+	slog.Info("the printed string", slog.String("the string", convertCmd.String()))
+
+	err := convertCmd.Run()
+	return err
+}
+
 func ResizePdfToA4(config *FileToFileOperationConfig) error {
 	resizePdfToA4Cmd := exec.Command(
 		config.BinaryPath,
@@ -85,25 +105,4 @@ func SplitPdfFile(config *FileToDirOperationConfig) error {
 
 	err := splitPdfFileCmd.Run()
 	return err
-}
-
-func ConvertImageToPdf(config *FileToFileOperationConfig) error {
-	viewJpegFilePath := "./assets/code/viewjpeg.ps"
-
-	convertCmd := exec.Command(
-		config.BinaryPath,
-		"-dNOSAFER",
-		"-sDEVICE=pdfwrite",
-		"-o",
-		config.TargetFilePath,
-		viewJpegFilePath,
-		"-c",
-		"("+config.SourceFilePath+")",
-		"viewJPEG",
-	)
-	slog.Info("the printed string", slog.String("the string", convertCmd.String()))
-
-	err := convertCmd.Run()
-	return err
-
 }

@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 )
 
 func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compressionConfig *FileToFileOperationConfig) error {
@@ -21,7 +23,7 @@ func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compress
 		return err
 	}
 
-	return ConvertImageToPdf(&FileToFileOperationConfig{
+	return ConvertImageToPdf(tempDirPath, &FileToFileOperationConfig{
 		BinaryPath:     compressionConfig.BinaryPath,
 		TargetFilePath: compressionConfig.TargetFilePath,
 		SourceFilePath: tempFilePath,
@@ -47,4 +49,21 @@ func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *D
 		}
 	}
 	return nil
+}
+
+func ConvertImageToPdf(tempDir string, config *FileToFileOperationConfig) error {
+	fileExt := strings.ToLower(filepath.Ext(config.SourceFilePath))
+	isJpeg := fileExt == "jpg" || fileExt == "jpeg"
+	if isJpeg {
+		return convertJpegToPdf(config)
+	}
+
+	tempFilePath := GetNewTempFilePath(tempDir, "jpg")
+	defer os.Remove(tempFilePath)
+	err := convertImageToJpeg(config.SourceFilePath, tempFilePath)
+	if err != nil {
+		return err
+	}
+	config.SourceFilePath = tempFilePath
+	return convertJpegToPdf(config)
 }

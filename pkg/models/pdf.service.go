@@ -173,7 +173,7 @@ func (p *PdfService) ConvertImageToPdf(filePath string, canResize bool) bool {
 	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	defer os.Remove(tempFilePath)
 
-	err := utils.ConvertImageToPdf(&utils.FileToFileOperationConfig{
+	err := utils.ConvertImageToPdf(p.tempDir, &utils.FileToFileOperationConfig{
 		BinaryPath:     p.binaryPath,
 		TargetFilePath: tempFilePath,
 		SourceFilePath: filePath,
