@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import toast from 'react-hot-toast';
 import { v4 as uuidv4 } from 'uuid';
 
-import { createTempFilesFromUpload, 
+import {  
     notifyAndLogOperationsResult, 
     logPageVisited,
     selectMultipleFiles,
-    logOperationStarted, } from '../../api';
+    logOperationStarted,
+    findFilePathByName,
+} from '../../api';
 import { FileInfo, FileType, PageName } from '../../types';
 import { AppFooter } from '../AppFooter';
 import { AppHeader } from '../AppHeader';
@@ -115,15 +118,26 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         setSelectedFiles(includedFiles.filter((_, index) => result[index]));
     }
 
-    async function handleFileDrop(files: File[]){
+    const handleFilesDropped = async (fileNames: File[]) => {
         setIsLoading(true)
-        console.log(files)
-        const filesArray = Array.from(files)
-        const newFileInfos = await createTempFilesFromUpload(filesArray)
-        addFilesToSelectionList(newFileInfos)
+        let failuresNames: string[] = [];
+        try {
+            const results = await Promise.all(fileNames.map(fileInfo => findFilePathByName(fileInfo.name, fileInfo.size, fileInfo.lastModified)))
+            const { failures, successes } = results.reduce(
+                (acc, path, index) => path ? 
+                ({ ...acc, successes: [...acc.successes, { id: path, name: fileNames[index].name }]}) : 
+                ({ ...acc, failures: [...acc.failures, fileNames[index].name] })
+            , {failures: [], successes: []} as {failures: string[], successes: FileInfo[]})
+            failuresNames = failures;
+            addFilesToSelectionList(successes)
+        } catch (error) {
+            console.error(error)
+            toast.error("Erreur lors de l'ajout des fichiers")
+        }
         setIsLoading(false)
+        if (!failuresNames.length) return
+        failuresNames.forEach((fileName) => toast.error(`${fileName}: erreur lors de l'import du fichier, essayez de l'ajouter manuellement`))
     }
-
 
     return (
         <div id="generic-layout">
@@ -150,6 +164,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                                 </span>
                             </div>
                         </div>
+                        <DragDrop filesType={inputFilesType} onFilesDropped={handleFilesDropped} >
                             <FilesList 
                                 selectedFiles={selectedFiles}
                                 onRemoveFileFromList={removeFileFromList}
@@ -157,8 +172,8 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                                 onSelectionReordered={setSelectedFiles} 
                                 selectFilesPrompt={selectFilesPrompt || headerText}
                             />
+                        </DragDrop>
                     </div>
-                    <DragDrop filesType={inputFilesType} onFilesDropped={handleFileDrop} />
                     <AppFooter/>
                 </div>
     )

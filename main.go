@@ -19,7 +19,7 @@ var goAssets embed.FS
 //go:embed all:frontend/dist
 var assets embed.FS
 
-var logtailSourceToken string = "eEUGryMaDBULCSbtc7358Z6s"
+var logtailSourceToken string = ""
 
 func main() {
 
@@ -27,15 +27,9 @@ func main() {
 	app := models.NewApp()
 	logger := utils.NewLogger(app.Config.LogsDirPath, logtailSourceToken)
 	app.Init(logger, goAssets)
-	slog.Info("App created")
-	slog.Info("Logger created")
-	slog.Info("App init")
 	frontendLogger := models.NewFrontendLogger(logger)
-	slog.Info("frontend logger created")
 	pdfService := models.NewPdfService(app.Config.OutputDirPath, app.Config.TempDirPath, app.Config.LocalAssetsDirPath)
-	slog.Info("pdfService created")
 	pdfService.Init(logger, goAssets)
-	slog.Info("pdfService init")
 
 	// Create application with options
 	startErr := wails.Run(&options.App{

@@ -4,6 +4,8 @@ import {utils} from '../models';
 import {embed} from '../models';
 import {models} from '../models';
 
+export function FindFileInUserDir(arg1:string,arg2:number,arg3:number):Promise<string>;
+
 export function Init(arg1:utils.CustomLogger,arg2:embed.FS):Promise<models.App>;
 
 export function OpenSaveFileDialog():Promise<string>;

@@ -1,4 +1,5 @@
 import {
+    FindFileInUserDir,
     OpenSaveFileDialog,
     PromptUserSelect,
     SelectMultipleFiles
@@ -131,7 +132,11 @@ export async function createTempFilesFromUpload(files: File[]): Promise<FileInfo
     return newFileInfos
 }
 
+export async function findFilePathByName(fileName: string, size: number, lastModifiedAt: number): Promise<string | null> {
+    const matchingFile = await FindFileInUserDir(fileName, size, lastModifiedAt);
 
+    return matchingFile || null
+}
 // type FnToRun<Args extends unknown[], Return = boolean> = (...args: Args) => Return | Promise<Return>;
 
 // async function noFail<T extends unknown[], R>(fnToRun: FnToRun<T, R>, errorValue: R, ...args: T): Promise<R>{

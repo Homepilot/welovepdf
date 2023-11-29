@@ -18,6 +18,7 @@ type AppConfig struct {
 	LocalAssetsDirPath string
 	TempDirPath        string
 	LogsDirPath        string
+	userHomeDir        string
 }
 
 // App struct
@@ -45,6 +46,7 @@ func NewApp() *App {
 			LocalAssetsDirPath: localAssetsDirPath,
 			TempDirPath:        path.Join(localAssetsDirPath, "temp"),
 			LogsDirPath:        path.Join(localAssetsDirPath, "logs"),
+			userHomeDir:        userHomeDir,
 		},
 	}
 }
@@ -232,4 +234,33 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 	}
 
 	return selection
+}
+
+func (a *App) FindFileInUserDir(filename string, size int, lastModifiedAt int) string {
+	searchConfig := &utils.FindFileConfig{
+		Filename:           filename,
+		FileSize:           size,
+		FileLastModifiedAt: lastModifiedAt,
+	}
+
+	a.logger.Debug("FindFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
+	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Desktop")
+	fileInDesktop := utils.FindFileInDirectoryTree(searchConfig)
+	if fileInDesktop != "" {
+		return fileInDesktop
+	}
+	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Documents")
+	fileInDocuments := utils.FindFileInDirectoryTree(searchConfig)
+	if fileInDocuments != "" {
+		return fileInDocuments
+	}
+	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Downloads")
+	fileInDownloads := utils.FindFileInDirectoryTree(searchConfig)
+	if fileInDownloads != "" {
+		return fileInDownloads
+	}
+	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Pictures")
+	fileInPictures := utils.FindFileInDirectoryTree(searchConfig)
+
+	return fileInPictures
 }

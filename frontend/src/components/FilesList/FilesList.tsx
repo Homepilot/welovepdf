@@ -30,7 +30,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
           result.destination.index
         );
         onSelectionReordered(reorderedItems)
-    }, [onSelectionReordered])
+    }, [onSelectionReordered, selectedFiles])
 
     return (
         
@@ -85,10 +85,10 @@ function reorder (list: FileInfo[], startIndex: number, endIndex: number) {
   return result;
 }
 
-const grid = 8;
 
 // @ts-expect-error unknown object type
 function getItemStyle (isDragging: boolean, draggableStyle) {
+    const grid = 8;
     return {
         // some basic styles to make the items look a bit nicer
         userSelect: "none",

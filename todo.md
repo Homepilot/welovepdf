@@ -29,6 +29,7 @@
 
 | Nice to have                 | 2h30 + ??? |
 | --------------------- | ----------|
+| load config from json file                                 | 30min |
 | Split PDF ?                                 | 30min |
 | style toasts                  | 30min |
 | different loader messages     | 30min |

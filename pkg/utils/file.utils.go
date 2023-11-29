@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"path"
@@ -97,33 +98,58 @@ func GetTodaysOutputDir(userHomeDir string) string {
 	return path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateStr())
 }
 
-func findFileInDirectoryTree(rootDirPath string, filename string) (string, error) {
+type FindFileConfig struct {
+	RootDirPath        string
+	Filename           string
+	FileSize           int
+	FileLastModifiedAt int
+}
 
-	var files []string
+func FindFileInDirectoryTree(config *FindFileConfig) string {
+	matchingFilePath := ""
+	lastModifiedStr := fmt.Sprintf("%d", config.FileLastModifiedAt)
 
-	err := filepath.Walk(rootDirPath, func(path string, info os.FileInfo, err error) error {
+	slog.Debug(fmt.Sprintf("Looking for file %s in dir %s", config.Filename, config.RootDirPath), slog.String("searched", config.Filename), slog.Int("size", int(config.FileSize)), slog.String("modified", lastModifiedStr))
+
+	err := filepath.WalkDir(config.RootDirPath, func(currentPath string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
+			slog.Warn("error walking through directory", slog.String("reason", err.Error()))
 			return nil
 		}
 
-		if !info.IsDir() && strings.HasSuffix(path, filename) {
-			files = append(files, path)
+		if strings.HasPrefix(dirEntry.Name(), ".") {
+			return nil
 		}
 
+		if !dirEntry.IsDir() &&
+			dirEntry.Name() == config.Filename {
+			fileInfo, fileInfoErr := dirEntry.Info()
+			if fileInfoErr != nil {
+				return nil
+			}
+			modifiedStr := fmt.Sprintf("%d", fileInfo.ModTime().Unix())
+			slog.Debug("Found file w/ matching name", slog.String("searched", config.Filename), slog.String("actual", fileInfo.Name()), slog.Int("size", int(fileInfo.Size())), slog.String("modified", modifiedStr))
+
+			if fileInfo.Size() == int64(config.FileSize) &&
+				strings.Compare(modifiedStr, lastModifiedStr[:len(modifiedStr)]) == 0 {
+				slog.Debug("Path added")
+				matchingFilePath = currentPath
+			}
+			return nil
+		}
 		return nil
 	})
 
 	if err != nil {
-		return "", err
+		slog.Debug(fmt.Sprintf("Error looking for file %s in dir %s", config.Filename, config.RootDirPath), slog.String("reason", err.Error()))
+		return ""
 	}
 
-	if len(files) == 0 {
-		slog.Warn("no files found during search")
-		return "", nil
+	if matchingFilePath == "" {
+		slog.Debug(fmt.Sprintf("No file matching %s in dir %s", config.Filename, config.RootDirPath))
+		return ""
 	}
 
-	for _, file := range files {
-		slog.Info(file)
-	}
-	return files[0], nil
+	slog.Info("found matching file", slog.String("filepath", matchingFilePath))
+	return matchingFilePath
 }
