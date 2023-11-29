@@ -1,9 +1,10 @@
 package utils
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,18 +27,40 @@ func EnsureDirectory(dirPath string) error {
 	}
 
 	if !os.IsNotExist((err)) {
-		log.Printf("Error ensuring target directory: %s", err.Error())
 		return err
 	}
 
 	creationErr := os.MkdirAll(dirPath, 0755)
 
 	if creationErr != nil {
-		log.Printf("Error creating target folder: %s", creationErr.Error())
 		return err
 	}
 
 	return nil
+}
+
+func WriteContentToFileIfNotExists(filePath string, content []byte) error {
+	_, err := os.Stat(filePath)
+	if err == nil {
+		return nil
+	}
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = file.Chmod(0755)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(content)
+	return err
 }
 
 func GetFileNameFromPath(inputFilePath string) string {
@@ -72,4 +95,35 @@ func getCurrentDateStr() string {
 
 func GetTodaysOutputDir(userHomeDir string) string {
 	return path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateStr())
+}
+
+func findFileInDirectoryTree(rootDirPath string, filename string) (string, error) {
+
+	var files []string
+
+	err := filepath.Walk(rootDirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+
+		if !info.IsDir() && strings.HasSuffix(path, filename) {
+			files = append(files, path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(files) == 0 {
+		slog.Warn("no files found during search")
+		return "", nil
+	}
+
+	for _, file := range files {
+		slog.Info(file)
+	}
+	return files[0], nil
 }

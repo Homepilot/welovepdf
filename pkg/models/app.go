@@ -2,49 +2,63 @@ package models
 
 import (
 	"context"
-	"log"
+	"embed"
+	"fmt"
 	"log/slog"
 	"os"
+	"path"
 	"strings"
 	"welovepdf/pkg/utils"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+type AppConfig struct {
+	OutputDirPath      string
+	LocalAssetsDirPath string
+	TempDirPath        string
+	LogsDirPath        string
+}
+
 // App struct
 type App struct {
 	ctx          context.Context
 	logger       *utils.CustomLogger
-	outputDir    string
-	tempDir      string
-	logoIcon     []byte
+	Config       *AppConfig
+	LogoIcon     []byte
 	compressIcon []byte
 	resizeA4Icon []byte
 }
 
 // NewApp creates a new App application struct
-func NewApp(
-	logger *utils.CustomLogger,
-	outputDir string,
-	tempDir string,
-	logoIcon []byte,
-	compressIcon []byte,
-	resizeA4Icon []byte,
-) *App {
-	return &App{
-		logger:       logger,
-		outputDir:    outputDir,
-		tempDir:      tempDir,
-		logoIcon:     logoIcon,
-		compressIcon: compressIcon,
-		resizeA4Icon: resizeA4Icon,
+func NewApp() *App {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(fmt.Sprintf("Error retrieving the user's home directory : %s", err.Error()))
 	}
+
+	localAssetsDirPath := path.Join(userHomeDir, ".welovepdf")
+
+	return &App{
+		Config: &AppConfig{
+			OutputDirPath:      utils.GetTodaysOutputDir(userHomeDir),
+			LocalAssetsDirPath: localAssetsDirPath,
+			TempDirPath:        path.Join(localAssetsDirPath, "temp"),
+			LogsDirPath:        path.Join(localAssetsDirPath, "logs"),
+		},
+	}
+}
+
+func (a *App) Init(logger *utils.CustomLogger, assetsDir embed.FS) *App {
+	a.logger = logger
+	return a.ensureRequiredDirectories().loadIconAssets(assetsDir)
 }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+
 	a.logger.Debug("Application starting")
 }
 
@@ -61,61 +75,66 @@ func (a *App) BeforeClose(ctx context.Context) bool {
 	a.logger.Debug("BeforeClose fired")
 	defer a.logger.Debug("BeforeClose done")
 
-	tempDirRemovalErr := os.RemoveAll(a.tempDir)
+	tempDirRemovalErr := os.RemoveAll(a.Config.TempDirPath)
 	if tempDirRemovalErr != nil {
 		a.logger.Warn("BeforeClose : temp dir removed", slog.String("reason", tempDirRemovalErr.Error()))
 	} else {
 		a.logger.Debug("BeforeClose : temp dir removed")
 	}
 
-	outputDirRemovalErr := os.Remove(a.outputDir)
+	outputDirRemovalErr := os.Remove(a.Config.OutputDirPath)
 	if outputDirRemovalErr != nil && !os.IsExist(outputDirRemovalErr) {
 		a.logger.Warn("BeforeClose : error removing output dir", slog.String("reason", outputDirRemovalErr.Error()))
 	}
 	return false
 }
 
-func (a *App) EnsureGhostScriptSetup(gsBinaryPath string, binaryContent []byte) {
-	if a.isGhostScriptSetup(gsBinaryPath) {
-		return
+func (a *App) ensureRequiredDirectories() *App {
+	localAssetsDirPath := a.Config.LocalAssetsDirPath
+
+	err1 := utils.EnsureDirectory(localAssetsDirPath)
+	err2 := utils.EnsureDirectory(path.Join(localAssetsDirPath, "bin"))
+	err3 := utils.EnsureDirectory(path.Join(localAssetsDirPath, "code"))
+	err4 := utils.EnsureDirectory(a.Config.LogsDirPath)
+	err5 := utils.EnsureDirectory(a.Config.OutputDirPath)
+	err6 := utils.EnsureDirectory(a.Config.TempDirPath)
+
+	if err1 != nil ||
+		err2 != nil ||
+		err3 != nil ||
+		err4 != nil ||
+		err5 != nil ||
+		err6 != nil {
+		errMsg := "Error ensuring required directories for app"
+		a.logger.Error(errMsg)
+		panic(errMsg)
 	}
 
-	log.Println("setting up GhostScript")
-	file, err := os.Create(gsBinaryPath)
-	if err != nil {
-		a.logger.Error("Error creating GhostScript binary file", slog.String("reason", err.Error()))
-		log.Fatalf("Error creating GhostScript binary file: %s", err.Error())
-	}
-	defer file.Close()
-
-	err = file.Chmod(0755)
-	if err != nil {
-		a.logger.Error("Error make GhostScript binary file executable", slog.String("reason", err.Error()))
-		log.Fatalf("Error make GhostScript binary file executable: %s", err.Error())
-	}
-	log.Println("GhostScript binary file permissions set")
-
-	_, err = file.Write(binaryContent)
-	if err != nil {
-		a.logger.Error("Error writing GhostScript binary to target file", slog.String("reason", err.Error()))
-		log.Fatalf("Error writing GhostScript binary to target file: %s", err.Error())
-	}
-
-	log.Println("Ghostscript binary successfully setup")
+	return a
 }
 
-func (a *App) isGhostScriptSetup(gsBinaryPath string) bool {
-	_, err := os.Stat(gsBinaryPath)
+func (a *App) loadIconAssets(assetsDir embed.FS) *App {
+	logoIcon, err := assetsDir.ReadFile("assets/images/logo_light.svg")
 
-	if err == nil {
-		return true
-	}
-	if !os.IsNotExist(err) {
-		a.logger.Error("Error setting up GhostScript", slog.String("reason", err.Error()))
-		log.Fatalf("Error setting up GhostScript: %s", err.Error())
+	if err != nil {
+		a.logger.Error("Error loading Application assets", slog.String("reason", err.Error()))
+		panic("Error loading App assets")
 	}
 
-	return false
+	compressIcon, err1 := assetsDir.ReadFile("./images/compress.svg")
+	if err1 != nil {
+		compressIcon = logoIcon
+	}
+	resizeA4Icon, err2 := assetsDir.ReadFile("./images/resize_A4.svg")
+	if err2 != nil {
+		resizeA4Icon = logoIcon
+	}
+
+	a.LogoIcon = logoIcon
+	a.compressIcon = compressIcon
+	a.resizeA4Icon = resizeA4Icon
+
+	return a
 }
 
 type SelectFilesResult struct {
@@ -160,7 +179,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 
 func (a *App) OpenSaveFileDialog() string {
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		DefaultDirectory: a.outputDir,
+		DefaultDirectory: a.Config.OutputDirPath,
 	})
 
 	if err != nil {
@@ -191,7 +210,7 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 		Message:      config.Message,
 		Buttons:      config.Buttons,
 		CancelButton: "Annuler",
-		Icon:         a.logoIcon,
+		Icon:         a.LogoIcon,
 	}
 
 	if config.Icon == "compress" {

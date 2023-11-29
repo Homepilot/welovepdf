@@ -3,50 +3,12 @@ package utils
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
 )
-
-func EnsureGhostScriptSetup(gsBinaryPath string, binaryContent []byte) {
-	if IsGhostScriptSetup(gsBinaryPath) {
-		return
-	}
-
-	log.Println("setting up GhostScript")
-	file, err := os.Create(gsBinaryPath)
-	if err != nil {
-		log.Fatalf("Error creating GhostScript binary file: %s", err.Error())
-	}
-	defer file.Close()
-
-	err = file.Chmod(0755)
-	if err != nil {
-		log.Fatalf("Error make GhostScript binary file executable: %s", err.Error())
-	}
-	log.Println("GhostScript binary file permissions set")
-
-	_, err = file.Write(binaryContent)
-	if err != nil {
-		log.Fatalf("Error writing GhostScript binary to target file: %s", err.Error())
-	}
-
-	log.Println("Ghostscript binary successfully setup")
-}
-
-func IsGhostScriptSetup(gsBinaryPath string) bool {
-	_, err := os.Stat(gsBinaryPath)
-
-	if err == nil {
-		return true
-	}
-	if !os.IsNotExist(err) {
-		log.Fatalf("Error setting up GhostScript: %s", err.Error())
-	}
-
-	return false
-}
 
 func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperationConfig) error {
 	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, config.BinaryPath, config.SourceFilePath, config.TargetFilePath)
@@ -84,6 +46,7 @@ func MergePdfFiles(config *FilesToFileOperationConfig) error {
 	err := mergePdfFilesCmd.Run()
 	return err
 }
+
 func MergeAllFilesInDir(config *DirToFileOperationConfig) error {
 	filesToMerge, err := os.ReadDir(config.SourceDirPath)
 	if err != nil {
@@ -108,4 +71,39 @@ func MergeAllFilesInDir(config *DirToFileOperationConfig) error {
 		SourceFilesPathes: filesPathesToMerge,
 		TargetFilePath:    config.TargetFilePath,
 	})
+}
+
+func SplitPdfFile(config *FileToDirOperationConfig) error {
+	splitPdfFileCmd := exec.Command(
+		config.BinaryPath,
+		"-sDEVICE=pdfwrite",
+		"-dSAFER",
+		"-o",
+		path.Join(config.TargetDirPath, "outfile.%d.pdf"),
+		config.SourceFilePath,
+	)
+
+	err := splitPdfFileCmd.Run()
+	return err
+}
+
+func ConvertImageToPdf(config *FileToFileOperationConfig) error {
+	viewJpegFilePath := "./assets/code/viewjpeg.ps"
+
+	convertCmd := exec.Command(
+		config.BinaryPath,
+		"-dNOSAFER",
+		"-sDEVICE=pdfwrite",
+		"-o",
+		config.TargetFilePath,
+		viewJpegFilePath,
+		"-c",
+		"("+config.SourceFilePath+")",
+		"viewJPEG",
+	)
+	slog.Info("the printed string", slog.String("the string", convertCmd.String()))
+
+	err := convertCmd.Run()
+	return err
+
 }

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"embed"
 	"log/slog"
 	"os"
 	"path"
@@ -9,26 +10,56 @@ import (
 	"github.com/google/uuid"
 )
 
+type PdfServiceAssets struct {
+	BinaryPath string
+	ScriptPath string
+}
+
 type PdfService struct {
 	logger     *utils.CustomLogger
 	outputDir  string
 	tempDir    string
 	binaryPath string
+	scriptPath string
 }
 
 func NewPdfService(
-	logger *utils.CustomLogger,
 	outputDir string,
 	tempDir string,
-	binaryPath string,
+	localAssetsDirPath string,
 ) *PdfService {
-	logger.Debug("PdfService w/ binaryPath", slog.String("binarypath", binaryPath))
 	return &PdfService{
-		logger:     logger,
 		outputDir:  outputDir,
 		tempDir:    tempDir,
-		binaryPath: binaryPath,
+		binaryPath: path.Join(localAssetsDirPath, "bin/gs"),
+		scriptPath: path.Join(localAssetsDirPath, "code/viewjpeg.ps"),
 	}
+}
+
+func (p *PdfService) Init(logger *utils.CustomLogger, assetsDir embed.FS) *PdfService {
+	p.logger = logger
+	gsBinaryContent, err1 := assetsDir.ReadFile("assets/bin/gs")
+	viewJpegScriptContent, err2 := assetsDir.ReadFile("assets/code/viewjpeg.ps")
+
+	if err1 != nil || err2 != nil {
+		p.logger.Error("Error loading PDF Service assets")
+		panic("Error loading PDF Service assets")
+	}
+
+	err1 = utils.WriteContentToFileIfNotExists(p.binaryPath, gsBinaryContent)
+	err2 = utils.WriteContentToFileIfNotExists(p.scriptPath, viewJpegScriptContent)
+
+	if err1 != nil {
+		p.logger.Error("Error writing GS binary to file", slog.String("reason", err1.Error()))
+		panic(err1)
+	}
+
+	if err2 != nil {
+		p.logger.Error("Error writing viewJPEG script to file", slog.String("reason", err2.Error()))
+		panic(err2)
+	}
+
+	return p
 }
 
 func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string, canResize bool) bool {
