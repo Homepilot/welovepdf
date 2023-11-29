@@ -9,12 +9,17 @@
     display: grid;
     grid-template-columns: 2rem 1fr 2rem;
     grid-gap: 0;
-    grid-template-rows: 4rem 3rem 11rem 1fr 5rem 1rem;
+    grid-template-rows: 4rem 3rem 11rem 1fr 3rem 1rem;
 }
 
-#app-header {
+#generic-layout #app-header {
     grid-column: 2;
     grid-row: 2;
+}
+
+#generic-layout #app-footer {
+    grid-column: 2 / 3;
+    grid-row: 5 / 6;
 }
 
 #page-header {
@@ -25,45 +30,4 @@
 .dropzone {
     grid-column: 2;
     grid-row: 4;
-}
-
-.hp-btn {
-    cursor: pointer;
-    border: solid var(--theme-light) 1px;
-    border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
-}
-
-.hp-btn:hover {
-    background-color: var(--theme-light);
-    color: var(--theme-dark);
-}
-
-.action-btn {
-    cursor: pointer;
-    border: solid var(--theme-light) 1px;
-    border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
-}
-
-.action-btn-disabled {
-    border: solid var(--theme-grey) 1px;
-    color: var(--theme-grey);
-    cursor: not-allowed;
-    border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
-}
-
-.action-btn:hover {
-    background-color: var(--theme-light);
-    color: var(--theme-dark);
-}
-
-#btn-container {
-    display: flex;
-    justify-content: center;
-    margin: 0 auto;
 }

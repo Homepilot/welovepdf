@@ -4,7 +4,7 @@ import { FilePlus, Image, Minimize2 } from "react-feather";
 
 import { logPageVisited } from "../../api";
 import ResizeA4 from '../../assets/images/resize_A4.svg'
-import { AppHeader, AppFooter } from "../../components";
+import { AppHeader, AppFooter, Button } from "../../components";
 import { PageName } from "../../types";
 import "./Home.css";
 
@@ -23,20 +23,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
     return(
         <div id="layout">
-            <div id="home-header">
-                <AppHeader 
-                    shouldDisplayHomeBtn={false}
-                    onNavigateHome={() => onNavigate(PageName.HOME)}    
-                    />
-            </div>
-            <div id="home-container">
-                <div className='home-container'>
-                    <div onClick={() => onNavigate(PageName.MERGE)} className='hp-btn'><FilePlus/> <div>Fusionner des PDF</div></div>
-                    <div onClick={() => onNavigate(PageName.COMPRESS)} className='hp-btn'><Minimize2/> <div>Comprimer des PDF</div></div>
-                </div>
-                <div className='home-container'>
-                    <div onClick={() => onNavigate(PageName.CONVERT_IMG)} className='hp-btn'><Image/> <div>Convertir des images</div></div>
-                    <div onClick={() => onNavigate(PageName.RESIZE)} className='hp-btn'><img src={ResizeA4} style={{width: 32}}/> <div>Formatter en A4</div></div>
+            <AppHeader 
+                shouldDisplayHomeBtn={false}
+                onNavigateHome={() => onNavigate(PageName.HOME)}    
+            />
+            <div id="home-body">
+                <div>
+                    <div className='home-btn-container'>
+                        <Button clicked={() => onNavigate(PageName.MERGE)}><FilePlus/> <div>Fusionner des PDF</div></Button>
+                        <Button clicked={() => onNavigate(PageName.COMPRESS)}><Minimize2/> <div>Comprimer des PDF</div></Button>
+                    </div>
+                    <div className='home-btn-container'>
+                        <Button clicked={() => onNavigate(PageName.CONVERT_IMG)}><Image/> <div>Convertir des images</div></Button>
+                        <Button clicked={() => onNavigate(PageName.RESIZE)}><img src={ResizeA4} style={{width: 32}}/> <div>Formatter en A4</div></Button>
+                    </div>
                 </div>
             </div>
             <AppFooter/>

@@ -1,0 +1,22 @@
+#btn-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.action-btn {
+    cursor: pointer;
+    border: solid var(--theme-light) 1px;
+    border-radius: 3px;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.action-btn-disabled {
+    border: solid var(--theme-grey) 1px;
+    color: var(--theme-grey);
+    cursor: not-allowed;
+    border-radius: 3px;
+    padding: 1rem;
+    margin: 1rem;
+}

@@ -9,12 +9,11 @@ import {
     CompressFile,
     MergePdfFiles,
     ResizePdfFileToA4,
-    CreateTempFilesFromUpload,
 } from '../../wailsjs/go/models/PdfService';
 import {
     BrowserOpenURL
 } from '../../wailsjs/runtime/runtime';
-import { CompressionMode, FileInfo, FileType, PageName } from '../types';
+import { CompressionMode, FileType, PageName } from '../types';
 
 import { logOperationCanceledByUser } from './logger';
 
@@ -24,22 +23,17 @@ export async function selectMultipleFiles(fileType: FileType = FileType.PDF, sel
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function resizeToA4(filesPathes: string[], _batchId: string = "unknown_batch") {
-    const result = await Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
-    console.log({ conversionSuccess: result })
-    return result;
+    return Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
 }
 
 export async function convertFiles(filesPathes: string[], batchId: string = "unknown_batch") {
     const shouldResize = await chooseShouldResize();
-    console.log({shouldResize})
     if(shouldResize === null) {
         logOperationCanceledByUser(PageName.CONVERT_IMG, batchId)
         return null
     }
 
-    const result = await Promise.all(filesPathes.map(path => ConvertImageToPdf(path, shouldResize)));
-    console.log({ conversionSuccess: result })
-    return result;
+    return Promise.all(filesPathes.map(path => ConvertImageToPdf(path, shouldResize)));
 }
 
 export async function mergeFiles (filesPathes: string[], batchId: string = "unknown_batch") {
@@ -49,7 +43,6 @@ export async function mergeFiles (filesPathes: string[], batchId: string = "unkn
         return false;
     }
     const targetFilePath = await OpenSaveFileDialog();
-    console.log({ targetFilePath })
     if(!targetFilePath || targetFilePath === '.pdf') {
         logOperationCanceledByUser(PageName.MERGE, batchId)
         return null
@@ -60,9 +53,7 @@ export async function mergeFiles (filesPathes: string[], batchId: string = "unkn
         return null
     }
 
-    const result = await MergePdfFiles(targetFilePath, [...filesPathes], shouldResize)
-    console.log({ mergeSuccess: result })
-    return result;
+    return MergePdfFiles(targetFilePath, [...filesPathes], shouldResize)
 }
 
 export async function compressFiles (filesPathes: string[], batchId: string = "unknown_batch"): Promise<boolean[] | null> {
@@ -80,8 +71,6 @@ export async function compressFiles (filesPathes: string[], batchId: string = "u
         const result = await CompressFile(file, targetImageQuality)
         resultsArray.push(result)
     }
-
-    console.log({ compressionSuccess: resultsArray })
     return resultsArray;
 }
 
@@ -111,25 +100,6 @@ export async function chooseShouldResize(): Promise<boolean | null>{
 
 export function openLinkInBrowser(url: string){
     return BrowserOpenURL(url)
-}
-
-
-export async function createTempFilesFromUpload(files: File[]): Promise<FileInfo[]> {
-    const filesAsArrBuff = await Promise.all(files.map(file => file.arrayBuffer()));
-    const filesAsUint8Arr = filesAsArrBuff.map(arrBuff => new Uint8Array(arrBuff));
-    const result = await Promise.all(filesAsUint8Arr.map<Promise<string>>(file => CreateTempFilesFromUpload([...file])))
-
-    const newFileInfos = result.reduce<FileInfo[]>((fileInfos, filePath, i) => {
-        if(!filePath) return fileInfos;
-        
-        return [...fileInfos, {
-            id: filePath,
-            name: files[i].name
-        }]
-    }, [] as FileInfo[])
-    
-    console.log({newFileInfos})
-    return newFileInfos
 }
 
 export async function findFilePathByName(fileName: string, size: number, lastModifiedAt: number): Promise<string | null> {

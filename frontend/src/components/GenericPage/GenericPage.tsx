@@ -17,6 +17,7 @@ import { Backdrop } from '../Backdrop';
 import { DragDrop } from '../DragNDropFiles';
 import { FilesList } from '../FilesList';
 import './GenericPage.css';
+import { PageHeader } from '../PageHeader';
 
 type GenericPageProps = {
     pageName: PageName
@@ -31,8 +32,6 @@ type GenericPageProps = {
     onNavigateHome(): void;
 }
 
-
-
 export const GenericPage: React.FC<GenericPageProps> = ({
     headerText,
     action,
@@ -44,34 +43,20 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState<FileInfo[]>([]);
     
-    const logHomePageVisited = useCallback(async () => {
+    const logGenericPageVisited = useCallback(async () => {
         await logPageVisited(pageName)
-    }, [])
+    }, [pageName])
     
     useEffect(() => {
-        logHomePageVisited()
+        logGenericPageVisited()
     }, [])
-    // TODO : should use useCallback here ?
-    const removeFileFromList = (fileId: string) => {
+
+    const removeFileFromList = useCallback((fileId: string) => {
         const newSelectionWithIds = selectedFiles.filter(({id}) => id !== fileId);
         setSelectedFiles(newSelectionWithIds);
-    } 
+    }, [selectedFiles, setSelectedFiles]) 
 
-
-    // TODO : should use useCallback here ?
-    const selectFiles = async () => {
-        setIsLoading(true);
-        const files = await selectMultipleFiles(inputFilesType, selectFilesPrompt ?? headerText);
-        addFilesToSelectionList(files.map((filePath: string) => ({ name: filePath, id: filePath })))
-        setIsLoading(false);
-    }
-    
-    // TODO : should use useCallback here ?
-    const emptyList = () => {
-        setSelectedFiles([]);
-    }
-    
-    const addFilesToSelectionList = (files: FileInfo[]) => {
+    const addFilesToSelectionList = useCallback((files: FileInfo[]) => {
         const newSelectionMap = [...selectedFiles, ...files].reduce<Map<string, FileInfo>>((map, fileInfo) => {
             if(!map.has(fileInfo.id)){
                 map.set(fileInfo.id, fileInfo)
@@ -81,12 +66,16 @@ export const GenericPage: React.FC<GenericPageProps> = ({
 
         const updatedSelection = [...newSelectionMap].map(([, fileInfo]) => fileInfo)
         setSelectedFiles(updatedSelection);
-    }
+    }, [selectedFiles, setSelectedFiles])
 
-    // TODO : should use useCallback here ?
-    // TODO Should split
+    const selectFiles = useCallback(async () => {
+        setIsLoading(true);
+        const files = await selectMultipleFiles(inputFilesType, selectFilesPrompt ?? headerText);
+        addFilesToSelectionList(files.map((filePath: string) => ({ name: filePath, id: filePath })))
+        setIsLoading(false);
+    }, [setIsLoading, inputFilesType, selectFilesPrompt, headerText, addFilesToSelectionList])
 
-    async function runHandler(){
+    const runHandler = useCallback(async () => {
         setIsLoading(true);
         const batchId = uuidv4();
         logOperationStarted(pageName, batchId);
@@ -112,13 +101,15 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         setIsLoading(false);
         notifyAndLogOperationsResult(pageName, batchId, { successes, failures })
         if(!Array.isArray(result)){
-            emptyList();
+            if(result){
+                setSelectedFiles([]);
+            }
             return;
         }
         setSelectedFiles(includedFiles.filter((_, index) => result[index]));
-    }
+    }, [setIsLoading, action, ])
 
-    const handleFilesDropped = async (fileNames: File[]) => {
+    const handleFilesDropped = useCallback(async (fileNames: File[]) => {
         setIsLoading(true)
         let failuresNames: string[] = [];
         try {
@@ -132,12 +123,12 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             addFilesToSelectionList(successes)
         } catch (error) {
             console.error(error)
-            toast.error("Erreur lors de l'ajout des fichiers")
+            toast.error("Erreur lors de l'ajout des fichiers");
         }
         setIsLoading(false)
         if (!failuresNames.length) return
         failuresNames.forEach((fileName) => toast.error(`${fileName}: erreur lors de l'import du fichier, essayez de l'ajouter manuellement`))
-    }
+    }, [setIsLoading, pageName, selectedFiles, addFilesToSelectionList, ])
 
     return (
         <>
@@ -147,21 +138,15 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                     shouldDisplayHomeBtn={true}
                     onNavigateHome={onNavigateHome}    
                 />
-                <div id="page-header">
-                    <div id="page-header-text">
-                        <h3>{headerText}</h3>
-                    </div>
-                    <div id='btn-container'>
-                        <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
-                        <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
-                        <span
-                            onClick={runHandler}
-                            className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
-                        >
-                            { action.btnLabel}
-                        </span>
-                    </div>
-                </div>
+                <PageHeader
+                    headerText={headerText}
+                    actionLabel={action.btnLabel}
+                    isSelectionEmpty={!selectedFiles.length}
+                    isActionDisabled={selectedFiles.length < action.minFilesLength}
+                    onEmptyList={() => setSelectedFiles([])}
+                    onSelectFiles={selectFiles}
+                    onRunAction={runHandler}
+                />
                 <DragDrop filesType={inputFilesType} onFilesDropped={handleFilesDropped} >
                     <FilesList 
                         selectedFiles={selectedFiles}
@@ -173,7 +158,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                 </DragDrop>
                 <AppFooter/>
             </div>
-            </>
+        </>
     )
 }
 

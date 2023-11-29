@@ -1,5 +1,7 @@
 import { Heart } from "react-feather";
+
 import './AppHeader.css';
+import { Button } from "../Button";
 
 type AppHeaderProps = {
     shouldDisplayHomeBtn: boolean;
@@ -10,7 +12,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ shouldDisplayHomeBtn, onNa
     <>
         {
             shouldDisplayHomeBtn
-                ? <span id="home-btn" className="hp-btn" onClick={onNavigateHome}>Accueil</span> 
+                ? <Button extraClasses={['home-btn']} clicked={onNavigateHome}>Accueil</Button>
                 : null
         }
         <div id="app-header">

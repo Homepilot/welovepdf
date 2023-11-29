@@ -41,18 +41,3 @@ body * {
     src: local(""),
     url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
 }
-
-.hp-btn {
-    cursor: pointer;
-    border: solid var(--theme-light) 1px;
-    background-color: var(--theme-dark);
-    border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
-    z-index: 100;
-}
-
-.hp-btn:hover {
-    background-color: var(--theme-light);
-    color: var(--theme-dark);
-}

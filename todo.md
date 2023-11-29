@@ -3,44 +3,40 @@
 | ---------------------| ----------|
 | SIGN BUILDS                |                 ??|
 | keep mem usage in check      | ??? |
+| ensure no file overwrites (find available name)| 1h |
+| load config from json file                                 | 30min |
 <br/>
 <br/>
 
 | Known bugs |                                 |
 | ---------------------| ----------|
 | Convert w/ viewJPEG||
+| FileCard components,  alignment & overflow||
 | Delete btn in FileCard||
 
 | Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|
-| ensure no file overwrites (find available name)||
 | hide file names in logs (personal info) replace only letters for easier debugging ||
 | Backend logs - 🏆 unexpected errors 🏆
-| frontend css layout v3||
-| final style touch (Abde)||
 | Logger - send logs by batches ?                                | 30min |
 | add tests          |                         2h30|
 | add tests backend   |    2h|
 | add tests frontend   |   2h30|
 | test pipeline         |                      30min|
 | Go file naming convention |                   15 min|
-
 <br/>
 <br/>
 
 | Nice to have                 | 2h30 + ??? |
 | --------------------- | ----------|
-| load config from json file                                 | 30min |
-| Split PDF ?                                 | 30min |
 | style toasts                  | 30min |
 | different loader messages     | 30min |
 | setup husky                   | 30min |
 | font from backoffice ?        | 30min |
-| buttons as component          | 30min |
-| refactor layout css           | 30min |
 | open dir after actions        | ??? |
-| internal mode unlocked w/ PIN | |
+| employee mode unlocked w/ PIN | |
 | paralellize when several files... | |
+| Split PDF ?                   | 30min |
 
 <br/>
 <br/>

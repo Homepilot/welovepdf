@@ -41,7 +41,6 @@ export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType,
     }, []) 
 
     const handleFilesDropped = async (files: Iterable<File>) => {
-      console.log({files})
       const {invalidFiles, validFiles} = Array.from(files).reduce((acc, file) => {
         const isValid = filesType === FileType.PDF ? isPdf(file.name) : isImage(file.name)
         return isValid ? ({
