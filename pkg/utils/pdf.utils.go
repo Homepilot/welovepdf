@@ -23,7 +23,7 @@ func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compress
 		return err
 	}
 
-	return ConvertImageToPdf(tempDirPath, &FileToFileOperationConfig{
+	return convertJpegToPdf(&FileToFileOperationConfig{
 		BinaryPath:     compressionConfig.BinaryPath,
 		TargetFilePath: compressionConfig.TargetFilePath,
 		SourceFilePath: tempFilePath,

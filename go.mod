@@ -10,6 +10,7 @@ require (
 	github.com/samber/slog-multi v1.0.2
 	github.com/stretchr/testify v1.8.4
 	github.com/wailsapp/wails/v2 v2.6.0
+	golang.org/x/image v0.5.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
