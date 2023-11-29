@@ -25,9 +25,9 @@ export function App() {
     }, [currentPage]);
 
     return (
-        <div id="app">
+        <>
             { pageComponent}
             <Toaster position="bottom-right"/>
-         </div>
+         </>
     )
 }

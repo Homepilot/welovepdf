@@ -17,9 +17,7 @@ func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperation
 	return err
 }
 
-func convertJpegToPdf(config *FileToFileOperationConfig) error {
-	viewJpegFilePath := "./assets/code/viewjpeg.ps"
-
+func convertJpegToPdf(viewJpegFilePath string, config *FileToFileOperationConfig) error {
 	convertCmd := exec.Command(
 		config.BinaryPath,
 		"-dNOSAFER",

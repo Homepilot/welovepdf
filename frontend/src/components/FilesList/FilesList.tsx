@@ -33,9 +33,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
     }, [onSelectionReordered, selectedFiles])
 
     return (
-        
-        <div className='files-list'>
-
+        <div id='files-list'>
             {
                 !selectedFiles.length ?  
                 <EmptyList/> : 
@@ -44,9 +42,9 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
                         <Droppable droppableId="droppable">
                         {(provided, snapshot) => (
                             <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            style={getListStyle(snapshot.isDraggingOver)}
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                style={getListStyle(snapshot.isDraggingOver)}
                             >
                             {selectedFiles.map((item, index) => (
                                 <Draggable key={item.id} draggableId={item.id} index={index}>

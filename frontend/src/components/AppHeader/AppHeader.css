@@ -1,28 +1,20 @@
-.app-header {
-    width: 95%;
-    padding: 0 1rem;
-    text-align: center;
-}
-
-.header-container {
+#app-header {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-svg {
+#app-header svg {
     margin: 0 1.2rem;
     transform: translateY(-2px);
 }
 
-.header-subtitle {
-    margin-top: 0;
-    position: absolute;
-    bottom: 1rem;
-    left: 2rem;
+#app-header h1 {
+    margin: 0;
+    padding: 0;
 }
 
-.home-btn {
+#home-btn {
     position: absolute;
     top: 1rem;
     left: 1rem;

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compressionConfig *FileToFileOperationConfig) error {
+func CompressSinglePageFile(tempDirPath string, targetImageQuality int, viewJpegScriptPath string, compressionConfig *FileToFileOperationConfig) error {
 	tempFilePath := GetNewTempFilePath(tempDirPath, "jpg")
 	defer os.Remove(tempFilePath)
 
@@ -23,14 +23,14 @@ func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compress
 		return err
 	}
 
-	return convertJpegToPdf(&FileToFileOperationConfig{
+	return convertJpegToPdf(viewJpegScriptPath, &FileToFileOperationConfig{
 		BinaryPath:     compressionConfig.BinaryPath,
 		TargetFilePath: compressionConfig.TargetFilePath,
 		SourceFilePath: tempFilePath,
 	})
 }
 
-func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *DirToDirOperationConfig) error {
+func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, viewJpegScriptPath string, config *DirToDirOperationConfig) error {
 	// For each page
 	filesToCompress, err := os.ReadDir(config.SourceDirPath)
 	if err != nil {
@@ -39,7 +39,7 @@ func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *D
 	}
 
 	for _, file := range filesToCompress {
-		compressionErr := CompressSinglePageFile(tempDirPath, targetImageQuality, &FileToFileOperationConfig{
+		compressionErr := CompressSinglePageFile(tempDirPath, targetImageQuality, viewJpegScriptPath, &FileToFileOperationConfig{
 			SourceFilePath: path.Join(config.SourceDirPath, file.Name()),
 			TargetFilePath: path.Join(config.TargetDirPath, file.Name()),
 			BinaryPath:     config.BinaryPath,
@@ -51,11 +51,11 @@ func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *D
 	return nil
 }
 
-func ConvertImageToPdf(tempDir string, config *FileToFileOperationConfig) error {
+func ConvertImageToPdf(tempDir string, viewJpegScriptPath string, config *FileToFileOperationConfig) error {
 	fileExt := strings.ToLower(filepath.Ext(config.SourceFilePath))
 	isJpeg := fileExt == "jpg" || fileExt == "jpeg"
 	if isJpeg {
-		return convertJpegToPdf(config)
+		return convertJpegToPdf(viewJpegScriptPath, config)
 	}
 
 	tempFilePath := GetNewTempFilePath(tempDir, "jpg")
@@ -65,5 +65,5 @@ func ConvertImageToPdf(tempDir string, config *FileToFileOperationConfig) error 
 		return err
 	}
 	config.SourceFilePath = tempFilePath
-	return convertJpegToPdf(config)
+	return convertJpegToPdf(viewJpegScriptPath, config)
 }

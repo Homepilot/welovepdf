@@ -140,42 +140,40 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     }
 
     return (
-        <div id="generic-layout">
-                <Backdrop isVisible={isLoading} />
-                    <div id="generic-page-header">
-                        <AppHeader 
-                            shouldDisplayHomeBtn={true}
-                            onNavigateHome={onNavigateHome}    
-                            />
+        <>
+            <Backdrop isVisible={isLoading} />
+            <div id="generic-layout">
+                <AppHeader 
+                    shouldDisplayHomeBtn={true}
+                    onNavigateHome={onNavigateHome}    
+                />
+                <div id="page-header">
+                    <div id="page-header-text">
+                        <h3>{headerText}</h3>
                     </div>
-                    <div id="generic-page-container">
-                        <div id="page-header">
-                            <div id="page-header-text">
-                                <h3>{headerText}</h3>
-                            </div>
-                            <div id='btn-container'>
-                                <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
-                                <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
-                                <span
-                                    onClick={runHandler}
-                                    className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
-                                >
-                                    { action.btnLabel}
-                                </span>
-                            </div>
-                        </div>
-                        <DragDrop filesType={inputFilesType} onFilesDropped={handleFilesDropped} >
-                            <FilesList 
-                                selectedFiles={selectedFiles}
-                                onRemoveFileFromList={removeFileFromList}
-                                filesType={inputFilesType} 
-                                onSelectionReordered={setSelectedFiles} 
-                                selectFilesPrompt={selectFilesPrompt || headerText}
-                            />
-                        </DragDrop>
+                    <div id='btn-container'>
+                        <span onClick={() => setSelectedFiles([])} className={selectedFiles.length ? 'action-btn' : 'action-btn-disabled'}>Vider la liste</span>
+                        <span onClick={selectFiles} className="action-btn">{`${selectedFiles.length ? 'Ajouter' : 'Choisir'} des fichiers`}</span>
+                        <span
+                            onClick={runHandler}
+                            className={selectedFiles.length >= action.minFilesLength ? 'action-btn' : 'action-btn-disabled'}
+                        >
+                            { action.btnLabel}
+                        </span>
                     </div>
-                    <AppFooter/>
                 </div>
+                <DragDrop filesType={inputFilesType} onFilesDropped={handleFilesDropped} >
+                    <FilesList 
+                        selectedFiles={selectedFiles}
+                        onRemoveFileFromList={removeFileFromList}
+                        filesType={inputFilesType} 
+                        onSelectionReordered={setSelectedFiles} 
+                        selectFilesPrompt={selectFilesPrompt || headerText}
+                    />
+                </DragDrop>
+                <AppFooter/>
+            </div>
+            </>
     )
 }
 

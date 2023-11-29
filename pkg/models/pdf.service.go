@@ -142,7 +142,7 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 	}
 
 	// 2. Compress the splitted files
-	err = utils.CompressAllFilesInDir(p.tempDir, targetImageQuality, &utils.DirToDirOperationConfig{
+	err = utils.CompressAllFilesInDir(p.tempDir, targetImageQuality, p.scriptPath, &utils.DirToDirOperationConfig{
 		SourceDirPath: tempDirPath1,
 		TargetDirPath: tempDirPath2,
 		BinaryPath:    p.binaryPath,
@@ -173,7 +173,7 @@ func (p *PdfService) ConvertImageToPdf(filePath string, canResize bool) bool {
 	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	defer os.Remove(tempFilePath)
 
-	err := utils.ConvertImageToPdf(p.tempDir, &utils.FileToFileOperationConfig{
+	err := utils.ConvertImageToPdf(p.tempDir, p.scriptPath, &utils.FileToFileOperationConfig{
 		BinaryPath:     p.binaryPath,
 		TargetFilePath: tempFilePath,
 		SourceFilePath: filePath,

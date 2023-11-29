@@ -1,8 +1,6 @@
-
-.files-list {
-    margin: 0 auto;
-    width: 99%;
-    max-width: 60rem;
+#files-list {
+    height: 99%;
+    max-height: 28rem;
     overflow-y: scroll;
 }
 
@@ -14,9 +12,9 @@
 .disclaimer-subtitle {
     margin-top: 2rem;
 }
-/* 
-.files-list div {
-    max-width: 99%;
-    background-color: transparent !important;
-} */
 
+.drag-n-drop-icon {
+    margin: 0;
+    width: 64px;
+    margin-right: 2rem;
+}

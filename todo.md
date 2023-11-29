@@ -8,14 +8,15 @@
 
 | Known bugs |                                 |
 | ---------------------| ----------|
-| warning dnd multiple scrollable parents||
+| Convert w/ viewJPEG||
+| Delete btn in FileCard||
 
 | Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|
+| ensure no file overwrites (find available name)||
 | hide file names in logs (personal info) replace only letters for easier debugging ||
 | Backend logs - 🏆 unexpected errors 🏆
 | frontend css layout v3||
-| warning dnd multiple scrollable parents||
 | final style touch (Abde)||
 | Logger - send logs by batches ?                                | 30min |
 | add tests          |                         2h30|
@@ -74,6 +75,4 @@
 
 #### Last reaminging leaking operations : 
   - convert image to PDF => ok but needs resizing...
-    - embed & save asset file
-    - ensure asset file at GS setup
-  - drop file into window (search by name instead of loading file?)
+  - drop file into window
