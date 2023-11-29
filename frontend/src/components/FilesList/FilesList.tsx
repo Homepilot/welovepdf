@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import { DragDropContext, Droppable, Draggable, OnDragEndResponder } from "react-beautiful-dnd";
 
 import { FileInfo, FileType } from '../../types';
@@ -8,16 +10,16 @@ import { FileCard } from './FileCard';
 import './FilesList.css';
 
 type FilesListProps = {
-    onSelectionUpdated(newSelection: FileInfo[]): void;
+    onSelectionReordered(newSelection: FileInfo[]): void;
     onRemoveFileFromList(fileId: string): void;
     selectedFiles: FileInfo[];
     filesType?: FileType;
     selectFilesPrompt: string;
 }
 
-export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionUpdated, onRemoveFileFromList, selectedFiles }) => {
+export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionReordered, onRemoveFileFromList, selectedFiles }) => {
 
-    const onDragEnd: OnDragEndResponder = (result) => {
+    const onDragEnd: OnDragEndResponder = useCallback((result) => {
         if (!result.destination) {
           return;
         }
@@ -27,9 +29,8 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
           result.source.index,
           result.destination.index
         );
-    
-        onSelectionUpdated(reorderedItems)
-      }
+        onSelectionReordered(reorderedItems)
+    }, [onSelectionReordered])
 
     return (
         

@@ -1,15 +1,14 @@
 ## Must have                          
-| Must have 1
+| Must have 1 | |
 | ---------------------| ----------|
 | SIGN BUILDS                |                 ??|
-| keep mem usage in check (use Writer & Reader instead if file api?)       | ??? |
+| keep mem usage in check      | ??? |
 <br/>
 <br/>
 
 | Known bugs |                                 |
 | ---------------------| ----------|
 | warning dnd multiple scrollable parents||
-| reorder not working||
 
 | Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|

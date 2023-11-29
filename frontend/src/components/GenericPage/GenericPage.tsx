@@ -154,7 +154,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                                 selectedFiles={selectedFiles}
                                 onRemoveFileFromList={removeFileFromList}
                                 filesType={inputFilesType} 
-                                onSelectionUpdated={addFilesToSelectionList} 
+                                onSelectionReordered={setSelectedFiles} 
                                 selectFilesPrompt={selectFilesPrompt || headerText}
                             />
                     </div>
