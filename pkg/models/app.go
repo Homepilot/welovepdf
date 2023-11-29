@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"log"
 	"log/slog"
 	"os"
 	"strings"
@@ -71,6 +72,49 @@ func (a *App) BeforeClose(ctx context.Context) bool {
 	if outputDirRemovalErr != nil && !os.IsExist(outputDirRemovalErr) {
 		a.logger.Warn("BeforeClose : error removing output dir", slog.String("reason", outputDirRemovalErr.Error()))
 	}
+	return false
+}
+
+func (a *App) EnsureGhostScriptSetup(gsBinaryPath string, binaryContent []byte) {
+	if a.isGhostScriptSetup(gsBinaryPath) {
+		return
+	}
+
+	log.Println("setting up GhostScript")
+	file, err := os.Create(gsBinaryPath)
+	if err != nil {
+		a.logger.Error("Error creating GhostScript binary file", slog.String("reason", err.Error()))
+		log.Fatalf("Error creating GhostScript binary file: %s", err.Error())
+	}
+	defer file.Close()
+
+	err = file.Chmod(0755)
+	if err != nil {
+		a.logger.Error("Error make GhostScript binary file executable", slog.String("reason", err.Error()))
+		log.Fatalf("Error make GhostScript binary file executable: %s", err.Error())
+	}
+	log.Println("GhostScript binary file permissions set")
+
+	_, err = file.Write(binaryContent)
+	if err != nil {
+		a.logger.Error("Error writing GhostScript binary to target file", slog.String("reason", err.Error()))
+		log.Fatalf("Error writing GhostScript binary to target file: %s", err.Error())
+	}
+
+	log.Println("Ghostscript binary successfully setup")
+}
+
+func (a *App) isGhostScriptSetup(gsBinaryPath string) bool {
+	_, err := os.Stat(gsBinaryPath)
+
+	if err == nil {
+		return true
+	}
+	if !os.IsNotExist(err) {
+		a.logger.Error("Error setting up GhostScript", slog.String("reason", err.Error()))
+		log.Fatalf("Error setting up GhostScript: %s", err.Error())
+	}
+
 	return false
 }
 

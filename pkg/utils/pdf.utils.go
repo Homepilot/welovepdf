@@ -1,24 +1,10 @@
 package utils
 
 import (
-	"log"
+	"log/slog"
 	"os"
 	"path"
-
-	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
-
-func MergePdfFilesLegacy(targetFilePath string, filePathes []string) error {
-	return pdfcpu.MergeCreateFile(filePathes, targetFilePath, pdfcpu.LoadConfiguration())
-}
-
-func SplitFile(filePath string, targetDirPath string) error {
-	return pdfcpu.SplitFile(filePath, targetDirPath, 1, nil)
-}
-
-func ConvertImageToPdf(filePath string, targetFilePath string) error {
-	return pdfcpu.ImportImagesFile([]string{filePath}, targetFilePath, nil, nil)
-}
 
 func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compressionConfig *FileToFileOperationConfig) error {
 	tempFilePath := GetNewTempFilePath(tempDirPath, "jpg")
@@ -31,22 +17,25 @@ func CompressSinglePageFile(tempDirPath string, targetImageQuality int, compress
 	})
 
 	if err != nil {
-		log.Printf("CompressSinglePageFile : Error converting file to JPG: %s", tempFilePath)
+		slog.Error("CompressSinglePageFile : Error converting file to JPG: %s", slog.String("filepath", tempFilePath))
 		return err
 	}
 
-	return ConvertImageToPdf(tempFilePath, compressionConfig.TargetFilePath)
+	return ConvertImageToPdf(&FileToFileOperationConfig{
+		BinaryPath:     compressionConfig.BinaryPath,
+		TargetFilePath: compressionConfig.TargetFilePath,
+		SourceFilePath: tempFilePath,
+	})
 }
 
 func CompressAllFilesInDir(tempDirPath string, targetImageQuality int, config *DirToDirOperationConfig) error {
 	// For each page
 	filesToCompress, err := os.ReadDir(config.SourceDirPath)
 	if err != nil {
-		log.Printf("CompressAllFilesInDir : Error reading files in dir : %s", config.SourceDirPath)
+		slog.Error("CompressAllFilesInDir : Error reading files in dir : %s", slog.String("sourcedir", config.SourceDirPath))
 		return err
 	}
 
-	log.Printf("found %d compressed files to compress", len(filesToCompress))
 	for _, file := range filesToCompress {
 		compressionErr := CompressSinglePageFile(tempDirPath, targetImageQuality, &FileToFileOperationConfig{
 			SourceFilePath: path.Join(config.SourceDirPath, file.Name()),

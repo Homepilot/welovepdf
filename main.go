@@ -18,6 +18,9 @@ import (
 //go:embed assets/bin/gs
 var gsBinary []byte
 
+//go:embed assets/viewjpeg.ps
+var viewJpeg []byte
+
 //go:embed assets/images/resize_A4.svg
 var resizeA4Icon []byte
 
@@ -44,10 +47,10 @@ func main() {
 	logger := utils.NewLogger(LOGS_DIR, logtailSourceToken)
 	frontendLogger := models.NewFrontendLogger(logger)
 	ensureRequiredDirectories()
-	utils.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 
 	// Create an instance of the app structure
 	app := models.NewApp(logger, OUTPUT_DIR, TEMP_DIR, logoLightIcon, compressIcon, resizeA4Icon)
+	app.EnsureGhostScriptSetup(GS_BINARY_PATH, gsBinary)
 	pdfHandler := models.NewPdfService(logger, OUTPUT_DIR, TEMP_DIR, GS_BINARY_PATH)
 
 	// Create application with options
@@ -87,7 +90,7 @@ func main() {
 
 func initGlobals() {
 	// godotenv.Load()
-	logtailSourceToken = ""
+	logtailSourceToken = "eEUGryMaDBULCSbtc7358Z6s"
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		logger.Error("Error retrieving the user's home directory", slog.String("reason", err.Error()))

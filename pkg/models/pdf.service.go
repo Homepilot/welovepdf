@@ -7,7 +7,6 @@ import (
 	"welovepdf/pkg/utils"
 
 	"github.com/google/uuid"
-	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
 type PdfService struct {
@@ -72,24 +71,25 @@ func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string, c
 	return true
 }
 
+// TODO Split/refacto
 func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool {
 	p.logger.Debug("CompressFile: operation starting", slog.Int("targetQuality", targetImageQuality))
 	resultFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+"_compressed.pdf")
 
-	pageCount, err := pdfcpu.PageCountFile(filePath)
-	if err == nil && pageCount == 1 {
-		err := utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
-			SourceFilePath: filePath,
-			TargetFilePath: resultFilePath,
-			BinaryPath:     p.binaryPath,
-		})
-		if err != nil {
-			p.logger.Error("CompressFile : error compressing single page file", slog.String("file", filePath), slog.Int("targetQuality", targetImageQuality), slog.String("reason", err.Error()))
-			return false
-		}
-		p.logger.Debug("CompressFile operation succeeded")
-		return true
-	}
+	// pageCount, err := pdfcpu.PageCountFile(filePath)
+	// if err == nil && pageCount == 1 {
+	// 	err := utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
+	// 		SourceFilePath: filePath,
+	// 		TargetFilePath: resultFilePath,
+	// 		BinaryPath:     p.binaryPath,
+	// 	})
+	// 	if err != nil {
+	// 		p.logger.Error("CompressFile : error compressing single page file", slog.String("file", filePath), slog.Int("targetQuality", targetImageQuality), slog.String("reason", err.Error()))
+	// 		return false
+	// 	}
+	// 	p.logger.Debug("CompressFile operation succeeded")
+	// 	return true
+	// }
 
 	fileId := uuid.New().String()
 	tempDirPath1 := path.Join(p.tempDir, fileId, "compress_jpg")
@@ -100,7 +100,11 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 	defer os.RemoveAll(tempDirPath2)
 
 	// 1. Split file into 1 file per page
-	err = utils.SplitFile(filePath, tempDirPath1)
+	err := utils.SplitPdfFile(&utils.FileToDirOperationConfig{
+		BinaryPath:     p.binaryPath,
+		SourceFilePath: filePath,
+		TargetDirPath:  tempDirPath1,
+	})
 	if err != nil {
 		p.logger.Error("CompressFile : error splitting file, compression aborted", slog.String("reason", err.Error()))
 		return false
@@ -135,33 +139,35 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 
 func (p *PdfService) ConvertImageToPdf(filePath string, canResize bool) bool {
 	p.logger.Debug("ConvertImageToPdf : operation started")
-	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+".pdf")
-	if canResize {
-		targetFilePath = path.Join(p.outputDir, utils.AddSuffixToFileName(utils.GetFileNameWoExtensionFromPath(filePath), "_resized.pdf"))
-	}
-	tempFilePath := targetFilePath
-	if canResize {
-		tempFilePath = utils.GetNewTempFilePath(p.tempDir, "pdf")
-		defer os.Remove(tempFilePath)
-	}
+	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
+	defer os.Remove(tempFilePath)
 
-	err := utils.ConvertImageToPdf(filePath, tempFilePath)
+	err := utils.ConvertImageToPdf(&utils.FileToFileOperationConfig{
+		BinaryPath:     p.binaryPath,
+		TargetFilePath: tempFilePath,
+		SourceFilePath: filePath,
+	})
 	if err != nil {
 		p.logger.Error("ConvertImageToPdf : operation failed at ConvertImageToPdf", slog.String("reason", err.Error()))
 		return false
 	}
 
+	targetFilePath := path.Join(p.outputDir, utils.GetFileNameWoExtensionFromPath(filePath)+".pdf")
 	if !canResize {
+		err := os.Rename(tempFilePath, targetFilePath)
+		if err != nil {
+			p.logger.Error("Error renaming file after conversion", slog.String("reasonMsg", err.Error()))
+			return false
+		}
 		p.logger.Debug("ConvertImageToPdf : operation succeeded")
 		return true
 	}
 
 	err = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+		BinaryPath:     p.binaryPath,
 		TargetFilePath: targetFilePath,
 		SourceFilePath: tempFilePath,
-		BinaryPath:     p.binaryPath,
 	})
-
 	if err != nil {
 		p.logger.Error("ConvertImageToPdf : operation failed at ResizePdfFileToA4", slog.String("reason", err.Error()))
 		return true // file is converted, even though not resized

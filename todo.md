@@ -62,13 +62,18 @@
 | Operation | Mem before | Mem after | file size | Leaked Mem | Solution |
 | ------------ | ----- | ----- | ----- | ----- | ----- |
 | Start (Idle) | N/A | 28 MB | N/A | N/A | N/A |
+| Format to A4 | 38 MB | >330MB | > 300 MB | 0 | N/A |
 | Format to A4 | 33 MB | 33MB | 6.8 MB | 0 | N/A |
 | Merge w resize | 34 | 80 | 26.4 MB | 0 | N/A |
 | Merge w/o resize | 34 | 84 MB| 26.4 MB | 0 | N/A |
-| Compression | 34 MB| 57 MB | 25.8MB | 23 MB | Size of file |
-| Compression Extreme | 57 MB | 71 MB | 12.7 MB | 13 MB | Size of file |
-| Convert image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB |
-| Convert image w Resize | 34 | 101 | 12.7MB | 67 MB |
+| Compression | 34 MB| 57 MB | 25.8MB | 23 MB | pdfcpu out in convert |
+| Compression Extreme | 57 MB | 71 MB | 12.7 MB | 13 MB | pdfcpu out in convert |
+| Convert image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
+| Convert image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
 
 
-=> Try PDFCPU w/ Writer & Reader instead of files...
+#### Last reaminging leaking operations : 
+  - convert image to PDF => ok but needs resizing...
+    - embed & save asset file
+    - ensure asset file at GS setup
+  - drop file into window (search by name instead of loading file?)

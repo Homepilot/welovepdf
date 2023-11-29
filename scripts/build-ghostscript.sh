@@ -2,11 +2,9 @@
 
 # Set target version
 GHOSTPDL_VERSION="10.02.1"
-TEMP_DIR="$PWD/temp"
+TEMP_DIR="./temp"
 GS_SRC_DIR="${TEMP_DIR}/ghostpdl-${GHOSTPDL_VERSION}"
-TEMP_BIN_DIR="${TEMP_DIR}/bin"
-OUTPUT_DIR="$PWD/"
-TEMP_ARCHIVE_FILE=""
+
 
 
 echo "Start GhostScript setup v${GHOSTPDL_VERSION} using temp folder : ${GS_SRC_DIR}"
@@ -35,3 +33,14 @@ make O=../bin
 # rm -rf ./binary/temp
 # rm -rf ${GS_SRC_DIR}
 # rm "${GS_SRC_DIR}.tar.gz"
+
+
+./assets/bin/gs -dNOSAFER -sDEVICE=pdfwrite -o ./testimg.pdf viewjpeg.ps -dVJPGDEBUG -c \(img.jpeg\) viewJPEG
+./assets/bin/gs
+
+./assets/bin/gs \
+ -dNOSAFER \
+ -sDEVICE=pdfwrite \
+ -o foo.pdf \
+  viewjpeg.ps \
+ -c \(img.jpeg\) viewJPEG
