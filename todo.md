@@ -3,8 +3,8 @@
 | ---------------------| ----------|
 | SIGN BUILDS                |                 ??|
 | keep mem usage in check      | ??? |
+| resize images before converting to PDF | 1h |
 | ensure no file overwrites (find available name)| 1h |
-| load config from json file                                 | 30min |
 <br/>
 <br/>
 
@@ -67,8 +67,3 @@
 | Compression Extreme | 57 MB | 71 MB | 12.7 MB | 13 MB | pdfcpu out in convert |
 | Convert image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
 | Convert image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
-
-
-#### Last reaminging leaking operations : 
-  - convert image to PDF => ok but needs resizing...
-  - drop file into window

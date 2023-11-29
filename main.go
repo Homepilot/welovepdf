@@ -22,6 +22,10 @@ var assets embed.FS
 var logtailSourceToken string = ""
 
 func main() {
+	logtailFileContent, err := goAssets.ReadFile("assets/config/logtail.txt")
+	if err == nil {
+		logtailSourceToken = string(logtailFileContent)
+	}
 
 	// Create an instance of the app structure
 	app := models.NewApp()
