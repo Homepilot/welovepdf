@@ -11,6 +11,8 @@ jobs:
       fail-fast: true
       matrix:
         platform: [macos-latest]
+        include: 
+          - arch: aarch64
         go-version: [1.18]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -26,8 +28,10 @@ jobs:
       # You may need to manually build you frontend here, unless you have configured frontend build and install commands in wails.json.
       - name: Get Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - name: Get Ghostscript binary
-        run: curl --output ./assets/bin/gs https://homepilot-data-public.s3.eu-west-3.amazonaws.com/ghostscript/gsbinary
+      - name: Set up build assets
+        env:
+          LOGTAIL_TOKEN: ${{ secrets.LOGTAIL_TOKEN }}
+        run: ./scripts/setup-build-assets
       - name: Build Wails app
         run: |
           wails build
