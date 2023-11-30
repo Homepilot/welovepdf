@@ -236,31 +236,31 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 	return selection
 }
 
-func (a *App) FindFileInUserDir(filename string, size int, lastModifiedAt int) string {
-	searchConfig := &utils.FindFileConfig{
+func (a *App) SearchFileInUserDir(filename string, size int, lastModifiedAt int) string {
+	searchConfig := &utils.SearchFileConfig{
 		Filename:           filename,
 		FileSize:           size,
 		FileLastModifiedAt: lastModifiedAt,
 	}
 
-	a.logger.Debug("FindFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
+	a.logger.Debug("SearchFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
 	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Desktop")
-	fileInDesktop := utils.FindFileInDirectoryTree(searchConfig)
+	fileInDesktop := utils.SearchFileInDirectoryTree(searchConfig)
 	if fileInDesktop != "" {
 		return fileInDesktop
 	}
 	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Documents")
-	fileInDocuments := utils.FindFileInDirectoryTree(searchConfig)
+	fileInDocuments := utils.SearchFileInDirectoryTree(searchConfig)
 	if fileInDocuments != "" {
 		return fileInDocuments
 	}
 	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Downloads")
-	fileInDownloads := utils.FindFileInDirectoryTree(searchConfig)
+	fileInDownloads := utils.SearchFileInDirectoryTree(searchConfig)
 	if fileInDownloads != "" {
 		return fileInDownloads
 	}
 	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Pictures")
-	fileInPictures := utils.FindFileInDirectoryTree(searchConfig)
+	fileInPictures := utils.SearchFileInDirectoryTree(searchConfig)
 
 	return fileInPictures
 }

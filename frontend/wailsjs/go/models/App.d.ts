@@ -4,12 +4,12 @@ import {utils} from '../models';
 import {embed} from '../models';
 import {models} from '../models';
 
-export function FindFileInUserDir(arg1:string,arg2:number,arg3:number):Promise<string>;
-
 export function Init(arg1:utils.CustomLogger,arg2:embed.FS):Promise<models.App>;
 
 export function OpenSaveFileDialog():Promise<string>;
 
 export function PromptUserSelect(arg1:models.PromptSelectConfig):Promise<string>;
+
+export function SearchFileInUserDir(arg1:string,arg2:number,arg3:number):Promise<string>;
 
 export function SelectMultipleFiles(arg1:string,arg2:string):Promise<Array<string>>;

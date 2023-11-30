@@ -1,5 +1,5 @@
 import {
-    FindFileInUserDir,
+    SearchFileInUserDir,
     OpenSaveFileDialog,
     PromptUserSelect,
     SelectMultipleFiles
@@ -103,7 +103,7 @@ export function openLinkInBrowser(url: string){
 }
 
 export async function findFilePathByName(fileName: string, size: number, lastModifiedAt: number): Promise<string | null> {
-    const matchingFile = await FindFileInUserDir(fileName, size, lastModifiedAt);
+    const matchingFile = await SearchFileInUserDir(fileName, size, lastModifiedAt);
 
     return matchingFile || null
 }

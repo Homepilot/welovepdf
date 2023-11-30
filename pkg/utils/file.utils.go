@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path"
@@ -98,47 +99,65 @@ func GetTodaysOutputDir(userHomeDir string) string {
 	return path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateStr())
 }
 
-type FindFileConfig struct {
+type SearchFileConfig struct {
 	RootDirPath        string
 	Filename           string
 	FileSize           int
 	FileLastModifiedAt int
+	LastModifiedStr    string
 }
 
-func FindFileInDirectoryTree(config *FindFileConfig) string {
-	matchingFilePath := ""
-	lastModifiedStr := fmt.Sprintf("%d", config.FileLastModifiedAt)
+func isSameFile(dirEntry os.DirEntry, searchConfig *SearchFileConfig) bool {
+	if dirEntry.IsDir() || strings.HasPrefix(dirEntry.Name(), ".") {
+		return false
+	}
+	if dirEntry.Name() == searchConfig.Filename {
+		fileInfo, fileInfoErr := dirEntry.Info()
+		if fileInfoErr != nil {
+			slog.Debug(fmt.Sprintf("Error reading file w/ matching name : %s", dirEntry.Name()), slog.String("reason", fileInfoErr.Error()))
+			return false
+		}
+		modifiedStr := fmt.Sprintf("%d", fileInfo.ModTime().Unix())
+		slog.Debug("Found file w/ matching name", slog.String("searched", searchConfig.Filename), slog.String("actual", fileInfo.Name()), slog.Int("size", int(fileInfo.Size())), slog.String("modified", modifiedStr))
 
-	slog.Debug(fmt.Sprintf("Looking for file %s in dir %s", config.Filename, config.RootDirPath), slog.String("searched", config.Filename), slog.Int("size", int(config.FileSize)), slog.String("modified", lastModifiedStr))
+		if fileInfo.Size() == int64(searchConfig.FileSize) &&
+			strings.Compare(modifiedStr, searchConfig.LastModifiedStr[:len(modifiedStr)]) == 0 {
+			return true
+		}
+		return false
+	}
+
+	return false
+}
+
+func SearchFileInDirectoryTree(config *SearchFileConfig) string {
+	config.LastModifiedStr = fmt.Sprintf("%d", config.FileLastModifiedAt)
+	slog.Debug(fmt.Sprintf("config.LastModifiedStr = %s", config.LastModifiedStr))
+	matchingFilePath := ""
+
+	slog.Debug(fmt.Sprintf("Looking for file %s in dir %s", config.Filename, config.RootDirPath), slog.String("searched", config.Filename), slog.Int("size", int(config.FileSize)), slog.String("modified", config.LastModifiedStr))
 
 	err := filepath.WalkDir(config.RootDirPath, func(currentPath string, dirEntry os.DirEntry, err error) error {
 		if err != nil {
-			slog.Warn("error walking through directory", slog.String("reason", err.Error()))
+			slog.Debug("error walking through directory", slog.String("reason", err.Error()))
+			return nil
+		}
+		if dirEntry.IsDir() || strings.HasPrefix(dirEntry.Name(), ".") {
 			return nil
 		}
 
-		if strings.HasPrefix(dirEntry.Name(), ".") {
+		shouldReturnValue := isSameFile(dirEntry, config)
+		if !shouldReturnValue {
 			return nil
 		}
 
-		if !dirEntry.IsDir() &&
-			dirEntry.Name() == config.Filename {
-			fileInfo, fileInfoErr := dirEntry.Info()
-			if fileInfoErr != nil {
-				return nil
-			}
-			modifiedStr := fmt.Sprintf("%d", fileInfo.ModTime().Unix())
-			slog.Debug("Found file w/ matching name", slog.String("searched", config.Filename), slog.String("actual", fileInfo.Name()), slog.Int("size", int(fileInfo.Size())), slog.String("modified", modifiedStr))
-
-			if fileInfo.Size() == int64(config.FileSize) &&
-				strings.Compare(modifiedStr, lastModifiedStr[:len(modifiedStr)]) == 0 {
-				slog.Debug("Path added")
-				matchingFilePath = currentPath
-			}
-			return nil
-		}
-		return nil
+		matchingFilePath = currentPath
+		return io.EOF
 	})
+
+	if err == io.EOF {
+		return matchingFilePath
+	}
 
 	if err != nil {
 		slog.Debug(fmt.Sprintf("Error looking for file %s in dir %s", config.Filename, config.RootDirPath), slog.String("reason", err.Error()))
@@ -153,3 +172,13 @@ func FindFileInDirectoryTree(config *FindFileConfig) string {
 	slog.Info("found matching file", slog.String("filepath", matchingFilePath))
 	return matchingFilePath
 }
+
+// func GetSafeWritePathFromPath(filePath string) (safePath string, pathErr error) {
+// 	stat, err := os.Stat(filePath)
+// 	if err != nil {
+// 		if os.IsNotExist(err) {
+// 			return filePath, nil
+// 		}
+// 		return nil, err
+// 	}
+// }

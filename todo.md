@@ -6,6 +6,7 @@
 | ensure no file overwrites (find available name)| 1h |
 | ensure safe path strings (escape special chars etc)||
 | resize images before converting to PDF | 1h |
+| per package constants files | 1h |
 <br/>
 <br/>
 
@@ -54,6 +55,8 @@
 - [x] Convert image w Resize
 ### Format
 - [x] Format to A4
+### Drag n Drop
+- [x] Drag n Drop files consecutively several times
 
 ## Memory Tests
 | Operation | Mem before | Mem after | file size | Leaked Mem | Solution |
