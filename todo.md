@@ -1,41 +1,41 @@
 ## Must have                          
-| Must have 1 | |
-| ---------------------| ----------|
-| SIGN BUILDS                |                 ??|
-| check new mem usage       | 45min |
-| ensure no file overwrites (find available name)| 1h |
-| ensure safe path strings (escape special chars etc)||
-| resize images before converting to PDF | 1h |
-| per package constants files | 1h |
-<br/>
+| Must have 1 - 4h | 
+| ---------------------| 
+- [ ] SIGN BUILDS                
+- [ ] resize images before converting to PDF 
+- [ ] 30m - per package constants files 
+- [ ] 30m -  config in JSON 
+- [ ] 30m -  config file il build 
+- [ ] 30m - FileCard components,  alignment & overflow
+- [ ] 15m - font from backoffice
+- [ ] 30m -  Logger - send logs by batches ?           
+- [ ] 15m - Go file naming convention 
+- [ ] 10m - style toasts
+-----
+- [ ] check new mem usage       
 <br/>
 
-| Known bugs |                                 |
-| ---------------------| ----------|
-| Convert w/ viewJPEG||
-| FileCard components,  alignment & overflow||
+| Known bugs |                                 
+| ---------------------|
+| Run GS commands |
+<br/>
 
-| Must have 2 |                                3h30 + ?? |
+| V2 |                                3h30 + ?? |
 | ---------------------| ----------|
+| improved logger ||
 | hide file names in logs (personal info) replace only letters for easier debugging ||
 | Backend logs - 🏆 unexpected errors 🏆
-| Logger - send logs by batches ?                                | 30min |
 | add tests          |                         2h30|
 | add tests backend   |    2h|
 | add tests frontend   |   2h30|
 | test pipeline         |                      30min|
-| Go file naming convention |                   15 min|
-<br/>
 <br/>
 
 | Nice to have                 | 2h30 + ??? |
 | --------------------- | ----------|
-| style toasts                  | 30min |
 | different loader messages     | 30min |
 | setup husky                   | 30min |
-| font from backoffice ?        | 30min |
 | open dir after actions        | ??? |
-| employee mode unlocked w/ PIN | |
 | paralellize when several files... | |
 | Split PDF ?                   | 30min |
 

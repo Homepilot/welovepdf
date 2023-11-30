@@ -190,10 +190,10 @@ func (a *App) OpenSaveFileDialog() string {
 	}
 
 	if strings.HasSuffix(targetFilePath, ".pdf") {
-		return targetFilePath
+		return utils.SanitizeFilePath(targetFilePath)
 	}
 
-	return targetFilePath + ".pdf"
+	return utils.SanitizeFilePath(targetFilePath) + ".pdf"
 }
 
 type PromptSelectConfig struct {
@@ -238,7 +238,7 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 
 func (a *App) SearchFileInUserDir(filename string, size int, lastModifiedAt int) string {
 	searchConfig := &utils.SearchFileConfig{
-		Filename:           filename,
+		Filename:           utils.SanitizeFilePath(filename),
 		FileSize:           size,
 		FileLastModifiedAt: lastModifiedAt,
 	}

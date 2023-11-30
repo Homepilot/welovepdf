@@ -80,7 +80,7 @@ func GetNewTempFilePath(tempDirPath string, extension string) string {
 	return path.Join(tempDirPath, newId+"."+extension)
 }
 
-func AddSuffixToFileName(fileName string, suffix string) string {
+func AddSuffixToFileNameInPath(fileName string, suffix string) string {
 	nameParts := strings.Split(GetFileNameFromPath(fileName), ".")
 	if len(nameParts) < 2 {
 		return fileName + suffix
@@ -173,12 +173,76 @@ func SearchFileInDirectoryTree(config *SearchFileConfig) string {
 	return matchingFilePath
 }
 
-// func GetSafeWritePathFromPath(filePath string) (safePath string, pathErr error) {
-// 	stat, err := os.Stat(filePath)
-// 	if err != nil {
-// 		if os.IsNotExist(err) {
-// 			return filePath, nil
-// 		}
-// 		return nil, err
-// 	}
-// }
+func removeBadCharacters(input string, dictionary []string) string {
+
+	temp := input
+
+	for _, badChar := range dictionary {
+		temp = strings.Replace(temp, badChar, "", -1)
+	}
+	return temp
+}
+
+func SanitizeFilePath(path string) string {
+	var badCharacters = []string{
+		"../",
+		"<!--",
+		"-->",
+		"<",
+		">",
+		"'",
+		"\"",
+		"&",
+		"$",
+		"#",
+		"{", "}", "[", "]", "=",
+		";", "?", "%20", "%22",
+		"%3c",   // <
+		"%253c", // <
+		"%3e",   // >
+		"",      // > -- fill in with % 0 e - without spaces in between
+		"%28",   // (
+		"%29",   // )
+		"%2528", // (
+		"%26",   // &
+		"%24",   // $
+		"%3f",   // ?
+		"%3b",   // ;
+		"%3d",   // =
+	}
+
+	if path == "" {
+		return path
+	}
+
+	// trim(remove)white space
+	trimmed := strings.TrimSpace(path)
+
+	// trim(remove) white space in between characters
+	trimmed = strings.Replace(trimmed, " ", "", -1)
+
+	// remove bad characters from filename
+	trimmed = removeBadCharacters(trimmed, badCharacters)
+
+	stripped := strings.Replace(trimmed, "\\", "", -1)
+
+	return stripped
+}
+
+func ComputeTargetFilePath(outputDir string, originalPath string, extension string, suffix string) string {
+	fileName := GetFileNameWoExtensionFromPath(originalPath)
+	formattedFileName := SanitizeFilePath(AddSuffixToFileNameInPath(fileName+"."+extension, suffix))
+
+	for ctr := 0; ctr < 1000; ctr += 1 {
+		curFileName := formattedFileName
+		if ctr > 0 {
+			curFileName = AddSuffixToFileNameInPath(curFileName, "("+fmt.Sprintf("%d", ctr)+")")
+		}
+
+		_, err := os.Stat(curFileName)
+		if err != nil && os.IsNotExist(err) {
+			return path.Join(outputDir, formattedFileName)
+		}
+	}
+	return ""
+}
