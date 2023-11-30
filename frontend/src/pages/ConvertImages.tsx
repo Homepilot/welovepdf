@@ -1,4 +1,4 @@
-import { convertFiles } from '../api/actions';
+import { convertImagesToPdf } from '../api/actions';
 import { GenericPage } from '../components';
 import { FileType, PageName } from '../types';
 
@@ -9,7 +9,7 @@ export const ConvertImagesPage: React.FC<{onNavigateHome(): void}> = ({onNavigat
         onNavigateHome={onNavigateHome} 
         headerText='Veuillez sélectionner les fichiers à convertir' 
         action={{
-            handler: convertFiles,
+            handler: convertImagesToPdf,
             btnLabel: 'Convertir les fichiers',
             minFilesLength: 1
         }}

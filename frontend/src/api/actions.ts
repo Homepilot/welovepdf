@@ -5,7 +5,7 @@ import {
     SelectMultipleFiles
 } from '../../wailsjs/go/models/App';
 import {
-    ConvertImageToPdf,
+    RotateImageFile,
     CompressFile,
     MergePdfFiles,
     ResizePdfFileToA4,
@@ -26,14 +26,17 @@ export async function resizeToA4(filesPathes: string[], _batchId: string = "unkn
     return Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
 }
 
-export async function convertFiles(filesPathes: string[], batchId: string = "unknown_batch") {
-    const shouldResize = await chooseShouldResize();
-    if(shouldResize === null) {
-        logOperationCanceledByUser(PageName.CONVERT_IMG, batchId)
-        return null
-    }
+export async function convertImagesToPdf(filesPathes: string[], batchId: string = "unknown_batch") {
+    // const shouldResize = await chooseShouldResize();
+    // console.log({ shouldResize })
+    // if(shouldResize === null) {
+    //     logOperationCanceledByUser(PageName.CONVERT_IMG, batchId)
+    //     return null
+    // }
+    // @ts-expect-error njknjk
+return window.go?.models?.PdfService?.RotateImageFile(filesPathes[0], false)
 
-    return Promise.all(filesPathes.map(path => ConvertImageToPdf(path, shouldResize)));
+    // return Promise.all(filesPathes.map(path => RotateImageFile(path, false)));
 }
 
 export async function mergeFiles (filesPathes: string[], batchId: string = "unknown_batch") {

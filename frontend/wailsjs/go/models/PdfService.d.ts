@@ -3,8 +3,8 @@
 
 export function CompressFile(arg1:string,arg2:number):Promise<boolean>;
 
-export function ConvertImageToPdf(arg1:string,arg2:boolean):Promise<boolean>;
-
 export function MergePdfFiles(arg1:string,arg2:Array<string>,arg3:boolean):Promise<boolean>;
 
 export function ResizePdfFileToA4(arg1:string):Promise<boolean>;
+
+export function RotateImageFile(arg1:string,arg2:boolean):Promise<boolean>;

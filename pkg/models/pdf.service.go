@@ -171,40 +171,42 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 	return true
 }
 
-func (p *PdfService) ConvertImageToPdf(filePath string, canResize bool) bool {
+func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
+	slog.Debug("IN FUCKING FUNCTION")
 	p.logger.Debug("ConvertImageToPdf : operation started")
-	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
-	defer os.Remove(tempFilePath)
+	// tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
+	// defer os.Remove(tempFilePath)
 
-	err := utils.ConvertImageToPdf(p.tempDir, p.scriptPath, &utils.FileToFileOperationConfig{
-		BinaryPath:     p.binaryPath,
-		TargetFilePath: tempFilePath,
-		SourceFilePath: filePath,
-	})
+	// err := utils.ConvertImageToPdf(p.tempDir, p.scriptPath, &utils.FileToFileOperationConfig{
+	// 	BinaryPath:     p.binaryPath,
+	// 	TargetFilePath: tempFilePath,
+	// 	SourceFilePath: filePath,
+	// })
+	// if err != nil {
+	// 	p.logger.Error("ConvertImageToPdf : operation failed at ConvertImageToPdf", slog.String("reason", err.Error()))
+	// 	return false
+	// }
+
+	// if !canResize {
+	// 	err := os.Rename(tempFilePath, targetFilePath)
+	// 	if err != nil {
+	// 		p.logger.Error("Error renaming file after conversion", slog.String("reasonMsg", err.Error()))
+	// 		return false
+	// 	}
+	// 	p.logger.Debug("ConvertImageToPdf : operation succeeded")
+	// 	return true
+	// }
+
+	// err = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+	// 	BinaryPath:     p.binaryPath,
+	// 	TargetFilePath: targetFilePath,
+	// 	SourceFilePath: tempFilePath,
+	// })
+	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, ".jpg", "_rotated")
+	err := utils.RotateImageClockwise90(filePath, targetFilePath)
 	if err != nil {
-		p.logger.Error("ConvertImageToPdf : operation failed at ConvertImageToPdf", slog.String("reason", err.Error()))
-		return false
-	}
-
-	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, ".pdf", "")
-	if !canResize {
-		err := os.Rename(tempFilePath, targetFilePath)
-		if err != nil {
-			p.logger.Error("Error renaming file after conversion", slog.String("reasonMsg", err.Error()))
-			return false
-		}
-		p.logger.Debug("ConvertImageToPdf : operation succeeded")
-		return true
-	}
-
-	err = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
-		BinaryPath:     p.binaryPath,
-		TargetFilePath: targetFilePath,
-		SourceFilePath: tempFilePath,
-	})
-	if err != nil {
-		p.logger.Error("ConvertImageToPdf : operation failed at ResizePdfFileToA4", slog.String("reason", err.Error()))
-		return true // file is converted, even though not resized
+		p.logger.Error("Rotate image failed !!", slog.String("reason", err.Error()))
+		return false // file is converted, even though not resized
 	}
 
 	p.logger.Debug("ConvertImageToPdf : operation succeeded")
@@ -213,16 +215,16 @@ func (p *PdfService) ConvertImageToPdf(filePath string, canResize bool) bool {
 
 func (p *PdfService) ResizePdfFileToA4(filePath string) bool {
 	p.logger.Debug("CreateTempFilesFromUpload : operation started")
-	targetFileName := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_resized")
-	err := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
-		BinaryPath:     p.binaryPath,
-		SourceFilePath: filePath,
-		TargetFilePath: path.Join(p.outputDir, targetFileName),
-	})
-	if err != nil {
-		p.logger.Error("ResizePdfFileToA4 : operation failed", slog.String("reason", err.Error()))
-		return false
-	}
+	// targetFileName := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_resized")
+	// err := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+	// 	BinaryPath:     p.binaryPath,
+	// 	SourceFilePath: filePath,
+	// 	TargetFilePath: path.Join(p.outputDir, targetFileName),
+	// })
+	// if err != nil {
+	// 	p.logger.Error("ResizePdfFileToA4 : operation failed", slog.String("reason", err.Error()))
+	// 	return false
+	// }
 	p.logger.Debug("CreateTempFilesFromUpload : operation succeeded")
 	return true
 }

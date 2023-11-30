@@ -1,37 +1,34 @@
 ## Must have                          
 | Must have 1 - 4h | 
 | ---------------------| 
-- [ ] SIGN BUILDS                
-- [ ] resize images before converting to PDF 
-- [ ] 30m - per package constants files
+- [ ] DEBUG
 - [ ] 30m - FileCard components,  alignment & overflow
-- [ ] 30m -  config file in build pipeline
-- [ ] 10m - style toasts
-- [ ] 10m - Rotate Logtail token (leaked in source code)
-- [ ] ?? - search through whole user home dir
+- [ ] 15m - style toasts w/ theme colors
+- [ ] SIGN BUILDS                
+- [ ] 20m - search through whole user home dir
+- [ ] new logo by iad ?
 -----
 - [ ] check new mem usage       
 <br/>
 
-| Known bugs |                                 
-| ---------------------|
-| Run GS commands |
-<br/>
-
 | V2 |                                3h30 + ?? |
 | ---------------------| ----------|
-- [ ] 30m -  Logger - send logs by batches ?           
+|  Logger - send logs by batches ?   | 30m |
 | improved logger ||
 | hide file names in logs (personal info) replace only letters for easier debugging ||
 | Backend logs - 🏆 unexpected errors 🏆
 | add tests          |                         2h30|
-| add tests backend   |    2h|
-| add tests frontend   |   2h30|
-| test pipeline         |                      30min|
+| add tests backend   |    2h |
+| add tests frontend   |   2h30 |
+| lint + test pipeline         | 30min |
+| batch Ids for logs ||
 <br/>
 
 | Nice to have                 | 2h30 + ??? |
-| --------------------- | ----------|
+| --------------------- | ----------| 
+| cache gs binary in build pipeline     | 30min |
+| cache node modules & go in test/build pipelines for sharing ?   | 30min |
+| format frontend code     | 30min |
 | different loader messages     | 30min |
 | setup husky                   | 30min |
 | open dir after actions        | ??? |
@@ -69,3 +66,6 @@
 | Compression Extreme | 57 MB | 71 MB | 12.7 MB | 13 MB | pdfcpu out in convert |
 | Convert image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
 | Convert image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
+
+
+window.go.models.PdfService.RotateImageFile('/Users/gregoire/go/src/welovepdf/test/assets/img/test-image-1.png', false)
