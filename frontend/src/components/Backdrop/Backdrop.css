@@ -1,6 +1,6 @@
 .backdrop {
     background: var(--theme-dark);
-    z-index: 1000;
+    z-index: 10000;
     opacity: 0.9;
     position: fixed;
     top: 0;

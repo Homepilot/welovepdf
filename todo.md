@@ -2,9 +2,10 @@
 | Must have 1 | |
 | ---------------------| ----------|
 | SIGN BUILDS                |                 ??|
-| keep mem usage in check      | ??? |
-| resize images before converting to PDF | 1h |
+| check new mem usage       | 45min |
 | ensure no file overwrites (find available name)| 1h |
+| ensure safe path strings (escape special chars etc)||
+| resize images before converting to PDF | 1h |
 <br/>
 <br/>
 
@@ -12,7 +13,6 @@
 | ---------------------| ----------|
 | Convert w/ viewJPEG||
 | FileCard components,  alignment & overflow||
-| Delete btn in FileCard||
 
 | Must have 2 |                                3h30 + ?? |
 | ---------------------| ----------|

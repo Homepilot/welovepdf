@@ -1,11 +1,10 @@
-import { useEffect } from "react";
-
 import { FileUploader } from "react-drag-drop-files";
 import toast from "react-hot-toast";
 
-// import DragNDropIcon from '../../assets/images/drag_n_drop.svg'
 import {  FileType } from "../../types";
+
 import "./DragNDropFiles.css"
+import { usePreventDropzoneClick } from "./hooks";
 
 const imgFileExtensions = ["JPG", "JPEG", "PNG", "GIF"];
 
@@ -22,23 +21,9 @@ export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType,
   onFilesDropped,
 }) => {
     const allowedExtensions = filesType === FileType.IMAGE ? imgFileExtensions : ['PDF']
+    const dropzoneClassName = 'dropzone';
+    usePreventDropzoneClick([dropzoneClassName])
 
-    useEffect(() => {
-      const dropzoneElement = window.document.getElementsByClassName('dropzone')[0] as undefined | HTMLLabelElement;
-      if(!dropzoneElement){
-        console.error('Error finding input element')
-        return
-      }
-      const inputElement = Array.from(dropzoneElement.children).find((elem => elem.tagName.toLowerCase() === 'input')) as undefined | HTMLInputElement
-      if(!inputElement){
-        console.error('Error finding input element')
-        return
-      }
-
-      inputElement.onclick = preventClickEventDefault;
-      dropzoneElement.onclick = preventClickEventDefault;
-      console.log('click events successfully prevented on dropzone')
-    }, []) 
 
     const handleFilesDropped = async (files: Iterable<File>) => {
       const {invalidFiles, validFiles} = Array.from(files).reduce((acc, file) => {
@@ -70,20 +55,11 @@ export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType,
         label="Vous pouvez aussi glisser des fichiers ici"
         maxSize={50}
         types={allowedExtensions} 
-        classes={["dropzone"]}
+        classes={[dropzoneClassName]}
     >
-      {/* <div className="drop-container">
-        <img className="drag-n-drop-icon" src={DragNDropIcon} />
-        <span>Vous pouvez aussi glisser des fichiers ici</span>
-      </div> */}
       {children}
     </FileUploader>
   );
 }
 
 export default DragDrop;
-
-function preventClickEventDefault(ev: MouseEvent){
-  ev.preventDefault();
-  ev.stopPropagation()
-}

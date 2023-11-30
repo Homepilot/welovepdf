@@ -1,0 +1,19 @@
+.empty-list {
+    padding-top: 3rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.disclaimer-subtitle {
+    margin-top: 2rem;
+}
+
+.drag-n-drop-icon {
+    margin: 0;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    width: 64px;
+}

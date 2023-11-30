@@ -3,18 +3,3 @@
     max-height: 28rem;
     overflow-y: scroll;
 }
-
-.no-files-disclaimer {
-    margin-top: 5rem;
-    
-}
-
-.disclaimer-subtitle {
-    margin-top: 2rem;
-}
-
-.drag-n-drop-icon {
-    margin: 0;
-    width: 64px;
-    margin-right: 2rem;
-}
