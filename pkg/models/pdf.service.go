@@ -24,20 +24,22 @@ type PdfService struct {
 }
 
 func NewPdfService(
-	outputDir string,
-	tempDir string,
-	localAssetsDirPath string,
+	assetsDir embed.FS,
+	logger *utils.CustomLogger,
+	config *utils.AppConfig,
 ) *PdfService {
-	return &PdfService{
-		outputDir:  outputDir,
-		tempDir:    tempDir,
-		binaryPath: path.Join(localAssetsDirPath, "bin/gs"),
-		scriptPath: path.Join(localAssetsDirPath, "code/viewjpeg.ps"),
+	pdfService := &PdfService{
+		logger:     logger,
+		outputDir:  config.OutputDirPath,
+		tempDir:    config.TempDirPath,
+		binaryPath: path.Join(config.LocalAssetsDirPath, "bin/gs"),
+		scriptPath: path.Join(config.LocalAssetsDirPath, "code/viewjpeg.ps"),
 	}
+
+	return pdfService.init(assetsDir)
 }
 
-func (p *PdfService) Init(logger *utils.CustomLogger, assetsDir embed.FS) *PdfService {
-	p.logger = logger
+func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 	gsBinaryContent, err1 := assetsDir.ReadFile("assets/bin/gs")
 	viewJpegScriptContent, err2 := assetsDir.ReadFile("assets/code/viewjpeg.ps")
 

@@ -3,14 +3,12 @@
 | ---------------------| 
 - [ ] SIGN BUILDS                
 - [ ] resize images before converting to PDF 
-- [ ] 30m - per package constants files 
-- [ ] 30m -  config in JSON 
-- [ ] 30m -  config file il build 
+- [ ] 30m - per package constants files
 - [ ] 30m - FileCard components,  alignment & overflow
-- [ ] 15m - font from backoffice
-- [ ] 30m -  Logger - send logs by batches ?           
-- [ ] 15m - Go file naming convention 
+- [ ] 30m -  config file in build pipeline
 - [ ] 10m - style toasts
+- [ ] 10m - Rotate Logtail token (leaked in source code)
+- [ ] ?? - search through whole user home dir
 -----
 - [ ] check new mem usage       
 <br/>
@@ -22,6 +20,7 @@
 
 | V2 |                                3h30 + ?? |
 | ---------------------| ----------|
+- [ ] 30m -  Logger - send logs by batches ?           
 | improved logger ||
 | hide file names in logs (personal info) replace only letters for easier debugging ||
 | Backend logs - 🏆 unexpected errors 🏆

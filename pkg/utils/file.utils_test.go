@@ -53,9 +53,9 @@ func TestAddSuffixToFileName(t *testing.T) {
 	assert.Equal(t, "example_suffix", AddSuffixToFileName("example", "_suffix"))
 }
 
-func TestGetTodaysOutputDir(t *testing.T) {
+func TestgetTodaysOutputDir(t *testing.T) {
 	userHomeDir, _ := os.UserHomeDir()
-	outputDir := GetTodaysOutputDir(userHomeDir)
+	outputDir := getTodaysOutputDir(userHomeDir)
 	assert.Contains(t, outputDir, userHomeDir)
 	assert.Contains(t, outputDir, "Documents/welovepdf")
 }

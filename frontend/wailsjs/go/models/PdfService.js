@@ -10,10 +10,6 @@ export function ConvertImageToPdf(arg1, arg2) {
   return window['go']['models']['PdfService']['ConvertImageToPdf'](arg1, arg2);
 }
 
-export function Init(arg1, arg2) {
-  return window['go']['models']['PdfService']['Init'](arg1, arg2);
-}
-
 export function MergePdfFiles(arg1, arg2, arg3) {
   return window['go']['models']['PdfService']['MergePdfFiles'](arg1, arg2, arg3);
 }

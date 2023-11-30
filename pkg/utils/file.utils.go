@@ -95,7 +95,7 @@ func getCurrentDateStr() string {
 	return strings.Join(strings.Split(dateStr, "-"), "")
 }
 
-func GetTodaysOutputDir(userHomeDir string) string {
+func getTodaysOutputDir(userHomeDir string) string {
 	return path.Join(userHomeDir, "Documents", "welovepdf", getCurrentDateStr())
 }
 

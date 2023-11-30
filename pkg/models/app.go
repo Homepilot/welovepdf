@@ -3,7 +3,6 @@ package models
 import (
 	"context"
 	"embed"
-	"fmt"
 	"log/slog"
 	"os"
 	"path"
@@ -13,47 +12,24 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-type AppConfig struct {
-	OutputDirPath      string
-	LocalAssetsDirPath string
-	TempDirPath        string
-	LogsDirPath        string
-	userHomeDir        string
-}
-
 // App struct
 type App struct {
 	ctx          context.Context
 	logger       *utils.CustomLogger
-	Config       *AppConfig
+	config       *utils.AppConfig
 	LogoIcon     []byte
 	compressIcon []byte
 	resizeA4Icon []byte
 }
 
 // NewApp creates a new App application struct
-func NewApp() *App {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(fmt.Sprintf("Error retrieving the user's home directory : %s", err.Error()))
+func NewApp(assetsDir embed.FS, logger *utils.CustomLogger, config *utils.AppConfig) *App {
+	newApp := &App{
+		logger: logger,
+		config: config,
 	}
 
-	localAssetsDirPath := path.Join(userHomeDir, ".welovepdf")
-
-	return &App{
-		Config: &AppConfig{
-			OutputDirPath:      utils.GetTodaysOutputDir(userHomeDir),
-			LocalAssetsDirPath: localAssetsDirPath,
-			TempDirPath:        path.Join(localAssetsDirPath, "temp"),
-			LogsDirPath:        path.Join(localAssetsDirPath, "logs"),
-			userHomeDir:        userHomeDir,
-		},
-	}
-}
-
-func (a *App) Init(logger *utils.CustomLogger, assetsDir embed.FS) *App {
-	a.logger = logger
-	return a.ensureRequiredDirectories().loadIconAssets(assetsDir)
+	return newApp.ensureRequiredDirectories().loadIconAssets(assetsDir)
 }
 
 // startup is called when the app starts. The context is saved
@@ -77,14 +53,14 @@ func (a *App) BeforeClose(ctx context.Context) bool {
 	a.logger.Debug("BeforeClose fired")
 	defer a.logger.Debug("BeforeClose done")
 
-	tempDirRemovalErr := os.RemoveAll(a.Config.TempDirPath)
+	tempDirRemovalErr := os.RemoveAll(a.config.TempDirPath)
 	if tempDirRemovalErr != nil {
 		a.logger.Warn("BeforeClose : temp dir removed", slog.String("reason", tempDirRemovalErr.Error()))
 	} else {
 		a.logger.Debug("BeforeClose : temp dir removed")
 	}
 
-	outputDirRemovalErr := os.Remove(a.Config.OutputDirPath)
+	outputDirRemovalErr := os.Remove(a.config.OutputDirPath)
 	if outputDirRemovalErr != nil && !os.IsExist(outputDirRemovalErr) {
 		a.logger.Warn("BeforeClose : error removing output dir", slog.String("reason", outputDirRemovalErr.Error()))
 	}
@@ -92,21 +68,19 @@ func (a *App) BeforeClose(ctx context.Context) bool {
 }
 
 func (a *App) ensureRequiredDirectories() *App {
-	localAssetsDirPath := a.Config.LocalAssetsDirPath
+	localAssetsDirPath := a.config.LocalAssetsDirPath
 
 	err1 := utils.EnsureDirectory(localAssetsDirPath)
 	err2 := utils.EnsureDirectory(path.Join(localAssetsDirPath, "bin"))
 	err3 := utils.EnsureDirectory(path.Join(localAssetsDirPath, "code"))
-	err4 := utils.EnsureDirectory(a.Config.LogsDirPath)
-	err5 := utils.EnsureDirectory(a.Config.OutputDirPath)
-	err6 := utils.EnsureDirectory(a.Config.TempDirPath)
+	err4 := utils.EnsureDirectory(a.config.OutputDirPath)
+	err5 := utils.EnsureDirectory(a.config.TempDirPath)
 
 	if err1 != nil ||
 		err2 != nil ||
 		err3 != nil ||
 		err4 != nil ||
-		err5 != nil ||
-		err6 != nil {
+		err5 != nil {
 		errMsg := "Error ensuring required directories for app"
 		a.logger.Error(errMsg)
 		panic(errMsg)
@@ -181,7 +155,7 @@ func (a *App) SelectMultipleFiles(fileType string, selectFilesPrompt string) []s
 
 func (a *App) OpenSaveFileDialog() string {
 	targetFilePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		DefaultDirectory: a.Config.OutputDirPath,
+		DefaultDirectory: a.config.OutputDirPath,
 	})
 
 	if err != nil {
@@ -244,22 +218,22 @@ func (a *App) SearchFileInUserDir(filename string, size int, lastModifiedAt int)
 	}
 
 	a.logger.Debug("SearchFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
-	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Desktop")
+	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Desktop")
 	fileInDesktop := utils.SearchFileInDirectoryTree(searchConfig)
 	if fileInDesktop != "" {
 		return fileInDesktop
 	}
-	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Documents")
+	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Documents")
 	fileInDocuments := utils.SearchFileInDirectoryTree(searchConfig)
 	if fileInDocuments != "" {
 		return fileInDocuments
 	}
-	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Downloads")
+	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Downloads")
 	fileInDownloads := utils.SearchFileInDirectoryTree(searchConfig)
 	if fileInDownloads != "" {
 		return fileInDownloads
 	}
-	searchConfig.RootDirPath = path.Join(a.Config.userHomeDir, "Pictures")
+	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Pictures")
 	fileInPictures := utils.SearchFileInDirectoryTree(searchConfig)
 
 	return fileInPictures

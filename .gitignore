@@ -2,6 +2,7 @@ build/bin
 node_modules
 frontend/dist
 assets/bin/gs
-assets/certs/**/*.txt
+assets/config/config.json
 *.gz
 temp
+fmtcoverage.html

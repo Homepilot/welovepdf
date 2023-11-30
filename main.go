@@ -14,26 +14,20 @@ import (
 )
 
 //go:embed all:assets
-var goAssets embed.FS
-
-//go:embed all:frontend/dist
 var assets embed.FS
 
-var logtailSourceToken string = ""
+//go:embed all:frontend/dist
+var frontendAssets embed.FS
 
 func main() {
-	logtailFileContent, err := goAssets.ReadFile("assets/config/logtail.txt")
-	if err == nil {
-		logtailSourceToken = string(logtailFileContent)
-	}
+	appConfig := utils.GetAppConfigFromAssetsDir(assets)
 
 	// Create an instance of the app structure
-	app := models.NewApp()
-	logger := utils.NewLogger(app.Config.LogsDirPath, logtailSourceToken)
-	app.Init(logger, goAssets)
+	logger := utils.NewLogger(appConfig.Logger.LogsDirPath, appConfig.Logger.LogtailToken)
+	app := models.NewApp(assets, logger, appConfig)
+
 	frontendLogger := models.NewFrontendLogger(logger)
-	pdfService := models.NewPdfService(app.Config.OutputDirPath, app.Config.TempDirPath, app.Config.LocalAssetsDirPath)
-	pdfService.Init(logger, goAssets)
+	pdfService := models.NewPdfService(assets, logger, appConfig)
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
@@ -48,7 +42,7 @@ func main() {
 		OnBeforeClose:    app.BeforeClose,
 		OnShutdown:       app.Shutdown,
 		AssetServer: &assetserver.Options{
-			Assets: assets,
+			Assets: frontendAssets,
 		},
 		Bind: []interface{}{
 			app,
