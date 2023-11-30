@@ -34,7 +34,7 @@ jobs:
         run: ./scripts/setup-build-assets.sh
       - name: Build Wails app
         run: |
-          wails build
+          wails build -platform=darwin/arm64
       - name: upload artifacts macOS
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v2
