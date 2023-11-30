@@ -6,7 +6,7 @@ on:
 jobs:
   package:
     if: github.ref == 'refs/heads/main'
-    name: Build & publish main image
+    name: Build & Publish main image
     strategy:
       fail-fast: true
       matrix:
@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 18
@@ -31,7 +31,7 @@ jobs:
       - name: Set up build assets
         env:
           LOGTAIL_TOKEN: ${{ secrets.LOGTAIL_TOKEN }}
-        run: ./scripts/setup-build-assets
+        run: ./scripts/setup-build-assets.sh
       - name: Build Wails app
         run: |
           wails build
