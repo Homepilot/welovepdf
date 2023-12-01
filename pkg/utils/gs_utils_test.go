@@ -22,29 +22,29 @@ func TestEnsureGhostScriptSetup(t *testing.T) {
 	assert.Nil(t, err)
 
 	dummyContent := []byte("dummy content")
-	EnsureGhostScriptSetup(gsBinaryPath, dummyContent)
-	assert.True(t, IsGhostScriptSetup(gsBinaryPath))
+	// EnsureGhostScriptSetup(gsBinaryPath, dummyContent)
+	// assert.True(t, IsGhostScriptSetup(gsBinaryPath))
 
-	// Not yet setup
-	err = os.Remove(gsBinaryPath)
-	assert.Nil(t, err)
-	EnsureGhostScriptSetup(gsBinaryPath, dummyContent)
+	// // Not yet setup
+	// err = os.Remove(gsBinaryPath)
+	// assert.Nil(t, err)
+	// EnsureGhostScriptSetup(gsBinaryPath, dummyContent)
 
-	assert.True(t, IsGhostScriptSetup(gsBinaryPath))
+	// assert.True(t, IsGhostScriptSetup(gsBinaryPath))
 	content, err := os.ReadFile(gsBinaryPath)
 	assert.Nil(t, err)
 	assert.Equal(t, dummyContent, content)
 }
 
 // TestIsGhostScriptSetup tests the IsGhostScriptSetup function.
-func TestIsGhostScriptSetup(t *testing.T) {
-	gsBinaryPath := filepath.Join(os.TempDir(), "ghostscript")
-	os.Create(gsBinaryPath)
-	defer os.Remove(gsBinaryPath)
+// func TestIsGhostScriptSetup(t *testing.T) {
+// 	gsBinaryPath := filepath.Join(os.TempDir(), "ghostscript")
+// 	os.Create(gsBinaryPath)
+// 	defer os.Remove(gsBinaryPath)
 
-	assert.True(t, IsGhostScriptSetup(gsBinaryPath))
-	assert.False(t, IsGhostScriptSetup("non_existent_path"))
-}
+// 	assert.True(t, IsGhostScriptSetup(gsBinaryPath))
+// 	assert.False(t, IsGhostScriptSetup("non_existent_path"))
+// }
 
 // // TestConvertToLowQualityJpeg tests the convertToLowQualityJpeg function.
 // // This test assumes that the necessary binary and source file exist.

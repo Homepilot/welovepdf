@@ -1,16 +1,16 @@
 import {
-    SearchFileInUserDir,
-    OpenSaveFileDialog,
-    PromptUserSelect,
-    SelectMultipleFiles
-} from '../../wailsjs/go/models/App';
-import {
     CompressFile,
     MergePdfFiles,
     ResizePdfFileToA4,
     ConvertImageToPdf,
     RemoveFile,
 } from '../../wailsjs/go/models/PdfService';
+import {
+    SearchFileInUserDir,
+    OpenSaveFileDialog,
+    PromptUserSelect,
+    SelectMultipleFiles
+} from '../../wailsjs/go/models/UserPrompter';
 import {
     BrowserOpenURL
 } from '../../wailsjs/runtime/runtime';

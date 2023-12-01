@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log/slog"
 
@@ -24,7 +25,8 @@ func main() {
 
 	// Create an instance of the app structure
 	logger := utils.NewLogger(appConfig.Logger.LogsDirPath, appConfig.Logger.LogtailToken)
-	app := models.NewApp(assets, logger, appConfig)
+	app := models.NewApp(logger, appConfig)
+	userPrompter := models.NewUserPrompter(assets, logger, appConfig)
 
 	frontendLogger := models.NewFrontendLogger(logger)
 	pdfService := models.NewPdfService(assets, logger, appConfig)
@@ -37,15 +39,19 @@ func main() {
 		MinWidth:         700,
 		MinHeight:        777,
 		BackgroundColour: &options.RGBA{R: 42, G: 47, B: 38, A: 1},
-		OnStartup:        app.Startup,
-		OnDomReady:       app.Ready,
-		OnBeforeClose:    app.BeforeClose,
-		OnShutdown:       app.Shutdown,
+		OnStartup: func(ctx context.Context) {
+			app.Startup(ctx)
+			userPrompter.Init(ctx)
+		},
+		OnDomReady:    app.Ready,
+		OnBeforeClose: app.BeforeClose,
+		OnShutdown:    app.Shutdown,
 		AssetServer: &assetserver.Options{
 			Assets: frontendAssets,
 		},
 		Bind: []interface{}{
 			app,
+			userPrompter,
 			pdfService,
 			frontendLogger,
 		},

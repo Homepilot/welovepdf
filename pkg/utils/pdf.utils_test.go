@@ -24,7 +24,7 @@ func TestCompressAllFilesInDir(t *testing.T) {
 		BinaryPath:    "test",
 	}
 
-	err := CompressAllFilesInDir(tempDirPath, 75, config)
+	err := CompressAllFilesInDir(tempDirPath, 75, "toto.ps", config)
 	assert.Nil(t, err)
 }
 

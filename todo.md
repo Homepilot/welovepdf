@@ -11,6 +11,8 @@
 - [ ] restore CompresImage in PdfService
 - [ ] disclaimer about allowed image file types
 - [ ] Toast if wrong file type
+- [ ] 1 line comment on all function (Golang)
+| check all hooks' dependencies               | 30min |
 -----
 - [ ] check new mem usage       
 <br/>
@@ -38,6 +40,7 @@
 | open dir after actions        | ??? |
 | paralellize when several files... | |
 | Split PDF ?                   | 30min |
+|                |  |
 
 <br/>
 <br/>
@@ -45,25 +48,30 @@
 ## Bugs
 - drag n drop load nothing if one file wrong type
 - stop process on app close ? (ony in dev ?)
+- compressed files dont disapeear from list (1 file OR several)
 
 <br/>
 <br/>
+
 
 ## Tests
+
+| [ ] To test | ✅ Pass  | ❌ Fail |
+| ------------ | -------- | ------- |
+
 ### Merge
-- [ ] Merge w/o resize
-- [ ] Merge w/ resize
+- ✅ Merge w/o resize
+- ✅ Merge w/ resize
 ### Compression
-- [ ] Optimisaton
-- [ ] Compression
-- [ ] Compression Extreme
+- ✅ Compression
+- ✅ Compression Extreme
 ### Convert image
 - [ ] Convert image w/o Resize
 - [ ] Convert image w Resize
 ### Format
-- [ ] Format to A4
+- ✅ Format to A4
 ### Drag n Drop
-- [ ] Drag n Drop files consecutively several times
+- ❌ Drag n Drop files consecutively several times
 
 ## Memory Tests (GS binary + pdfcpu lib)
 | Operation | Mem before | Mem after | file size | Leaked Mem | Solution |
@@ -75,15 +83,19 @@
 | Merge w/o resize | 34 | 84 MB| 26.4 MB | 0 | N/A |
 | Compression | 34 MB| 57 MB | 25.8MB | 23 MB | pdfcpu out in convert |
 | Compression Extreme | 57 MB | 71 MB | 12.7 MB | 13 MB | pdfcpu out in convert |
-| Convert image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
-| Convert image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
+| Convert JPEG image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
+| Convert JPEG image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
+| Convert  image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
+| Convert  image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
+| Convert PNG image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
+| Convert PNG image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
 
 ## Memory Tests V2 (only GS binary)
 | Operation | Mem before | Mem after | file size | Leaked Mem | Solution |
 | ------------ | ----- | ----- | ----- | ----- | ----- |
 | Start (Idle) | N/A | 71 MB | N/A | N/A | N/A |
 | DragNDrop | 71 MB | 74 MB |  MB | 3 MB | N/A |
-| Format to A4 | 33 MB | 33MB | 6.8 MB | 0 | N/A |
+| Format to A4 |71 MB | 73 MB | 1 MB | 2MB | N/A |
 | Merge w resize | 34 | 80 | 26.4 MB | 0 | N/A |
 | Merge w/o resize | 74 | 77 MB| 26.4 MB | 0 | N/A |
 | Compression | 34 MB| 57 MB | 25.8MB | 23 MB | pdfcpu out in convert |
