@@ -1,7 +1,14 @@
+#!/bin/bash
+
+# Setup GhostScript binary
+rm -rf ./assets/bin/**/*
 GS_BINARY_URL=https://homepilot-data-public.s3.eu-west-3.amazonaws.com/ghostscript/gsbinary
 curl --output ./assets/bin/gs ${GS_BINARY_URL}
 
-JSON_CONFIG_STR="{\"debugMode\": false, \"logger\": { \"logtailToken\": \"${LOGTAIL_TOKEN}\" }}"
+# Create config file
+default_config=`cat ./assets/config/config.prod.json`  
+token_value=${LOGTAIL_TOKEN}
 rm ./assets/config/config.json
-echo ${JSON_CONFIG_STR} > ./assets/config/config.json
-rm -rf ./assets/bin/**/*
+echo "${default_config/LOGTAIL_TOKEN/$token_value}" > ./assets/config/config.json
+new_value=`cat ./assets/config/config.json`
+echo ${new_value}
