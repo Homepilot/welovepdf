@@ -52,7 +52,7 @@ func main() {
 		Mac: &mac.Options{
 			About: &mac.AboutInfo{
 				Title:   "We   ❤   PDF",
-				Message: "by Homepilot @ 2023",
+				Message: "Homepilot by iad @ 2023",
 				Icon:    app.LogoIcon,
 			},
 		},

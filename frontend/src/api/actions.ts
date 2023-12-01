@@ -5,10 +5,11 @@ import {
     SelectMultipleFiles
 } from '../../wailsjs/go/models/App';
 import {
-    RotateImageFile,
     CompressFile,
     MergePdfFiles,
     ResizePdfFileToA4,
+    ConvertImageToPdf,
+    RemoveFile,
 } from '../../wailsjs/go/models/PdfService';
 import {
     BrowserOpenURL
@@ -26,7 +27,10 @@ export async function resizeToA4(filesPathes: string[], _batchId: string = "unkn
     return Promise.all(filesPathes.map(path => ResizePdfFileToA4(path)));
 }
 
-export async function convertImagesToPdf(filesPathes: string[], batchId: string = "unknown_batch") {
+export async function convertImagesToPdf(
+        filesPathes: string[], 
+        // batchId: string = "unknown_batch"
+    ) {
     // const shouldResize = await chooseShouldResize();
     // console.log({ shouldResize })
     // if(shouldResize === null) {
@@ -34,7 +38,7 @@ export async function convertImagesToPdf(filesPathes: string[], batchId: string 
     //     return null
     // }
 
-    return Promise.all(filesPathes.map(path => RotateImageFile(path, false)));
+    return Promise.all(filesPathes.map(path => ConvertImageToPdf(path)));
 }
 
 export async function mergeFiles (filesPathes: string[], batchId: string = "unknown_batch") {
@@ -54,7 +58,13 @@ export async function mergeFiles (filesPathes: string[], batchId: string = "unkn
         return null
     }
 
-    return MergePdfFiles(targetFilePath, [...filesPathes], shouldResize)
+    const mergeResult = await MergePdfFiles(targetFilePath, [...filesPathes]);
+    if(!shouldResize) return mergeResult
+    if(!mergeResult) return mergeResult
+
+    const [resizeResult] = await resizeToA4([targetFilePath])
+    await RemoveFile(targetFilePath)
+    return resizeResult
 }
 
 export async function compressFiles (filesPathes: string[], batchId: string = "unknown_batch"): Promise<boolean[] | null> {
@@ -66,7 +76,7 @@ export async function compressFiles (filesPathes: string[], batchId: string = "u
         logOperationCanceledByUser(PageName.COMPRESS, batchId)
         return null
     }
-    const targetImageQuality = chosenCompressionMode === CompressionMode.EXTREME ? 10 : 20;
+    const targetImageQuality = chosenCompressionMode === CompressionMode.EXTREME ? 10 : 30;
 
     for (const file of filesPathes){
         const result = await CompressFile(file, targetImageQuality)

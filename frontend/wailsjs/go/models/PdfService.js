@@ -6,8 +6,16 @@ export function CompressFile(arg1, arg2) {
   return window['go']['models']['PdfService']['CompressFile'](arg1, arg2);
 }
 
-export function MergePdfFiles(arg1, arg2, arg3) {
-  return window['go']['models']['PdfService']['MergePdfFiles'](arg1, arg2, arg3);
+export function ConvertImageToPdf(arg1) {
+  return window['go']['models']['PdfService']['ConvertImageToPdf'](arg1);
+}
+
+export function MergePdfFiles(arg1, arg2) {
+  return window['go']['models']['PdfService']['MergePdfFiles'](arg1, arg2);
+}
+
+export function RemoveFile(arg1) {
+  return window['go']['models']['PdfService']['RemoveFile'](arg1);
 }
 
 export function ResizePdfFileToA4(arg1) {

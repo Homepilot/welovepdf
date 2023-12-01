@@ -64,41 +64,15 @@ func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 	return p
 }
 
-func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string, canResize bool) bool {
+func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string) bool {
 	p.logger.Debug("MergePdfFiles: operation starting")
-	safeTargetFilePath := utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", "")
-
-	tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
-	defer os.Remove(tempFilePath)
-
 	err := utils.MergePdfFiles(&utils.FilesToFileOperationConfig{
 		BinaryPath:        p.binaryPath,
-		TargetFilePath:    tempFilePath,
+		TargetFilePath:    utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", ""),
 		SourceFilesPathes: filePathes,
 	})
 	if err != nil {
 		p.logger.Error("MergePdfFiles operation failed", slog.String("reason", err.Error()))
-		return false
-	}
-
-	if !canResize {
-		err := os.Rename(tempFilePath, safeTargetFilePath)
-		if err != nil {
-			p.logger.Error("Error renamig temp file", slog.String("reason", err.Error()))
-			return false
-		}
-		p.logger.Debug("MergePdfFiles: operation succeeded")
-		return true
-	}
-
-	err = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
-		TargetFilePath: safeTargetFilePath,
-		SourceFilePath: tempFilePath,
-		BinaryPath:     p.binaryPath,
-	})
-
-	if err != nil {
-		p.logger.Error("MergePdfFiles : Error resizing merged file", slog.Int("nbOfFiles", len(filePathes)), slog.String("reason", err.Error()))
 		return false
 	}
 	p.logger.Debug("MergePdfFiles: operation succeeded")
@@ -215,16 +189,41 @@ func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
 
 func (p *PdfService) ResizePdfFileToA4(filePath string) bool {
 	p.logger.Debug("ResizePdfFileToA4 : operation started")
-	targetFileName := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_resized")
+	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_resized")
 	err := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
 		BinaryPath:     p.binaryPath,
 		SourceFilePath: filePath,
-		TargetFilePath: path.Join(p.outputDir, targetFileName),
+		TargetFilePath: targetFilePath,
 	})
 	if err != nil {
 		p.logger.Error("ResizePdfFileToA4 : operation failed", slog.String("reason", err.Error()))
 		return false
 	}
 	p.logger.Debug("ResizePdfFileToA4 : operation succeeded")
+	return true
+}
+
+func (p *PdfService) ConvertImageToPdf(filePath string) bool {
+	p.logger.Debug("ResizePdfFileToA4 : operation started")
+	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "")
+	err := utils.ConvertImageToPdf(p.tempDir, p.scriptPath, &utils.FileToFileOperationConfig{
+		BinaryPath:     p.binaryPath,
+		SourceFilePath: filePath,
+		TargetFilePath: targetFilePath,
+	})
+	if err != nil {
+		p.logger.Error("ResizePdfFileToA4 : operation failed", slog.String("reason", err.Error()))
+		return false
+	}
+	p.logger.Debug("ResizePdfFileToA4 : operation succeeded")
+	return true
+}
+
+func (p *PdfService) RemoveFile(filePath string) bool {
+	err := os.Remove(filePath)
+	if err != nil {
+		p.logger.Error("error removing file", slog.String("reason", err.Error()))
+		return false
+	}
 	return true
 }
