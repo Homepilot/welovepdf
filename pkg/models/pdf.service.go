@@ -214,17 +214,17 @@ func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
 }
 
 func (p *PdfService) ResizePdfFileToA4(filePath string) bool {
-	p.logger.Debug("CreateTempFilesFromUpload : operation started")
-	// targetFileName := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_resized")
-	// err := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
-	// 	BinaryPath:     p.binaryPath,
-	// 	SourceFilePath: filePath,
-	// 	TargetFilePath: path.Join(p.outputDir, targetFileName),
-	// })
-	// if err != nil {
-	// 	p.logger.Error("ResizePdfFileToA4 : operation failed", slog.String("reason", err.Error()))
-	// 	return false
-	// }
-	p.logger.Debug("CreateTempFilesFromUpload : operation succeeded")
+	p.logger.Debug("ResizePdfFileToA4 : operation started")
+	targetFileName := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_resized")
+	err := utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
+		BinaryPath:     p.binaryPath,
+		SourceFilePath: filePath,
+		TargetFilePath: path.Join(p.outputDir, targetFileName),
+	})
+	if err != nil {
+		p.logger.Error("ResizePdfFileToA4 : operation failed", slog.String("reason", err.Error()))
+		return false
+	}
+	p.logger.Debug("ResizePdfFileToA4 : operation succeeded")
 	return true
 }

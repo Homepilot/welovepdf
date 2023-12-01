@@ -211,30 +211,51 @@ func (a *App) PromptUserSelect(config *PromptSelectConfig) string {
 }
 
 func (a *App) SearchFileInUserDir(filename string, size int, lastModifiedAt int) string {
-	searchConfig := &utils.SearchFileConfig{
-		Filename:           utils.SanitizeFilePath(filename),
+	baseSearchConfig := &utils.SearchFileConfig{
+		Filename:           filename,
 		FileSize:           size,
 		FileLastModifiedAt: lastModifiedAt,
 	}
 
 	a.logger.Debug("SearchFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
-	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Desktop")
-	fileInDesktop := utils.SearchFileInDirectoryTree(searchConfig)
-	if fileInDesktop != "" {
-		return fileInDesktop
+	dirsToCheck, err := getDirectoriesToCheck(a.config.UserHomeDir)
+	if err != nil {
+		a.logger.Error("error reading user home dir", slog.String("reason", err.Error()))
+		return ""
 	}
-	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Documents")
-	fileInDocuments := utils.SearchFileInDirectoryTree(searchConfig)
-	if fileInDocuments != "" {
-		return fileInDocuments
-	}
-	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Downloads")
-	fileInDownloads := utils.SearchFileInDirectoryTree(searchConfig)
-	if fileInDownloads != "" {
-		return fileInDownloads
-	}
-	searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, "Pictures")
-	fileInPictures := utils.SearchFileInDirectoryTree(searchConfig)
 
-	return fileInPictures
+	for _, dirName := range dirsToCheck {
+		searchConfig := baseSearchConfig
+		searchConfig.RootDirPath = path.Join(a.config.UserHomeDir, dirName)
+		matchingFilePath := utils.SearchFileInDirectoryTree(searchConfig)
+		if matchingFilePath != "" {
+			return matchingFilePath
+		}
+	}
+
+	return ""
+}
+
+func getDirectoriesToCheck(userHomeDir string) ([]string, error) {
+	dirsToExclude := map[string]bool{"Library": true}
+	dirsToCheck := []string{"Desktop", "Downloads", "Documents", "Pictures"}
+	includedDirs := map[string]bool{}
+	for _, dirName := range dirsToCheck {
+		includedDirs[dirName] = true
+	}
+
+	homeDirContent, err := os.ReadDir(userHomeDir)
+	if err != nil {
+		return []string{}, err
+	}
+
+	for _, dir := range homeDirContent {
+		_dirName := dir.Name()
+		isDirAndNotHidden := !strings.HasPrefix(_dirName, ".") && dir.IsDir()
+		isToExclude := dirsToExclude[_dirName] || includedDirs[_dirName]
+		if isDirAndNotHidden && !isToExclude {
+			dirsToCheck = append(dirsToCheck, _dirName)
+		}
+	}
+	return dirsToCheck, nil
 }
