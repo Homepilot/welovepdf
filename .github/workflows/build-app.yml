@@ -13,7 +13,7 @@ jobs:
         platform: [macos-latest]
         include: 
           - arch: aarch64
-        go-version: [1.18]
+        go-version: [1.21]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
