@@ -1,7 +1,8 @@
 ## Must have                          
 | Must have 1 - 4h | 
 | ---------------------| 
-- [ ] DEBUG
+- [ ] Test img resize
+- [ ] Test img rotate
 - [ ] 30m - FileCard components,  alignment & overflow
 - [ ] 15m - style toasts w/ theme colors
 - [ ] SIGN BUILDS                
@@ -66,6 +67,3 @@
 | Compression Extreme | 57 MB | 71 MB | 12.7 MB | 13 MB | pdfcpu out in convert |
 | Convert image w/o Resize | 34 MB | 114 MB | 12.7 MB| 80 MB | pdfcpu out in convert |
 | Convert image w Resize | 34 | 101 | 12.7MB | 67 MB | pdfcpu out in convert |
-
-
-window.go.models.PdfService.RotateImageFile('/Users/gregoire/go/src/welovepdf/test/assets/img/test-image-1.png', false)

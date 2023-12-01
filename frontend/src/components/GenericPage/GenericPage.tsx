@@ -107,7 +107,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             return;
         }
         setSelectedFiles(includedFiles.filter((_, index) => result[index]));
-    }, [setIsLoading, action, ])
+    }, [setIsLoading, action, selectedFiles, setSelectedFiles])
 
     const handleFilesDropped = useCallback(async (fileNames: File[]) => {
         setIsLoading(true)

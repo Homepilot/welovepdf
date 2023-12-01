@@ -33,10 +33,8 @@ export async function convertImagesToPdf(filesPathes: string[], batchId: string 
     //     logOperationCanceledByUser(PageName.CONVERT_IMG, batchId)
     //     return null
     // }
-    // @ts-expect-error njknjk
-return window.go?.models?.PdfService?.RotateImageFile(filesPathes[0], false)
 
-    // return Promise.all(filesPathes.map(path => RotateImageFile(path, false)));
+    return Promise.all(filesPathes.map(path => RotateImageFile(path, false)));
 }
 
 export async function mergeFiles (filesPathes: string[], batchId: string = "unknown_batch") {
