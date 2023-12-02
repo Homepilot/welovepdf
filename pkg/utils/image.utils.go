@@ -25,7 +25,7 @@ type Format struct {
 var A4_HEIGHT int = 100
 var A4_WIDTH int = 50
 
-func convertImageToJpeg(sourceFilePath string, targetFilePath string) error {
+func ConvertImageToJpeg(sourceFilePath string, targetFilePath string) error {
 	var img image.Image
 
 	sourceFileExt := strings.ToLower(filepath.Ext(sourceFilePath))

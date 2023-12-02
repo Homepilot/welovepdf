@@ -1,4 +1,4 @@
-package utils
+package ghostscript
 
 import (
 	"fmt"
@@ -8,12 +8,26 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	wlptypes "welovepdf/pkg/types"
 )
 
-func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperationConfig) error {
-	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, config.BinaryPath, config.SourceFilePath, config.TargetFilePath)
+type GhoscriptClient struct {
+	binaryPath         string
+	viewJpegScriptPath string
+}
+
+func NewGhostscriptClient(
+	binaryPath string, viewJpegScriptPath string) *GhoscriptClient {
+	return &GhoscriptClient{
+		binaryPath:         binaryPath,
+		viewJpegScriptPath: viewJpegScriptPath,
+	}
+}
+
+func (c *GhoscriptClient) convertToLowQualityJpeg(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error {
+	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, c.binaryPath, config.SourceFilePath, config.TargetFilePath)
 	convertToLowQualityJpegCmd := exec.Command(
-		config.BinaryPath,
+		c.binaryPath,
 		"-sDEVICE=jpeg",
 		"-o",
 		config.TargetFilePath,
@@ -29,14 +43,14 @@ func convertToLowQualityJpeg(targetImageQuality int, config *FileToFileOperation
 	return err
 }
 
-func convertJpegToPdf(viewJpegFilePath string, config *FileToFileOperationConfig) error {
+func (c *GhoscriptClient) ConvertJpegToPdf(config *wlptypes.FileToFileOperationConfig) error {
 	convertCmd := exec.Command(
-		config.BinaryPath,
+		c.binaryPath,
 		"-dNOSAFER",
 		"-sDEVICE=pdfwrite",
 		"-o",
 		config.TargetFilePath,
-		viewJpegFilePath,
+		c.viewJpegScriptPath,
 		"-c",
 		"("+config.SourceFilePath+")",
 		"viewJPEG",
@@ -47,9 +61,9 @@ func convertJpegToPdf(viewJpegFilePath string, config *FileToFileOperationConfig
 	return err
 }
 
-func ResizePdfToA4(config *FileToFileOperationConfig) error {
+func (c *GhoscriptClient) ResizePdfToA4(config *wlptypes.FileToFileOperationConfig) error {
 	resizePdfToA4Cmd := exec.Command(
-		config.BinaryPath,
+		c.binaryPath,
 		"-o",
 		config.TargetFilePath,
 		"-sDEVICE=pdfwrite",
@@ -63,9 +77,9 @@ func ResizePdfToA4(config *FileToFileOperationConfig) error {
 	return err
 }
 
-func MergePdfFiles(config *FilesToFileOperationConfig) error {
+func (c *GhoscriptClient) MergePdfFiles(config *wlptypes.FilesToFileOperationConfig) error {
 	mergePdfFilesCmd := exec.Command(
-		config.BinaryPath,
+		c.binaryPath,
 		"-dNOPAUSE",
 		"-sDEVICE=pdfwrite",
 		"-sOUTPUTFILE="+config.TargetFilePath,
@@ -77,7 +91,7 @@ func MergePdfFiles(config *FilesToFileOperationConfig) error {
 	return err
 }
 
-func MergeAllFilesInDir(config *DirToFileOperationConfig) error {
+func (c *GhoscriptClient) MergeAllFilesInDir(config *wlptypes.DirToFileOperationConfig) error {
 	filesToMerge, err := os.ReadDir(config.SourceDirPath)
 	if err != nil {
 		log.Printf("Error reading temp dir to merge: %s", err.Error())
@@ -96,16 +110,15 @@ func MergeAllFilesInDir(config *DirToFileOperationConfig) error {
 		}
 	}
 
-	return MergePdfFiles(&FilesToFileOperationConfig{
-		BinaryPath:        config.BinaryPath,
+	return c.MergePdfFiles(&wlptypes.FilesToFileOperationConfig{
 		SourceFilesPathes: filesPathesToMerge,
 		TargetFilePath:    config.TargetFilePath,
 	})
 }
 
-func SplitPdfFile(config *FileToDirOperationConfig) error {
+func (c *GhoscriptClient) SplitPdfFile(config *wlptypes.FileToDirOperationConfig) error {
 	splitPdfFileCmd := exec.Command(
-		config.BinaryPath,
+		c.binaryPath,
 		"-sDEVICE=pdfwrite",
 		"-dSAFER",
 		"-o",
