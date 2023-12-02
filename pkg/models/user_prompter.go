@@ -14,7 +14,6 @@ import (
 
 type UserPrompter struct {
 	ctx          context.Context
-	logger       *utils.CustomLogger
 	config       *utils.AppConfig
 	LogoIcon     []byte
 	compressIcon []byte
@@ -26,9 +25,8 @@ type SelectFilesResult struct {
 	error string
 }
 
-func NewUserPrompter(assetsDir embed.FS, logger *utils.CustomLogger, config *utils.AppConfig) *UserPrompter {
+func NewUserPrompter(assetsDir embed.FS, config *utils.AppConfig) *UserPrompter {
 	newUserPrompter := &UserPrompter{
-		logger: logger,
 		config: config,
 	}
 
@@ -40,7 +38,7 @@ func NewUserPrompter(assetsDir embed.FS, logger *utils.CustomLogger, config *uti
 func (up *UserPrompter) Init(ctx context.Context) {
 	up.ctx = ctx
 
-	up.logger.Debug("UserPrompter setup OK")
+	slog.Debug("UserPrompter setup OK")
 }
 
 func (up *UserPrompter) SelectMultipleFiles(fileType string, selectFilesPrompt string) []string {
@@ -69,7 +67,7 @@ func (up *UserPrompter) SelectMultipleFiles(fileType string, selectFilesPrompt s
 		Filters: filters,
 	})
 	if err != nil {
-		up.logger.Error("Error in OpenMultipleFilesDialog", slog.String("reason", err.Error()))
+		slog.Error("Error in OpenMultipleFilesDialog", slog.String("reason", err.Error()))
 		result.error = err.Error()
 		return []string{}
 	}
@@ -84,7 +82,7 @@ func (up *UserPrompter) OpenSaveFileDialog() string {
 	})
 
 	if err != nil {
-		up.logger.Error("Save dialog :error retrieving targetPath", slog.String("reason", err.Error()))
+		slog.Error("Save dialog :error retrieving targetPath", slog.String("reason", err.Error()))
 		return ""
 	}
 
@@ -124,7 +122,7 @@ func (up *UserPrompter) PromptUserSelect(config *PromptSelectConfig) string {
 
 	selection, err := runtime.MessageDialog(up.ctx, dialogOptions)
 	if err != nil {
-		up.logger.Error("Error retrieving user select value", slog.String("reason", err.Error()))
+		slog.Error("Error retrieving user select value", slog.String("reason", err.Error()))
 		return ""
 	}
 
@@ -142,10 +140,10 @@ func (up *UserPrompter) SearchFileInUserDir(filename string, size int, lastModif
 		FileLastModifiedAt: lastModifiedAt,
 	}
 
-	up.logger.Debug("SearchFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
+	slog.Debug("SearchFilepathByName started", slog.String("filename", filename), slog.Int("size", size), slog.Int("lastModif", lastModifiedAt))
 	dirsToCheck, err := getDirectoriesToCheck(up.config.UserHomeDir)
 	if err != nil {
-		up.logger.Error("error reading user home dir", slog.String("reason", err.Error()))
+		slog.Error("error reading user home dir", slog.String("reason", err.Error()))
 		return ""
 	}
 
@@ -189,7 +187,7 @@ func (up *UserPrompter) loadIconAssets(assetsDir embed.FS) *UserPrompter {
 	logoIcon, err := assetsDir.ReadFile("assets/images/logo_light.svg")
 
 	if err != nil {
-		up.logger.Error("Error loading Application assets", slog.String("reason", err.Error()))
+		slog.Error("Error loading Application assets", slog.String("reason", err.Error()))
 		panic("Error loading App assets")
 	}
 

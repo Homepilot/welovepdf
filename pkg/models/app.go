@@ -10,17 +10,17 @@ import (
 
 // App struct
 type App struct {
-	ctx      context.Context
-	logger   *utils.CustomLogger
-	config   *utils.AppConfig
-	LogoIcon []byte
+	ctx          context.Context
+	config       *utils.AppConfig
+	customLogger *utils.Logger
+	LogoIcon     []byte
 }
 
 // NewApp creates a new App application struct
-func NewApp(logger *utils.CustomLogger, config *utils.AppConfig) *App {
+func NewApp(logger *utils.Logger, config *utils.AppConfig) *App {
 	newApp := &App{
-		logger: logger,
-		config: config,
+		config:       config,
+		customLogger: logger,
 	}
 
 	return newApp.ensureRequiredDirectories()
@@ -31,32 +31,32 @@ func NewApp(logger *utils.CustomLogger, config *utils.AppConfig) *App {
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 
-	a.logger.Debug("Application starting")
+	slog.Debug("Application starting")
 }
 
 func (a *App) Ready(ctx context.Context) {
-	a.logger.Info("Application successfully started")
+	slog.Info("Application successfully started")
 }
 
 func (a *App) Shutdown(ctx context.Context) {
-	defer a.logger.Close()
-	a.logger.Info("Application closed with no errors")
+	slog.Info("Application closed with no errors")
+	a.customLogger.Close()
 }
 
 func (a *App) BeforeClose(ctx context.Context) bool {
-	a.logger.Debug("BeforeClose fired")
-	defer a.logger.Debug("BeforeClose done")
+	slog.Debug("BeforeClose fired")
+	defer slog.Debug("BeforeClose done")
 
 	tempDirRemovalErr := os.RemoveAll(a.config.TempDirPath)
 	if tempDirRemovalErr != nil {
-		a.logger.Warn("BeforeClose : temp dir removed", slog.String("reason", tempDirRemovalErr.Error()))
+		slog.Warn("BeforeClose : temp dir removed", slog.String("reason", tempDirRemovalErr.Error()))
 	} else {
-		a.logger.Debug("BeforeClose : temp dir removed")
+		slog.Debug("BeforeClose : temp dir removed")
 	}
 
 	outputDirRemovalErr := os.Remove(a.config.OutputDirPath)
 	if outputDirRemovalErr != nil && !os.IsExist(outputDirRemovalErr) {
-		a.logger.Warn("BeforeClose : error removing output dir", slog.String("reason", outputDirRemovalErr.Error()))
+		slog.Warn("BeforeClose : error removing output dir", slog.String("reason", outputDirRemovalErr.Error()))
 	}
 	return false
 }
@@ -76,7 +76,7 @@ func (a *App) ensureRequiredDirectories() *App {
 		err4 != nil ||
 		err5 != nil {
 		errMsg := "Error ensuring required directories for app"
-		a.logger.Error(errMsg)
+		slog.Error(errMsg)
 		panic(errMsg)
 	}
 

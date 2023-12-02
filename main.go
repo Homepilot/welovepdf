@@ -24,12 +24,12 @@ func main() {
 	appConfig := utils.GetAppConfigFromAssetsDir(assets)
 
 	// Create an instance of the app structure
-	logger := utils.NewLogger(appConfig.Logger.LogsDirPath, appConfig.Logger.LogtailToken)
+	logger := utils.SetupLogger(appConfig.Logger.LogsDirPath, appConfig.Logger.LogtailToken, appConfig.Logger.LogLevel)
 	app := models.NewApp(logger, appConfig)
-	userPrompter := models.NewUserPrompter(assets, logger, appConfig)
+	userPrompter := models.NewUserPrompter(assets, appConfig)
 
-	frontendLogger := models.NewFrontendLogger(logger)
-	pdfService := models.NewPdfService(assets, logger, appConfig)
+	frontendLogger := &models.FrontendLogger{}
+	pdfService := models.NewPdfService(assets, appConfig)
 
 	// Create application with options
 	startErr := wails.Run(&options.App{
@@ -65,7 +65,7 @@ func main() {
 	})
 
 	if startErr != nil {
-		logger.Error("Error starting app", slog.String("reason", startErr.Error()))
+		slog.Error("Error starting app", slog.String("reason", startErr.Error()))
 		panic(startErr)
 	}
 }

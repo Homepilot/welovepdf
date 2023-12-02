@@ -7,14 +7,13 @@ import (
 	"path"
 	"strings"
 	wlptypes "welovepdf/pkg/types"
-	"welovepdf/pkg/utils"
 )
 
-func buildMergeAllFilesInDir(logger *utils.CustomLogger, mergePdfFiles wlptypes.FilesToFileOperation) func(config *wlptypes.DirToFileOperationConfig) error {
+func buildMergeAllFilesInDir(mergePdfFiles wlptypes.FilesToFileOperation) func(config *wlptypes.DirToFileOperationConfig) error {
 	return func(config *wlptypes.DirToFileOperationConfig) error {
 		filesToMerge, err := os.ReadDir(config.SourceDirPath)
 		if err != nil {
-			logger.Error("Error reading temp dir to merge", slog.String("reason", err.Error()))
+			slog.Error("Error reading temp dir to merge", slog.String("reason", err.Error()))
 			return err
 		}
 		if len(filesToMerge) < 1 {
@@ -34,7 +33,7 @@ func buildMergeAllFilesInDir(logger *utils.CustomLogger, mergePdfFiles wlptypes.
 		})
 
 		if err != nil {
-			logger.Error("Error merging files", slog.String("reason", err.Error()))
+			slog.Error("Error merging files", slog.String("reason", err.Error()))
 			return err
 
 		}

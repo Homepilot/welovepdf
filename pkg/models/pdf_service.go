@@ -17,7 +17,6 @@ type PdfServiceAssets struct {
 }
 
 type PdfService struct {
-	logger      *utils.CustomLogger
 	gsCommander *ghostscript.GhostScriptCommander
 	outputDir   string
 	tempDir     string
@@ -27,14 +26,12 @@ type PdfService struct {
 
 func NewPdfService(
 	assetsDir embed.FS,
-	logger *utils.CustomLogger,
 	config *utils.AppConfig,
 ) *PdfService {
 	binaryPath := path.Join(config.LocalAssetsDirPath, "bin/gs")
 	scriptPath := path.Join(config.LocalAssetsDirPath, "code/viewjpeg.ps")
 
 	pdfService := &PdfService{
-		logger:      logger,
 		outputDir:   config.OutputDirPath,
 		tempDir:     config.TempDirPath,
 		binaryPath:  binaryPath,
@@ -50,7 +47,7 @@ func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 	viewJpegScriptContent, err2 := assetsDir.ReadFile("assets/code/viewjpeg.ps")
 
 	if err1 != nil || err2 != nil {
-		p.logger.Error("Error loading PDF Service assets")
+		slog.Error("Error loading PDF Service assets")
 		panic("Error loading PDF Service assets")
 	}
 
@@ -58,12 +55,12 @@ func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 	err2 = utils.WriteContentToFileIfNotExists(p.scriptPath, viewJpegScriptContent)
 
 	if err1 != nil {
-		p.logger.Error("Error writing GS binary to file", slog.String("reason", err1.Error()))
+		slog.Error("Error writing GS binary to file", slog.String("reason", err1.Error()))
 		panic(err1)
 	}
 
 	if err2 != nil {
-		p.logger.Error("Error writing viewJPEG script to file", slog.String("reason", err2.Error()))
+		slog.Error("Error writing viewJPEG script to file", slog.String("reason", err2.Error()))
 		panic(err2)
 	}
 
@@ -75,7 +72,6 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 	compressSinglePageFile := commands.BuildCompressSinglePageFile(p.gsCommander.ConvertPdfToJpeg, p.gsCommander.ConvertJpegToPdf, p.tempDir)
 
 	compressPdfFile := commands.BuildCompressMultiPagePdfFile(
-		p.logger,
 		compressSinglePageFile,
 		p.gsCommander.SplitPdfFile,
 		p.gsCommander.MergePdfFiles,
@@ -88,7 +84,7 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 	})
 
 	if err != nil {
-		p.logger.Error("CompressFile: operation failed", slog.String("reason", err.Error()))
+		slog.Error("CompressFile: operation failed", slog.String("reason", err.Error()))
 		return false
 	}
 
@@ -96,10 +92,10 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 }
 
 func (p *PdfService) ConvertImageToPdf(sourceFilePath string) bool {
-	p.logger.Debug("ResizePdfFileToA4 : operation started")
-	convertImageToPdf := commands.BuildConvertImageToPdf(p.logger, p.tempDir, p.gsCommander.ConvertJpegToPdf)
+	slog.Debug("ResizePdfFileToA4 : operation started")
+	convertImageToPdf := commands.BuildConvertImageToPdf(p.tempDir, p.gsCommander.ConvertJpegToPdf)
 	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_resized")
-	p.logger.Debug("MergePdfFiles: operation starting")
+	slog.Debug("MergePdfFiles: operation starting")
 	return convertImageToPdf(&wlptypes.FileToFileOperationConfig{
 		SourceFilePath: sourceFilePath,
 		TargetFilePath: utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", ""),
@@ -107,22 +103,22 @@ func (p *PdfService) ConvertImageToPdf(sourceFilePath string) bool {
 }
 
 func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string) bool {
-	mergePfFiles := commands.BuildMergePdfFiles(p.logger, p.gsCommander.MergePdfFiles)
-	p.logger.Debug("MergePdfFiles: operation starting")
+	mergePfFiles := commands.BuildMergePdfFiles(p.gsCommander.MergePdfFiles)
+	slog.Debug("MergePdfFiles: operation starting")
 	return mergePfFiles(utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", ""), filePathes)
 }
 
 func (p *PdfService) ResizePdfFileToA4(sourceFilePath string) bool {
-	resizePdfFileToA4 := commands.BuildResizePdfFileToA4(p.logger, p.gsCommander.ResizePdfToA4)
+	resizePdfFileToA4 := commands.BuildResizePdfFileToA4(p.gsCommander.ResizePdfToA4)
 	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_resized")
-	p.logger.Debug("MergePdfFiles: operation starting")
+	slog.Debug("MergePdfFiles: operation starting")
 	return resizePdfFileToA4(utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", ""), sourceFilePath)
 }
 
 func (p *PdfService) RemoveFile(filePath string) bool {
 	err := os.Remove(filePath)
 	if err != nil {
-		p.logger.Error("error removing file", slog.String("reason", err.Error()))
+		slog.Error("error removing file", slog.String("reason", err.Error()))
 		return false
 	}
 	return true
@@ -130,7 +126,7 @@ func (p *PdfService) RemoveFile(filePath string) bool {
 
 func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
 	slog.Debug("IN FUCKING FUNCTION")
-	p.logger.Debug("ConvertImageToPdf : operation started")
+	slog.Debug("ConvertImageToPdf : operation started")
 	// tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
 	// defer os.Remove(tempFilePath)
 
@@ -140,17 +136,17 @@ func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
 	// 	SourceFilePath: filePath,
 	// })
 	// if err != nil {
-	// 	p.logger.Error("ConvertImageToPdf : operation failed at ConvertImageToPdf", slog.String("reason", err.Error()))
+	// 	slog.Error("ConvertImageToPdf : operation failed at ConvertImageToPdf", slog.String("reason", err.Error()))
 	// 	return false
 	// }
 
 	// if !canResize {
 	// 	err := os.Rename(tempFilePath, targetFilePath)
 	// 	if err != nil {
-	// 		p.logger.Error("Error renaming file after conversion", slog.String("reasonMsg", err.Error()))
+	// 		slog.Error("Error renaming file after conversion", slog.String("reasonMsg", err.Error()))
 	// 		return false
 	// 	}
-	// 	p.logger.Debug("ConvertImageToPdf : operation succeeded")
+	// 	slog.Debug("ConvertImageToPdf : operation succeeded")
 	// 	return true
 	// }
 
@@ -162,10 +158,10 @@ func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
 	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, ".jpg", "_rotated")
 	err := utils.RotateImageClockwise90(filePath, targetFilePath)
 	if err != nil {
-		p.logger.Error("Rotate image failed !!", slog.String("reason", err.Error()))
+		slog.Error("Rotate image failed !!", slog.String("reason", err.Error()))
 		return false // file is converted, even though not resized
 	}
 
-	p.logger.Debug("ConvertImageToPdf : operation succeeded")
+	slog.Debug("ConvertImageToPdf : operation succeeded")
 	return true
 }

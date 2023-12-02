@@ -12,14 +12,13 @@ import (
 
 // TODO Split by extracting out CompressMultiPagePdfFile
 func BuildCompressMultiPagePdfFile(
-	logger *utils.CustomLogger,
 	compressSinglePageFile func(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error,
 	splitPdfFile wlptypes.FileToDirOperation,
 	mergePdfFiles wlptypes.FilesToFileOperation,
 	tempDirPath string,
 ) func(targetImageQuality int, compressionConfig *wlptypes.FileToFileOperationConfig) error {
-	mergeAllFilesInDir := buildMergeAllFilesInDir(logger, mergePdfFiles)
-	compressAllFilesInDir := buildCompressAllFilesInDir(logger, tempDirPath, compressSinglePageFile)
+	mergeAllFilesInDir := buildMergeAllFilesInDir(mergePdfFiles)
+	compressAllFilesInDir := buildCompressAllFilesInDir(tempDirPath, compressSinglePageFile)
 
 	return func(
 		quality int,

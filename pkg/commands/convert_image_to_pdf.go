@@ -10,12 +10,11 @@ import (
 )
 
 func BuildConvertImageToPdf(
-	logger *utils.CustomLogger,
 	tempDirPath string,
 	convertJpegToPdf wlptypes.FileToFileOperation,
 ) func(config *wlptypes.FileToFileOperationConfig) bool {
 	return func(config *wlptypes.FileToFileOperationConfig) bool {
-		logger.Debug("ConvertImageToPdf: operation starting")
+		slog.Debug("ConvertImageToPdf: operation starting")
 		fileExt := strings.Replace(strings.ToLower(filepath.Ext(config.SourceFilePath)), ".", "", 1)
 		isJpeg := fileExt == "jpg" || fileExt == "jpeg"
 		if isJpeg {
@@ -24,7 +23,7 @@ func BuildConvertImageToPdf(
 				SourceFilePath: config.SourceFilePath,
 			})
 			if err != nil {
-				logger.Error("ConvertImageToPdf operation failed", slog.String("reason", err.Error()))
+				slog.Error("ConvertImageToPdf operation failed", slog.String("reason", err.Error()))
 				return false
 			}
 			return true
@@ -34,7 +33,7 @@ func BuildConvertImageToPdf(
 		defer os.Remove(tempFilePath)
 		err := utils.ConvertImageToJpeg(config.SourceFilePath, tempFilePath)
 		if err != nil {
-			logger.Error("ConvertImageToPdf operation failed", slog.String("reason", err.Error()))
+			slog.Error("ConvertImageToPdf operation failed", slog.String("reason", err.Error()))
 			return false
 		}
 		config.SourceFilePath = tempFilePath
@@ -43,10 +42,10 @@ func BuildConvertImageToPdf(
 			SourceFilePath: config.SourceFilePath,
 		})
 		if err != nil {
-			logger.Error("ConvertImageToPdf operation failed", slog.String("reason", err.Error()))
+			slog.Error("ConvertImageToPdf operation failed", slog.String("reason", err.Error()))
 			return false
 		}
-		logger.Debug("MergePdfFiles: operation succeeded")
+		slog.Debug("MergePdfFiles: operation succeeded")
 		return true
 	}
 }

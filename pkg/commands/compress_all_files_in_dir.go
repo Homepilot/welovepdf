@@ -5,11 +5,9 @@ import (
 	"os"
 	"path"
 	wlptypes "welovepdf/pkg/types"
-	utils "welovepdf/pkg/utils"
 )
 
 func buildCompressAllFilesInDir(
-	logger *utils.CustomLogger,
 	tempDirPath string,
 	compressSinglePageFile func(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error,
 ) func(imageQuality int, compressionConfig *wlptypes.DirToDirOperationConfig) error {

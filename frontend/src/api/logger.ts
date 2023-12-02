@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 
-import * as Logger from '../../wailsjs/go/models/Logger';
+import * as Logger from '../../wailsjs/go/models/FrontendLogger';
 import {PageName} from '../types'
 
 export async function logHomepilotLinkClicked(){
