@@ -28,36 +28,44 @@ var A4_WIDTH int = 50
 func ConvertImageToJpeg(sourceFilePath string, targetFilePath string) error {
 	var img image.Image
 
+	slog.Debug("ConvertImageToJpeg : Operation started", slog.String("source", sourceFilePath), slog.String("target", targetFilePath))
 	sourceFileExt := strings.ToLower(filepath.Ext(sourceFilePath))
 	sourceFile, err := os.Open(sourceFilePath)
 	if err != nil {
+		slog.Debug("Error in ConvertImageToJpeg 1", slog.String("reason", err.Error()))
 		return err
 	}
 	defer sourceFile.Close()
-
 	r := bufio.NewReader(sourceFile)
+	slog.Debug("Reader opened, starting to decode")
 
-	if sourceFileExt == "png" {
+	if sourceFileExt == ".jpeg" {
+		img, err = jpeg.Decode(r)
+	}
+
+	if sourceFileExt == ".png" {
 		img, err = png.Decode(r)
 	}
-	if sourceFileExt == "webp" {
+	if sourceFileExt == ".webp" {
 		img, err = webp.Decode(r)
 	}
-	if sourceFileExt == "tiff" {
+	if sourceFileExt == ".tiff" {
 		img, err = tiff.Decode(r)
 	}
 	if err != nil || img == nil {
+		slog.Debug("Error in ConvertImageToJpeg 2", slog.String("reason", err.Error()))
 		return err
 	}
 
 	targetFile, err := os.Create(targetFilePath)
 	if err != nil {
+		slog.Debug("Error in ConvertImageToJpeg 3", slog.String("reason", err.Error()))
 		return err
 	}
 	defer targetFile.Close()
 	targetFile.Chmod(0755)
-	w := bufio.NewWriter(targetFile)
 
+	w := bufio.NewWriter(targetFile)
 	return jpeg.Encode(w, img, &jpeg.Options{})
 }
 

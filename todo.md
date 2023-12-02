@@ -1,7 +1,7 @@
 - -------------------------------------------------------------
     Must Have                                           
 - -------------------------------------------------------------
-- [ ] Test all
+- [ ] remove auto resize on convert
 - [ ] Test img resize
 - [ ] Test img rotate
 - -------------------------------------------------------------
@@ -10,6 +10,7 @@
 - [ ] FileCard components, alignment & overflow         30m
 - [ ] batch Ids in logs                                 45m
 - [ ] disclaimer about allowed image file types         15m
+- [ ] drag n drop load nothing if one file wrong type
 - [ ] Toast if wrong file type                          15m
 - [ ] 1 line comment on all function (Golang)           30m
 - [ ] check all hooks' dependencies                     30m
@@ -63,10 +64,10 @@
 
 
 ## Tests
-
 | [ ] To test | ✅ Pass  | ❌ Fail |
 | ------------ | -------- | ------- |
 
+### Backend Tests
 ### Merge
 - ✅ Merge w/o resize
 - ✅ Merge w/ resize
@@ -74,12 +75,19 @@
 - ✅ Compression
 - ✅ Compression Extreme
 ### Convert image
-- [ ] Convert image w/o Resize
-- [ ] Convert image w Resize
+- ✅ Convert JPEG image to PDF
+- ✅ Convert PNG/TIFF/WEBP image to PDF
 ### Format
 - ✅ Format to A4
 ### Drag n Drop
-- ❌ Drag n Drop files consecutively several times
+- ✅ Drag n Drop files consecutively several times
+
+### Frontend Tests (additional functionalities to test)
+- ✅ reorder items in list
+- ✅ empty list
+- ✅ add files
+
+
 
 ## Memory Tests (GS binary + pdfcpu lib)
 | Operation | Mem before | Mem after | file size | Leaked Mem | Solution |
