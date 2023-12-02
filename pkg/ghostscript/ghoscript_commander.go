@@ -1,32 +1,47 @@
 package ghostscript
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"log/slog"
-	"os"
 	"os/exec"
 	"path"
-	"strings"
 	wlptypes "welovepdf/pkg/types"
 )
 
-type GhoscriptClient struct {
+type GhostScriptCommander struct {
 	binaryPath         string
 	viewJpegScriptPath string
 }
 
 func NewGhostscriptClient(
-	binaryPath string, viewJpegScriptPath string) *GhoscriptClient {
-	return &GhoscriptClient{
+	binaryPath string, viewJpegScriptPath string) *GhostScriptCommander {
+	return &GhostScriptCommander{
 		binaryPath:         binaryPath,
 		viewJpegScriptPath: viewJpegScriptPath,
 	}
 }
 
-func (c *GhoscriptClient) convertToLowQualityJpeg(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error {
+func (c *GhostScriptCommander) GetPdfPageCount(filePath string) (int, error) {
+	pageCountCmdStr := fmt.Sprintf(`%s -q -dNODISPLAY -c "(%s) (r) file runpdfbegin pdfpagecount = quit"`, c.binaryPath, filePath)
+	var pageCountCmdOutput bytes.Buffer
+	pageCountCmd := exec.Command(pageCountCmdStr)
+	pageCountCmd.Stdout = &pageCountCmdOutput
+	err := pageCountCmd.Run()
+	if err != nil {
+		return 0, err
+	}
+	// pageCount := int(pageCountCmdOutput)
+	pageCount := binary.BigEndian.Uint64(pageCountCmdOutput.Bytes())
+	return int(pageCount), nil
+
+}
+
+func (c *GhostScriptCommander) ConvertPdfToJpeg(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error {
 	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, c.binaryPath, config.SourceFilePath, config.TargetFilePath)
-	convertToLowQualityJpegCmd := exec.Command(
+	convertPdfToJpegCmd := exec.Command(
 		c.binaryPath,
 		"-sDEVICE=jpeg",
 		"-o",
@@ -39,11 +54,11 @@ func (c *GhoscriptClient) convertToLowQualityJpeg(targetImageQuality int, config
 		"-dGraphicsAlphaBits=4",
 		"-r140",
 		config.SourceFilePath)
-	err := convertToLowQualityJpegCmd.Run()
+	err := convertPdfToJpegCmd.Run()
 	return err
 }
 
-func (c *GhoscriptClient) ConvertJpegToPdf(config *wlptypes.FileToFileOperationConfig) error {
+func (c *GhostScriptCommander) ConvertJpegToPdf(config *wlptypes.FileToFileOperationConfig) error {
 	convertCmd := exec.Command(
 		c.binaryPath,
 		"-dNOSAFER",
@@ -61,7 +76,7 @@ func (c *GhoscriptClient) ConvertJpegToPdf(config *wlptypes.FileToFileOperationC
 	return err
 }
 
-func (c *GhoscriptClient) ResizePdfToA4(config *wlptypes.FileToFileOperationConfig) error {
+func (c *GhostScriptCommander) ResizePdfToA4(config *wlptypes.FileToFileOperationConfig) error {
 	resizePdfToA4Cmd := exec.Command(
 		c.binaryPath,
 		"-o",
@@ -77,7 +92,7 @@ func (c *GhoscriptClient) ResizePdfToA4(config *wlptypes.FileToFileOperationConf
 	return err
 }
 
-func (c *GhoscriptClient) MergePdfFiles(config *wlptypes.FilesToFileOperationConfig) error {
+func (c *GhostScriptCommander) MergePdfFiles(config *wlptypes.FilesToFileOperationConfig) error {
 	mergePdfFilesCmd := exec.Command(
 		c.binaryPath,
 		"-dNOPAUSE",
@@ -91,32 +106,7 @@ func (c *GhoscriptClient) MergePdfFiles(config *wlptypes.FilesToFileOperationCon
 	return err
 }
 
-func (c *GhoscriptClient) MergeAllFilesInDir(config *wlptypes.DirToFileOperationConfig) error {
-	filesToMerge, err := os.ReadDir(config.SourceDirPath)
-	if err != nil {
-		log.Printf("Error reading temp dir to merge: %s", err.Error())
-		return err
-	}
-	if len(filesToMerge) < 1 {
-		log.Println("No files to merge, aborting")
-		return nil
-	}
-
-	log.Printf("found %d compressed files to merge", len(filesToMerge))
-	filesPathesToMerge := []string{}
-	for _, file := range filesToMerge {
-		if !file.IsDir() && strings.HasSuffix(file.Name(), ".pdf") {
-			filesPathesToMerge = append(filesPathesToMerge, path.Join(config.SourceDirPath, file.Name()))
-		}
-	}
-
-	return c.MergePdfFiles(&wlptypes.FilesToFileOperationConfig{
-		SourceFilesPathes: filesPathesToMerge,
-		TargetFilePath:    config.TargetFilePath,
-	})
-}
-
-func (c *GhoscriptClient) SplitPdfFile(config *wlptypes.FileToDirOperationConfig) error {
+func (c *GhostScriptCommander) SplitPdfFile(config *wlptypes.FileToDirOperationConfig) error {
 	splitPdfFileCmd := exec.Command(
 		c.binaryPath,
 		"-sDEVICE=pdfwrite",

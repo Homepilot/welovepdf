@@ -1,54 +1,62 @@
-## Must have                          
-| Must have 1 - 4h | 
-| ---------------------| 
+- -------------------------------------------------------------
+    Must Have                                           
+- -------------------------------------------------------------
+- [ ] Test all
 - [ ] Test img resize
 - [ ] Test img rotate
-- [ ] 30m - FileCard components,  alignment & overflow
-- [ ] SIGN BUILDS                
-- [ ] new logo by iad ?
-- [ ] batch Ids in logs
-- [ ] page count in compress
-- [ ] restore CompresImage in PdfService
-- [ ] disclaimer about allowed image file types
-- [ ] Toast if wrong file type
-- [ ] 1 line comment on all function (Golang)
-| check all hooks' dependencies               | 30min |
------
+- -------------------------------------------------------------
+                                                        3h
+- -------------------------------------------------------------
+- [ ] FileCard components, alignment & overflow         30m
+- [ ] batch Ids in logs                                 45m
+- [ ] disclaimer about allowed image file types         15m
+- [ ] Toast if wrong file type                          15m
+- [ ] 1 line comment on all function (Golang)           30m
+- [ ] check all hooks' dependencies                     30m
+- [ ] new logo by iad                                   10m
+---------------------------------------------------------------
 - [ ] check new mem usage       
+- [ ] SIGN BUILDS
+- [ ] DOCS
 <br/>
 
-| V2 |                                3h30 + ?? |
-| ---------------------| ----------|
-| batch Ids in logs ||
-|  Logger - send logs by batches ?   | 30m |
-| improved logger ||
-| hide file names in logs (personal info) replace only letters for easier debugging ||
-| Backend logs - 🏆 unexpected errors 🏆
-| add tests          |                         2h30|
-| add tests backend   |    2h |
-| add tests frontend   |   2h30 |
-| lint + test pipeline         | 30min |
+---------------------------------------------------------------
+    Improvements                                        3h30
+---------------------------------------------------------------
+- [ ]  Logger - send logs by batches ?                  30m 
+- [ ] improved logger (use slog only & everywhere)      1h30 
+- [ ] hide file names in logs (personal info)           30m
+        replace only letters for easier debugging 
+- [ ] Backend logs - 🏆 unexpected errors 🏆
+- [ ] open dir after actions 
 <br/>
 
-| Nice to have                 | 2h30 + ??? |
-| --------------------- | ----------| 
-| cache gs binary in build pipeline     | 30min |
-| cache node modules & go in test/build pipelines for sharing ?   | 30min |
-| format frontend code     | 30min |
-| different loader messages     | 30min |
-| setup husky                   | 30min |
-| open dir after actions        | ??? |
-| paralellize when several files... | |
-| Split PDF ?                   | 30min |
-|                |  |
-
-<br/>
+---------------------------------------------------------------
+    Automated Tests                                     9h
+---------------------------------------------------------------
+- [ ] add tests backend                                 6h
+- [ ] add tests frontend                                2h30 
+- [ ] lint + test pipeline                              30min 
 <br/>
 
-## Bugs
-- drag n drop load nothing if one file wrong type
-- stop process on app close ? (ony in dev ?)
-- compressed files dont disapeear from list (1 file OR several)
+---------------------------------------------------------------
+   Nice to have                                         3h30
+---------------------------------------------------------------
+- [ ] cache gs binary in build pipeline                 30min 
+- [ ] cache node modules & go in test/build pipelines   30min 
+- [ ] format frontend code                              30min 
+- [ ] different loader messages                         30min 
+- [ ] setup husky                                       30min 
+- [ ] paralellize when several files... 
+- [ ] Split PDF                                         1h 
+<br/>
+
+---------------------------------------------------------------
+   BUGS                                         3h30
+---------------------------------------------------------------
+- [ ] drag n drop load nothing if one file wrong type
+- [ ] processd files dont disapeear from list (1 file OR several)
+- [ ] stop process on app close ? (ony in dev ?)
 
 <br/>
 <br/>

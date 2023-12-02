@@ -9,8 +9,6 @@ import (
 	"welovepdf/pkg/ghostscript"
 	wlptypes "welovepdf/pkg/types"
 	"welovepdf/pkg/utils"
-
-	"github.com/google/uuid"
 )
 
 type PdfServiceAssets struct {
@@ -19,12 +17,12 @@ type PdfServiceAssets struct {
 }
 
 type PdfService struct {
-	logger     *utils.CustomLogger
-	gsClient   *ghostscript.GhoscriptClient
-	outputDir  string
-	tempDir    string
-	binaryPath string
-	scriptPath string
+	logger      *utils.CustomLogger
+	gsCommander *ghostscript.GhostScriptCommander
+	outputDir   string
+	tempDir     string
+	binaryPath  string
+	scriptPath  string
 }
 
 func NewPdfService(
@@ -36,12 +34,12 @@ func NewPdfService(
 	scriptPath := path.Join(config.LocalAssetsDirPath, "code/viewjpeg.ps")
 
 	pdfService := &PdfService{
-		logger:     logger,
-		outputDir:  config.OutputDirPath,
-		tempDir:    config.TempDirPath,
-		binaryPath: binaryPath,
-		scriptPath: scriptPath,
-		gsClient:   ghostscript.NewGhostscriptClient(binaryPath, scriptPath),
+		logger:      logger,
+		outputDir:   config.OutputDirPath,
+		tempDir:     config.TempDirPath,
+		binaryPath:  binaryPath,
+		scriptPath:  scriptPath,
+		gsCommander: ghostscript.NewGhostscriptClient(binaryPath, scriptPath),
 	}
 
 	return pdfService.init(assetsDir)
@@ -72,75 +70,58 @@ func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 	return p
 }
 
-// TODO Split/refacto
 func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool {
-	p.logger.Debug("CompressFile: operation starting", slog.Int("targetQuality", targetImageQuality))
-	resultFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_compressed")
+	pageCount, err := p.gsCommander.GetPdfPageCount(filePath)
+	if err != nil {
+		p.logger.Error("CompressFile : Operation failed")
+		p.logger.Debug("Error getting page count, operation failed", slog.String("reason", err.Error()))
+		return false
+	}
+	if pageCount < 1 {
+		p.logger.Error("Page count below 1, operation aborted")
+		return false
+	}
 
-	// pageCount, err := pdfcpu.PageCountFile(filePath)
-	// if err == nil && pageCount == 1 {
-	// 	err := utils.CompressSinglePageFile(p.tempDir, targetImageQuality, &utils.FileToFileOperationConfig{
-	// 		SourceFilePath: filePath,
-	// 		TargetFilePath: resultFilePath,
-	// 		BinaryPath:     p.binaryPath,
-	// 	})
-	// 	if err != nil {
-	// 		p.logger.Error("CompressFile : error compressing single page file", slog.String("file", filePath), slog.Int("targetQuality", targetImageQuality), slog.String("reason", err.Error()))
-	// 		return false
-	// 	}
-	// 	p.logger.Debug("CompressFile operation succeeded")
-	// 	return true
-	// }
+	targetFilePath := path.Join(p.outputDir, utils.SanitizeFilePath(utils.GetFileNameFromPath(filePath)))
+	compressSinglePageFile := commands.BuildCompressSinglePageFile(p.gsCommander.ConvertPdfToJpeg, p.gsCommander.ConvertJpegToPdf, p.tempDir)
 
-	fileId := uuid.New().String()
-	tempDirPath1 := path.Join(p.tempDir, fileId, "compress_jpg")
-	tempDirPath2 := path.Join(p.tempDir, fileId, "compress_pdf")
-	utils.EnsureDirectory(tempDirPath1)
-	utils.EnsureDirectory(tempDirPath2)
-	defer os.RemoveAll(tempDirPath1)
-	defer os.RemoveAll(tempDirPath2)
+	if pageCount == 1 {
+		err := compressSinglePageFile(targetImageQuality, &wlptypes.FileToFileOperationConfig{
+			SourceFilePath: filePath,
+			TargetFilePath: targetFilePath,
+		})
+		if err != nil {
+			p.logger.Error("File: operation failed", slog.String("reason", err.Error()))
+			return false
+		}
+		return true
+	}
 
-	// 1. Split file into 1 file per page
-	err := utils.SplitPdfFile(&wlptypes.FileToDirOperationConfig{
-		BinaryPath:     p.binaryPath,
+	compressPdfFile := commands.BuildCompressMultiPagePdfFile(
+		p.logger,
+		compressSinglePageFile,
+		p.gsCommander.GetPdfPageCount,
+		p.gsCommander.SplitPdfFile,
+		p.gsCommander.MergePdfFiles,
+		p.tempDir,
+	)
+
+	err = compressPdfFile(targetImageQuality, &wlptypes.FileToFileOperationConfig{
 		SourceFilePath: filePath,
-		TargetDirPath:  tempDirPath1,
+		TargetFilePath: targetFilePath,
 	})
+
 	if err != nil {
-		p.logger.Error("CompressFile : error splitting file, compression aborted", slog.String("reason", err.Error()))
+		p.logger.Error("CompressFile: operation failed", slog.String("reason", err.Error()))
 		return false
 	}
-
-	// 2. Compress the splitted files
-	err = utils.CompressAllFilesInDir(p.tempDir, targetImageQuality, p.scriptPath, &wlptypes.DirToDirOperationConfig{
-		SourceDirPath: tempDirPath1,
-		TargetDirPath: tempDirPath2,
-		BinaryPath:    p.binaryPath,
-	})
-	if err != nil {
-		p.logger.Error("CompressFile : error compressing files in dir", slog.String("tempDirPath1", tempDirPath1), slog.String("tempDirPath2", tempDirPath2), slog.String("reason", err.Error()))
-		return false
-	}
-
-	// 3. Merge all compressed files back into 1
-	err = utils.MergeAllFilesInDir(&wlptypes.DirToFileOperationConfig{
-		BinaryPath:     p.binaryPath,
-		SourceDirPath:  tempDirPath2,
-		TargetFilePath: resultFilePath,
-	})
-	if err != nil {
-		p.logger.Error("CompressFile : error during final merge !", slog.String("reason", err.Error()))
-		return false
-	}
-
-	p.logger.Debug("CompressFile operation succeeded")
 
 	return true
 }
 
 func (p *PdfService) ConvertImageToPdf(sourceFilePath string) bool {
 	p.logger.Debug("ResizePdfFileToA4 : operation started")
-	convertImageToPdf := commands.BuildConvertImageToPdf(p.logger, p.tempDir, p.gsClient.ConvertJpegToPdf)
+	convertImageToPdf := commands.BuildConvertImageToPdf(p.logger, p.tempDir, p.gsCommander.ConvertJpegToPdf)
 	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_resized")
 	p.logger.Debug("MergePdfFiles: operation starting")
 	return convertImageToPdf(&wlptypes.FileToFileOperationConfig{
@@ -150,13 +131,13 @@ func (p *PdfService) ConvertImageToPdf(sourceFilePath string) bool {
 }
 
 func (p *PdfService) MergePdfFiles(targetFilePath string, filePathes []string) bool {
-	mergePfFiles := commands.BuildMergePdfFiles(p.logger, p.gsClient.MergePdfFiles)
+	mergePfFiles := commands.BuildMergePdfFiles(p.logger, p.gsCommander.MergePdfFiles)
 	p.logger.Debug("MergePdfFiles: operation starting")
 	return mergePfFiles(utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", ""), filePathes)
 }
 
 func (p *PdfService) ResizePdfFileToA4(sourceFilePath string) bool {
-	resizePdfFileToA4 := commands.BuildResizePdfFileToA4(p.logger, p.gsClient.ResizePdfToA4)
+	resizePdfFileToA4 := commands.BuildResizePdfFileToA4(p.logger, p.gsCommander.ResizePdfToA4)
 	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_resized")
 	p.logger.Debug("MergePdfFiles: operation starting")
 	return resizePdfFileToA4(utils.ComputeTargetFilePath(p.outputDir, targetFilePath, "pdf", ""), sourceFilePath)
