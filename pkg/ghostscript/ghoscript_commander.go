@@ -1,8 +1,6 @@
 package ghostscript
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 	"log"
 	"log/slog"
@@ -22,21 +20,6 @@ func NewGhostscriptClient(
 		binaryPath:         binaryPath,
 		viewJpegScriptPath: viewJpegScriptPath,
 	}
-}
-
-func (c *GhostScriptCommander) GetPdfPageCount(filePath string) (int, error) {
-	pageCountCmdStr := fmt.Sprintf(`%s -q -dNODISPLAY -c "(%s) (r) file runpdfbegin pdfpagecount = quit"`, c.binaryPath, filePath)
-	var pageCountCmdOutput bytes.Buffer
-	pageCountCmd := exec.Command(pageCountCmdStr)
-	pageCountCmd.Stdout = &pageCountCmdOutput
-	err := pageCountCmd.Run()
-	if err != nil {
-		return 0, err
-	}
-	// pageCount := int(pageCountCmdOutput)
-	pageCount := binary.BigEndian.Uint64(pageCountCmdOutput.Bytes())
-	return int(pageCount), nil
-
 }
 
 func (c *GhostScriptCommander) ConvertPdfToJpeg(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error {

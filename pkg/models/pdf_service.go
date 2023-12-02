@@ -71,42 +71,18 @@ func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 }
 
 func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool {
-	pageCount, err := p.gsCommander.GetPdfPageCount(filePath)
-	if err != nil {
-		p.logger.Error("CompressFile : Operation failed")
-		p.logger.Debug("Error getting page count, operation failed", slog.String("reason", err.Error()))
-		return false
-	}
-	if pageCount < 1 {
-		p.logger.Error("Page count below 1, operation aborted")
-		return false
-	}
-
 	targetFilePath := path.Join(p.outputDir, utils.SanitizeFilePath(utils.GetFileNameFromPath(filePath)))
 	compressSinglePageFile := commands.BuildCompressSinglePageFile(p.gsCommander.ConvertPdfToJpeg, p.gsCommander.ConvertJpegToPdf, p.tempDir)
-
-	if pageCount == 1 {
-		err := compressSinglePageFile(targetImageQuality, &wlptypes.FileToFileOperationConfig{
-			SourceFilePath: filePath,
-			TargetFilePath: targetFilePath,
-		})
-		if err != nil {
-			p.logger.Error("File: operation failed", slog.String("reason", err.Error()))
-			return false
-		}
-		return true
-	}
 
 	compressPdfFile := commands.BuildCompressMultiPagePdfFile(
 		p.logger,
 		compressSinglePageFile,
-		p.gsCommander.GetPdfPageCount,
 		p.gsCommander.SplitPdfFile,
 		p.gsCommander.MergePdfFiles,
 		p.tempDir,
 	)
 
-	err = compressPdfFile(targetImageQuality, &wlptypes.FileToFileOperationConfig{
+	err := compressPdfFile(targetImageQuality, &wlptypes.FileToFileOperationConfig{
 		SourceFilePath: filePath,
 		TargetFilePath: targetFilePath,
 	})

@@ -9,10 +9,14 @@ import (
 	"welovepdf/pkg/utils"
 )
 
-func BuildConvertImageToPdf(logger *utils.CustomLogger, tempDirPath string, convertJpegToPdf wlptypes.FileToFileOperation) func(config *wlptypes.FileToFileOperationConfig) bool {
+func BuildConvertImageToPdf(
+	logger *utils.CustomLogger,
+	tempDirPath string,
+	convertJpegToPdf wlptypes.FileToFileOperation,
+) func(config *wlptypes.FileToFileOperationConfig) bool {
 	return func(config *wlptypes.FileToFileOperationConfig) bool {
-		logger.Debug("false: operation starting")
-		fileExt := strings.ToLower(filepath.Ext(config.SourceFilePath))
+		logger.Debug("ConvertImageToPdf: operation starting")
+		fileExt := strings.Replace(strings.ToLower(filepath.Ext(config.SourceFilePath)), ".", "", 1)
 		isJpeg := fileExt == "jpg" || fileExt == "jpeg"
 		if isJpeg {
 			err := convertJpegToPdf(&wlptypes.FileToFileOperationConfig{

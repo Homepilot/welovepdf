@@ -14,7 +14,6 @@ import (
 func BuildCompressMultiPagePdfFile(
 	logger *utils.CustomLogger,
 	compressSinglePageFile func(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error,
-	getFilePageCount func(filePath string) (int, error),
 	splitPdfFile wlptypes.FileToDirOperation,
 	mergePdfFiles wlptypes.FilesToFileOperation,
 	tempDirPath string,
