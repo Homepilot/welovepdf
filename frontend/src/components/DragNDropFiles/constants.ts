@@ -1,0 +1,1 @@
+export const ALLOWED_IMAGE_EXTENTIONS = ["JPG", "JPEG", "PNG", "TIFF", "WEBP"];

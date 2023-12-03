@@ -53,7 +53,7 @@ func GetAppConfigFromAssetsDir(assetsDir embed.FS) *AppConfig {
 
 	jsonObj, err := assetsDir.ReadFile(configFilePath)
 	if err != nil {
-		slog.Warn("Error reading config file, returining default config")
+		slog.Warn("Error reading config file, returning default config")
 		return newConfig
 	}
 	jsonValue := map[string]any{}

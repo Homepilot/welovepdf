@@ -4,15 +4,14 @@ import toast from "react-hot-toast";
 import {  FileType } from "../../types";
 
 import "./DragNDropFiles.css"
+import { ALLOWED_IMAGE_EXTENTIONS } from "./constants";
 import { usePreventDropzoneClick } from "./hooks";
-
-const imgFileExtensions = ["JPG", "JPEG", "PNG", "GIF"];
 
 const isPdf = (fileName: string) => fileName.toLowerCase().endsWith('.pdf')
 const isImage = (fileName: string) => {
   const splitted = fileName.split('.')
   if(!splitted.length) return false;
-  return imgFileExtensions.includes(splitted[splitted.length -1].toUpperCase())
+  return ALLOWED_IMAGE_EXTENTIONS.includes(splitted[splitted.length -1].toUpperCase())
 }
 
 export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType, onFilesDropped(fileNames:File[]): Promise<void> }> = ({
@@ -20,7 +19,6 @@ export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType,
   filesType,
   onFilesDropped,
 }) => {
-    const allowedExtensions = filesType === FileType.IMAGE ? imgFileExtensions : ['PDF']
     const dropzoneClassName = 'dropzone';
     usePreventDropzoneClick([dropzoneClassName])
 
@@ -54,7 +52,6 @@ export const DragDrop: React.FC<React.PropsWithChildren & { filesType: FileType,
         name="file" 
         label="Vous pouvez aussi glisser des fichiers ici"
         maxSize={50}
-        types={allowedExtensions} 
         classes={[dropzoneClassName]}
     >
       {children}

@@ -5,20 +5,26 @@ import "./FileCard.css"
 type FileCardProps = {
     onDeleteCard(): void;
     fileName: string;
+    filePath: string;
 }
 
-export const FileCard: React.FC<FileCardProps> = ({ fileName, onDeleteCard }) => (
+export const FileCard: React.FC<FileCardProps> = ({ fileName, filePath, onDeleteCard }) => (
     <div className="file-card">
-        <div className='file-info'>
-        <span className='file-type'>{fileName.toLowerCase().endsWith('.pdf') ? <FileText /> : <Image />}</span>
-        <span className='file-name'  >{formatPathString(fileName)} </span>
+        <div className="file-info-container">
+            <div className="file-info">
+                <div className='file-name'>
+                    {fileName.toLowerCase().endsWith('.pdf') ? <FileText /> : <Image />}
+                    {fileName}
+                </div>
+                <div className='file-path'>{formatPathString(filePath)} </div>
+            </div>
         </div>
-        <span className='delete-file-btn' onClick={onDeleteCard} ><Trash2 className='delete-icon'/></span>
+        <div className='delete-file-btn' onClick={onDeleteCard} ><Trash2 className='delete-icon'/></div>
     </div>
 )
 
 function formatPathString(pathString: string) {
-    let formattedPathString = pathString;
-    if(formattedPathString.startsWith('/')) formattedPathString = formattedPathString.substring(1);
-    return formattedPathString.split('/').join(' > ')
+    const formattedPathString = pathString.startsWith('/') ? pathString.substring(1) :  pathString;
+    const splittedBySlash = formattedPathString.split('/');
+    return splittedBySlash.slice(0, splittedBySlash.length - 1).join(' > ');
 }

@@ -1,15 +1,35 @@
 #btn-container {
-    display: flex;
-    justify-content: center;
-    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 1rem;
+    margin: 0;
+    margin-top: 1rem;
 }
 
-.action-btn {
+.empty-list-btn {
+    grid-column: 1;
+    padding: 1rem;
+    margin: 0;
+}
+
+.add-files-btn {
+    grid-column: 2;
+    padding: 1rem;
+    margin: 0;
+}
+
+.run-action-btn {
+    grid-column: 3;
+    padding: 1rem;
+    margin: 0;
+}
+
+/* .action-btn {
     cursor: pointer;
     border: solid var(--theme-light) 1px;
     border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
+    padding: 0;
+    margin: 0;
 }
 
 .action-btn-disabled {
@@ -17,6 +37,6 @@
     color: var(--theme-grey);
     cursor: not-allowed;
     border-radius: 3px;
-    padding: 1rem;
-    margin: 1rem;
-}
+    padding: 0;
+    margin: 0;
+} */

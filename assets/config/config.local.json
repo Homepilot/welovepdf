@@ -1,0 +1,6 @@
+{
+    "debugMode": true,
+    "logtailToken": "",
+    "logLovel": "DEBUG",
+    "logsBatchSize": 100
+}

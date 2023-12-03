@@ -71,7 +71,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     const selectFiles = useCallback(async () => {
         setIsLoading(true);
         const files = await selectMultipleFiles(inputFilesType, selectFilesPrompt ?? headerText);
-        addFilesToSelectionList(files.map((filePath: string) => ({ name: filePath, id: filePath })))
+        addFilesToSelectionList(files.map((filePath: string) => ({ name: getFileNameFromPath(filePath), id: filePath })))
         setIsLoading(false);
     }, [setIsLoading, inputFilesType, selectFilesPrompt, headerText, addFilesToSelectionList])
 
@@ -121,6 +121,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             , {failures: [], successes: []} as {failures: string[], successes: FileInfo[]})
             failuresNames = failures;
             addFilesToSelectionList(successes)
+            toast.success(`${successes.length} fichier(s) ajouté(s)`)
         } catch (error) {
             console.error(error)
             toast.error("Erreur lors de l'ajout des fichiers");
@@ -162,3 +163,8 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     )
 }
 
+
+function getFileNameFromPath(pathString: string) {
+    const splitted = pathString.split('/')
+    return splitted[splitted.length -1]
+}

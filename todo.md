@@ -1,21 +1,15 @@
 - -------------------------------------------------------------
     Must Have                                           
 - -------------------------------------------------------------
+- [ ] processd files dont disapeear from list (1 file OR several)
+- [ ] check all hooks' dependencies                     30m
+- [ ] batch Ids in logs                                 45m
+- [ ] new logo by iad                                   10m
+---------------------------------------------------------------
+- [ ] 1 line comment on all function (Golang)           30m
 - [ ] remove auto resize on convert
 - [ ] Test img resize
 - [ ] Test img rotate
-- -------------------------------------------------------------
-                                                        3h
-- -------------------------------------------------------------
-- [ ] FileCard components, alignment & overflow         30m
-- [ ] batch Ids in logs                                 45m
-- [ ] disclaimer about allowed image file types         15m
-- [ ] drag n drop load nothing if one file wrong type
-- [ ] Toast if wrong file type                          15m
-- [ ] 1 line comment on all function (Golang)           30m
-- [ ] check all hooks' dependencies                     30m
-- [ ] new logo by iad                                   10m
----------------------------------------------------------------
 - [ ] check new mem usage       
 - [ ] SIGN BUILDS
 - [ ] DOCS
@@ -29,6 +23,7 @@
 - [ ] hide file names in logs (personal info)           30m
         replace only letters for easier debugging 
 - [ ] Backend logs - 🏆 unexpected errors 🏆
+- [ ] CSS style scroll
 - [ ] open dir after actions 
 <br/>
 
@@ -46,8 +41,9 @@
 - [ ] cache gs binary in build pipeline                 30min 
 - [ ] cache node modules & go in test/build pipelines   30min 
 - [ ] format frontend code                              30min 
-- [ ] different loader messages                         30min 
+- [ ] different loader messages                         30min
 - [ ] setup husky                                       30min 
+- [ ] style scroll bar                                  30min 
 - [ ] paralellize when several files... 
 - [ ] Split PDF                                         1h 
 <br/>
@@ -55,8 +51,6 @@
 ---------------------------------------------------------------
    BUGS                                         3h30
 ---------------------------------------------------------------
-- [ ] drag n drop load nothing if one file wrong type
-- [ ] processd files dont disapeear from list (1 file OR several)
 - [ ] stop process on app close ? (ony in dev ?)
 
 <br/>

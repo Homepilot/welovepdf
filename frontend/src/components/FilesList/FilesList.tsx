@@ -13,11 +13,11 @@ type FilesListProps = {
     onSelectionReordered(newSelection: FileInfo[]): void;
     onRemoveFileFromList(fileId: string): void;
     selectedFiles: FileInfo[];
-    filesType?: FileType;
+    filesType: FileType;
     selectFilesPrompt: string;
 }
 
-export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionReordered, onRemoveFileFromList, selectedFiles }) => {
+export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionReordered, onRemoveFileFromList, selectedFiles, filesType }) => {
 
     const onDragEnd: OnDragEndResponder = useCallback((result) => {
         if (!result.destination) {
@@ -36,7 +36,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
         <div id='files-list'>
             {
                 !selectedFiles.length ?  
-                <EmptyList/> : 
+                <EmptyList filesType={filesType} /> : 
                 (
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="droppable">
@@ -58,7 +58,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
                                             provided.draggableProps.style
                                         )}
                                     >
-                                        <FileCard fileName={item.name} onDeleteCard={() => onRemoveFileFromList(item.id)} />
+                                        <FileCard filePath={item.id} fileName={item.name} onDeleteCard={() => onRemoveFileFromList(item.id)} />
                                     </div>
                                 )}
                                 </Draggable>
@@ -106,7 +106,6 @@ function getListStyle(isDraggingOver: boolean){
     return {
         background: isDraggingOver ? "#484848" : "#282824",
         padding: '0.5rem 0',
-        width: '99%',
         margin: '0 auto',
     }
 }
