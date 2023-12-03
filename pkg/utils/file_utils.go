@@ -234,14 +234,13 @@ func ComputeTargetFilePath(outputDir string, originalPath string, extension stri
 	formattedFileName := SanitizeFilePath(AddSuffixToFileNameInPath(fileName+"."+extension, suffix))
 
 	for ctr := 0; ctr < 1000; ctr += 1 {
-		curFileName := formattedFileName
+		curFilePath := path.Join(outputDir, formattedFileName)
 		if ctr > 0 {
-			curFileName = AddSuffixToFileNameInPath(curFileName, "("+fmt.Sprintf("%d", ctr)+")")
+			curFilePath = path.Join(outputDir, AddSuffixToFileNameInPath(formattedFileName, "("+fmt.Sprintf("%d", ctr)+")"))
 		}
-
-		_, err := os.Stat(curFileName)
+		_, err := os.Stat(curFilePath)
 		if err != nil && os.IsNotExist(err) {
-			return path.Join(outputDir, formattedFileName)
+			return curFilePath
 		}
 	}
 	return ""

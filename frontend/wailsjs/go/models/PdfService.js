@@ -21,7 +21,3 @@ export function RemoveFile(arg1) {
 export function ResizePdfFileToA4(arg1) {
   return window['go']['models']['PdfService']['ResizePdfFileToA4'](arg1);
 }
-
-export function RotateImageFile(arg1, arg2) {
-  return window['go']['models']['PdfService']['RotateImageFile'](arg1, arg2);
-}

@@ -68,7 +68,7 @@ func (p *PdfService) init(assetsDir embed.FS) *PdfService {
 }
 
 func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool {
-	targetFilePath := path.Join(p.outputDir, utils.SanitizeFilePath(utils.GetFileNameFromPath(filePath)))
+	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, "pdf", "_compressed")
 	compressSinglePageFile := commands.BuildCompressSinglePageFile(p.gsCommander.ConvertPdfToJpeg, p.gsCommander.ConvertJpegToPdf, p.tempDir)
 
 	compressPdfFile := commands.BuildCompressMultiPagePdfFile(
@@ -94,7 +94,7 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 func (p *PdfService) ConvertImageToPdf(sourceFilePath string) bool {
 	slog.Debug("ResizePdfFileToA4 : operation started")
 	convertImageToPdf := commands.BuildConvertImageToPdf(p.tempDir, p.gsCommander.ConvertJpegToPdf)
-	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_resized")
+	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_converted")
 	slog.Debug("MergePdfFiles: operation starting")
 	return convertImageToPdf(&wlptypes.FileToFileOperationConfig{
 		SourceFilePath: sourceFilePath,
@@ -121,47 +121,5 @@ func (p *PdfService) RemoveFile(filePath string) bool {
 		slog.Error("error removing file", slog.String("reason", err.Error()))
 		return false
 	}
-	return true
-}
-
-func (p *PdfService) RotateImageFile(filePath string, canResize bool) bool {
-	slog.Debug("IN FUCKING FUNCTION")
-	slog.Debug("ConvertImageToPdf : operation started")
-	// tempFilePath := utils.GetNewTempFilePath(p.tempDir, "pdf")
-	// defer os.Remove(tempFilePath)
-
-	// err := utils.ConvertImageToPdf(p.tempDir, p.scriptPath, &utils.FileToFileOperationConfig{
-	// 	BinaryPath:     p.binaryPath,
-	// 	TargetFilePath: tempFilePath,
-	// 	SourceFilePath: filePath,
-	// })
-	// if err != nil {
-	// 	slog.Error("ConvertImageToPdf : operation failed at ConvertImageToPdf", slog.String("reason", err.Error()))
-	// 	return false
-	// }
-
-	// if !canResize {
-	// 	err := os.Rename(tempFilePath, targetFilePath)
-	// 	if err != nil {
-	// 		slog.Error("Error renaming file after conversion", slog.String("reasonMsg", err.Error()))
-	// 		return false
-	// 	}
-	// 	slog.Debug("ConvertImageToPdf : operation succeeded")
-	// 	return true
-	// }
-
-	// err = utils.ResizePdfToA4(&utils.FileToFileOperationConfig{
-	// 	BinaryPath:     p.binaryPath,
-	// 	TargetFilePath: targetFilePath,
-	// 	SourceFilePath: tempFilePath,
-	// })
-	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, filePath, ".jpg", "_rotated")
-	err := utils.RotateImageClockwise90(filePath, targetFilePath)
-	if err != nil {
-		slog.Error("Rotate image failed !!", slog.String("reason", err.Error()))
-		return false // file is converted, even though not resized
-	}
-
-	slog.Debug("ConvertImageToPdf : operation succeeded")
 	return true
 }

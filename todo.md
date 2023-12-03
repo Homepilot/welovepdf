@@ -1,11 +1,7 @@
 - -------------------------------------------------------------
     Must Have                                           
 - -------------------------------------------------------------
-- [ ] remove auto resize on convert
-- [ ] Test img resize
-- [ ] Test img rotate
----------------------------------------------------------------
-- [ ] check new mem usage       
+- [ ] check new mem usage    (NEW = imaging.Rotate90)   
 - [ ] SIGN BUILDS
 - [ ] DOCS
 - [ ] new logo by iad                                   10m
