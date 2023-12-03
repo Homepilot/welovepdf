@@ -24,7 +24,7 @@ func main() {
 	appConfig := utils.GetAppConfigFromAssetsDir(assets)
 
 	// Create an instance of the app structure
-	logger := utils.SetupLogger(appConfig.Logger.LogsDirPath, appConfig.Logger.LogtailToken, appConfig.Logger.LogLevel)
+	logger := utils.SetupLogger(appConfig.Logger.LogsDirPath, appConfig.Logger.LogtailToken, appConfig.DebugMode, appConfig.Logger.LogLevel)
 	app := models.NewApp(logger, appConfig)
 	userPrompter := models.NewUserPrompter(assets, appConfig)
 

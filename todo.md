@@ -3,7 +3,6 @@
 - -------------------------------------------------------------
 - [ ] processd files dont disapeear from list (1 file OR several)
 - [ ] check all hooks' dependencies                     30m
-- [ ] batch Ids in logs                                 45m
 - [ ] new logo by iad                                   10m
 ---------------------------------------------------------------
 - [ ] 1 line comment on all function (Golang)           30m

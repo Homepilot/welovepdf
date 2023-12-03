@@ -10,14 +10,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/elastic/go-sysinfo"
 	slogmulti "github.com/samber/slog-multi"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 // TODO ADD SYS INFO ATTRIBUTES to logs
 // TODO REPLACE ATTRIBUTES: https://go.dev/play/p/0yJNk065ftB
+var SYS_INFO_KEY = "sysinfo"
+var HOST_INFO_KEY = "hostinfo"
+var OS_INFO_KEY = "osinfo"
 
 type CustomLogger struct {
+	sysInfoKey    string
 	lumberjack    *lumberjack.Logger
 	logtailToken  string
 	logsDirPath   string
@@ -25,9 +30,8 @@ type CustomLogger struct {
 	logsBatchSize int
 }
 
-func SetupLogger(logsDir string, logtailToken string, logLevel slog.Level) *CustomLogger {
-	fmt.Printf("LOGTAIL TOKEN : %s", logtailToken)
-	removeEmptyLogsFiles2(logsDir)
+func SetupLogger(logsDir string, logtailToken string, debugMode bool, logLevel slog.Level) *CustomLogger {
+	removeEmptyLogsFiles(logsDir)
 	fileName := strings.Join(strings.Split(time.Now().Local().Format(time.DateTime), " "), "") + ".log"
 	logFilePath := path.Join(logsDir, fileName)
 
@@ -51,27 +55,28 @@ func SetupLogger(logsDir string, logtailToken string, logLevel slog.Level) *Cust
 	}
 
 	slogHandlers := slogmulti.Fanout(
-		slog.NewTextHandler(lj, &slog.HandlerOptions{AddSource: true, Level: logLevel}),
-		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: logLevel}),
-		slog.NewJSONHandler(customLogger, &slog.HandlerOptions{Level: logLevel}),
+		slog.NewTextHandler(lj, &slog.HandlerOptions{AddSource: debugMode, Level: logLevel, ReplaceAttr: removeSysInfoAttr}),
+		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: debugMode, Level: logLevel, ReplaceAttr: removeSysInfoAttr}),
+		slog.NewJSONHandler(customLogger, &slog.HandlerOptions{Level: logLevel, ReplaceAttr: replaceLogtailAttr}),
 	)
 	if logtailToken == "" {
 		slogHandlers = slogmulti.Fanout(
-			slog.NewTextHandler(lj, &slog.HandlerOptions{AddSource: true, Level: logLevel}),
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true, Level: logLevel}),
+			slog.NewTextHandler(lj, &slog.HandlerOptions{AddSource: debugMode, Level: logLevel}),
+			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: debugMode, Level: logLevel}),
 		)
 	}
 
 	slogLogger := slog.New(slogHandlers)
-	slog.SetDefault(slogLogger)
+	enrichedLogger := addSysInfoToLogger(slogLogger)
+	slog.SetDefault(enrichedLogger)
 
 	return customLogger
 }
 
 // Should only be called by a slog json handler
 func (l *CustomLogger) Write(data []byte) (int, error) {
-	fmt.Printf("GOT LOG TO SEND !!, data length : %d", len(data))
-	l.logsToSend = append(l.logsToSend, data)
+	// fmt.Printf("GOT LOG TO SEND !!, data length : %d, logtailToken : %s", len(data), l.logtailToken)
+	// l.logsToSend = append(l.logsToSend, data)
 	// if len(l.logsToSend) >= l.logsBatchSize {
 	// 	_ = l.flush()
 	// }
@@ -89,7 +94,7 @@ func (l *CustomLogger) Write(data []byte) (int, error) {
 
 func (c *CustomLogger) Close() {
 	c.lumberjack.Close()
-	removeEmptyLogsFiles2(c.logsDirPath)
+	removeEmptyLogsFiles(c.logsDirPath)
 }
 
 func (c *CustomLogger) sendToLogtail(body []byte) error {
@@ -113,6 +118,85 @@ func (c *CustomLogger) sendToLogtail(body []byte) error {
 		return nil
 	}
 	return fmt.Errorf("Response has status : %s", res.Status)
+}
+
+func replaceLogtailAttr(groups []string, a slog.Attr) slog.Attr {
+	if a.Key == slog.TimeKey {
+		splitted := strings.Split(a.Value.String(), " ")
+		return slog.String("dt", strings.Join([]string{splitted[0], splitted[1]}, " "))
+	}
+
+	if a.Key == slog.MessageKey {
+		return slog.String("message", a.Value.String())
+	}
+
+	return a
+}
+
+func removeSysInfoAttr(groups []string, a slog.Attr) slog.Attr {
+	keysToRemove := map[string]bool{
+		SYS_INFO_KEY:  true,
+		HOST_INFO_KEY: true,
+		OS_INFO_KEY:   true,
+	}
+	parentGroup := strings.Split(a.Key, ".")[0]
+	// fmt.Printf("SLOG ATTR, Key : %s, Groups : %s\n", a.Key, strings.Join(groups, " / "))
+	if keysToRemove[parentGroup] {
+		return slog.Attr{}
+	}
+
+	return a
+}
+
+func addSysInfoToLogger(logger *slog.Logger) *slog.Logger {
+	goInfo := sysinfo.Go()
+	host, _ := sysinfo.Host()
+	hostInfo := host.Info()
+	osInfo := hostInfo.OS
+
+	sysInfoAttr := slog.Group(
+		SYS_INFO_KEY,
+		slog.String("OS", goInfo.OS),
+		slog.String("Arch", goInfo.Arch),
+		slog.Int("MaxProcs", goInfo.MaxProcs),
+		slog.String("Version", goInfo.Version),
+	)
+	hostInfoAttr := slog.Group(
+		HOST_INFO_KEY,
+		slog.String("Architecture", hostInfo.Architecture),
+		slog.String("Hostname", hostInfo.Hostname),
+		slog.String("KernelVersion", hostInfo.KernelVersion),
+		slog.String("UniqueID", hostInfo.UniqueID),
+	)
+	osInfoAttr := slog.Group(
+		OS_INFO_KEY,
+		slog.String("Type", osInfo.Type),
+		slog.String("Family", osInfo.Family),
+		slog.String("Platform", osInfo.Platform),
+		slog.String("Name", osInfo.Name),
+		slog.String("Version", osInfo.Version),
+		slog.Int("Major", osInfo.Major),
+		slog.Int("Minor", osInfo.Minor),
+		slog.Int("Patch", osInfo.Patch),
+		slog.String("Build", osInfo.Build),
+	)
+
+	return logger.With(sysInfoAttr, hostInfoAttr, osInfoAttr)
+}
+
+func removeEmptyLogsFiles(tempDir string) {
+	logsDir := path.Join(tempDir, "..", "logs")
+	logsFiles, err := os.ReadDir(logsDir)
+	if err != nil {
+		return
+	}
+	for i := 0; i < len(logsFiles); i += 1 {
+		logFile := logsFiles[i]
+		fileInfo, err := logFile.Info()
+		if err == nil && !logFile.IsDir() && fileInfo.Size() == 0 {
+			_ = os.RemoveAll(path.Join(logsDir, fileInfo.Name()))
+		}
+	}
 }
 
 // func mergeJsonAsBytesArrayToJsonBytes(bytesArrays *[][]byte) ([]byte, error) {
@@ -168,18 +252,3 @@ func (c *CustomLogger) sendToLogtail(body []byte) error {
 // 	body := []byte(data)
 // 	return bytes.NewBuffer(body)
 // }
-
-func removeEmptyLogsFiles2(tempDir string) {
-	logsDir := path.Join(tempDir, "..", "logs")
-	logsFiles, err := os.ReadDir(logsDir)
-	if err != nil {
-		return
-	}
-	for i := 0; i < len(logsFiles); i += 1 {
-		logFile := logsFiles[i]
-		fileInfo, err := logFile.Info()
-		if err == nil && !logFile.IsDir() && fileInfo.Size() == 0 {
-			_ = os.RemoveAll(path.Join(logsDir, fileInfo.Name()))
-		}
-	}
-}
