@@ -3,7 +3,6 @@ package ghostscript
 import (
 	"fmt"
 	"log"
-	"log/slog"
 	"os/exec"
 	"path"
 	wlptypes "welovepdf/pkg/types"
@@ -53,7 +52,6 @@ func (c *GhostScriptCommander) ConvertJpegToPdf(config *wlptypes.FileToFileOpera
 		"("+config.SourceFilePath+")",
 		"viewJPEG",
 	)
-	slog.Info("the printed string", slog.String("the string", convertCmd.String()))
 
 	err := convertCmd.Run()
 	return err

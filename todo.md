@@ -5,7 +5,6 @@
 - [ ] check all hooks' dependencies                     30m
 - [ ] new logo by iad                                   10m
 ---------------------------------------------------------------
-- [ ] 1 line comment on all function (Golang)           30m
 - [ ] remove auto resize on convert
 - [ ] Test img resize
 - [ ] Test img rotate
@@ -17,12 +16,10 @@
 ---------------------------------------------------------------
     Improvements                                        3h30
 ---------------------------------------------------------------
-- [ ]  Logger - send logs by batches ?                  30m
-- [ ] hide file names in logs (personal info)           30m
-        replace only letters for easier debugging 
 - [ ] Backend logs - 🏆 unexpected errors 🏆
 - [ ] CSS style scroll
 - [ ] open dir after actions 
+- [ ] 1 line comment on all function (Golang)           30m
 <br/>
 
 ---------------------------------------------------------------

@@ -169,7 +169,7 @@ func SearchFileInDirectoryTree(config *SearchFileConfig) string {
 		return ""
 	}
 
-	slog.Info("found matching file", slog.String("filepath", matchingFilePath))
+	slog.Debug("found matching file", slog.String("filepath", matchingFilePath))
 	return matchingFilePath
 }
 

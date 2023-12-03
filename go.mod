@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.4
 
 require (
-	github.com/elastic/go-sysinfo v1.11.1
+	github.com/elastic/go-sysinfo v1.11.2
 	github.com/google/uuid v1.3.0
 	github.com/samber/slog-multi v1.0.2
 	github.com/stretchr/testify v1.8.4
@@ -41,10 +41,10 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/wailsapp/go-webview2 v1.0.1 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
-	golang.org/x/crypto v0.9.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	howett.net/plist v0.0.0-20181124034731-591f970eefbb // indirect

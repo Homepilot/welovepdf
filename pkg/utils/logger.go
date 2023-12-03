@@ -16,8 +16,6 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// TODO ADD SYS INFO ATTRIBUTES to logs
-// TODO REPLACE ATTRIBUTES: https://go.dev/play/p/0yJNk065ftB
 var SYS_INFO_KEY = "sysinfo"
 var HOST_INFO_KEY = "hostinfo"
 var OS_INFO_KEY = "osinfo"
@@ -27,7 +25,7 @@ type CustomLogger struct {
 	lumberjack    *lumberjack.Logger
 	logtailToken  string
 	logsDirPath   string
-	logsToSend    [][]byte
+	logsToSend    []string
 	logsBatchSize int
 }
 
@@ -77,41 +75,44 @@ func SetupLogger(appConfig *AppConfig) *CustomLogger {
 
 // Should only be called by a slog json handler
 func (l *CustomLogger) Write(data []byte) (int, error) {
-	fmt.Printf("GOT LOG TO SEND !!, data length : %d\n, logsBatch Size : %d", len(data), l.logsBatchSize)
-	l.logsToSend = append(l.logsToSend, data)
+	l.logsToSend = append(l.logsToSend, string(data))
 	if len(l.logsToSend) >= l.logsBatchSize {
-		_ = l.sendCurrentBatch()
+		err := l.flush()
+		if err != nil {
+			slog.Debug("Error sending batch to Logtail", slog.String("reason", err.Error()))
+		}
 	}
 
 	return len(data), nil
 }
 
-func (l *CustomLogger) sendCurrentBatch() error {
+func (l *CustomLogger) flush() error {
 	logsBatch := l.logsToSend
-	l.logsToSend = [][]byte{}
-
-	logsBatchAsJson, err := mergeJsonArrayToJson(&logsBatch)
+	l.logsToSend = []string{}
+	slog.Debug("SENDING LOGS BATCH W/ LENGTH", slog.Int("batchLength", len(logsBatch)))
+	logsBatchAsJson, err := mergeLogsArrayToJson(logsBatch)
 	if logsBatchAsJson == nil {
 		slog.Debug("Error merging json obj", slog.String("reason", err.Error()))
 		return err
 	}
-	err = l.sendToLogtail(*logsBatchAsJson)
+	err = l.sendToLogtail(logsBatchAsJson)
 	if err != nil {
 		fmt.Printf("Error sending to logtail : %s", err.Error())
 	}
+	slog.Debug("Logs batch successfully sent to Logtail")
 	return err
 }
 
 func (c *CustomLogger) Close() {
 	c.lumberjack.Close()
-	c.sendCurrentBatch()
+	c.flush()
 	removeEmptyLogsFiles(c.logsDirPath)
 }
 
 func (c *CustomLogger) sendToLogtail(body []byte) error {
-	logTailUrl := "https://in.logs.betterstack.com/"
+	LOGTAIL_URL := "https://in.logs.betterstack.com/"
 
-	req, err := http.NewRequest(http.MethodPost, logTailUrl, bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, LOGTAIL_URL, bytes.NewBuffer(body))
 	if err != nil {
 		fmt.Printf("Sending to LOGTAIL failed at creating req : %s", err.Error())
 		return err
@@ -208,14 +209,14 @@ func removeEmptyLogsFiles(tempDir string) {
 	}
 }
 
-func mergeJsonArrayToJson(pJsonArr *[][]byte) (*[]byte, error) {
+func mergeLogsArrayToJson(jsonStrArr []string) ([]byte, error) {
 	var jsonObjArr []map[string]any
-	jsonArr := *pJsonArr
-	for _, jsonObj := range jsonArr {
+	for _, jsonObjStr := range jsonStrArr {
+		jsonObj := []byte(jsonObjStr)
 		var dataMap map[string]any
 		err := json.Unmarshal(jsonObj, &dataMap)
 		if err != nil {
-			slog.Debug("Error decoding json obj", slog.String("reason", err.Error()))
+			slog.Debug("Error decoding json obj", slog.String("reason", err.Error()), slog.String("json", jsonObjStr))
 			continue
 		}
 		jsonObjArr = append(jsonObjArr, dataMap)
@@ -225,5 +226,5 @@ func mergeJsonArrayToJson(pJsonArr *[][]byte) (*[]byte, error) {
 		return nil, err
 	}
 
-	return &mergedJson, nil
+	return mergedJson, nil
 }
