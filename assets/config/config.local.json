@@ -1,8 +1,6 @@
 {
     "debugMode": true,
-    "logger": {
-        "logtailToken": "",
-        "logLovel": "DEBUG",
-        "logsBatchSize": 100
-    }
+    "logtailToken": "",
+    "logLovel": "DEBUG",
+    "logsBatchSize": 100
 }
