@@ -121,6 +121,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             , {failures: [], successes: []} as {failures: string[], successes: FileInfo[]})
             failuresNames = failures;
             addFilesToSelectionList(successes)
+            toast.success(`${successes.length} fichier(s) ajouté(s)`)
         } catch (error) {
             console.error(error)
             toast.error("Erreur lors de l'ajout des fichiers");

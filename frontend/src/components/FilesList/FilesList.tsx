@@ -13,11 +13,11 @@ type FilesListProps = {
     onSelectionReordered(newSelection: FileInfo[]): void;
     onRemoveFileFromList(fileId: string): void;
     selectedFiles: FileInfo[];
-    filesType?: FileType;
+    filesType: FileType;
     selectFilesPrompt: string;
 }
 
-export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionReordered, onRemoveFileFromList, selectedFiles }) => {
+export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ onSelectionReordered, onRemoveFileFromList, selectedFiles, filesType }) => {
 
     const onDragEnd: OnDragEndResponder = useCallback((result) => {
         if (!result.destination) {
@@ -36,7 +36,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
         <div id='files-list'>
             {
                 !selectedFiles.length ?  
-                <EmptyList/> : 
+                <EmptyList filesType={filesType} /> : 
                 (
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="droppable">

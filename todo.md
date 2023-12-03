@@ -1,6 +1,7 @@
 - -------------------------------------------------------------
     Must Have                                           
 - -------------------------------------------------------------
+- [ ] bug config file parsing
 - [ ] remove auto resize on convert
 - [ ] Test img resize
 - [ ] Test img rotate
@@ -9,9 +10,6 @@
 - -------------------------------------------------------------
 - [ ] FileCard components, alignment & overflow         30m
 - [ ] batch Ids in logs                                 45m
-- [ ] disclaimer about allowed image file types         15m
-- [ ] drag n drop load nothing if one file wrong type
-- [ ] Toast if wrong file type                          15m
 - [ ] 1 line comment on all function (Golang)           30m
 - [ ] check all hooks' dependencies                     30m
 - [ ] new logo by iad                                   10m
@@ -55,7 +53,6 @@
 ---------------------------------------------------------------
    BUGS                                         3h30
 ---------------------------------------------------------------
-- [ ] drag n drop load nothing if one file wrong type
 - [ ] processd files dont disapeear from list (1 file OR several)
 - [ ] stop process on app close ? (ony in dev ?)
 
