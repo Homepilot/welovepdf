@@ -59,7 +59,7 @@ func SetupLogger(appConfig *AppConfig) *CustomLogger {
 		slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: appConfig.DebugMode, Level: appConfig.Logger.LogLevel, ReplaceAttr: removeSysInfoAttr}),
 		slog.NewJSONHandler(customLogger, &slog.HandlerOptions{Level: logTailLogLevel, ReplaceAttr: replaceLogtailAttr}),
 	)
-	if appConfig.Logger.LogtailToken == "" {
+	if appConfig.Logger.LogtailToken == "" || appConfig.DebugMode {
 		slogHandlers = slogmulti.Fanout(
 			slog.NewTextHandler(lj, &slog.HandlerOptions{AddSource: appConfig.DebugMode, Level: appConfig.Logger.LogLevel}),
 			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: appConfig.DebugMode, Level: appConfig.Logger.LogLevel}),

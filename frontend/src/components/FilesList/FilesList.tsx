@@ -30,7 +30,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
           result.destination.index
         );
         onSelectionReordered(reorderedItems)
-    }, [onSelectionReordered, selectedFiles])
+    }, [reorder, onSelectionReordered, selectedFiles])
 
     return (
         <div id='files-list'>

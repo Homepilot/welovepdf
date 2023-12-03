@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import toast from 'react-hot-toast';
 import { v4 as uuidv4 } from 'uuid';
 
 import {  
@@ -8,7 +7,6 @@ import {
     logPageVisited,
     selectMultipleFiles,
     logOperationStarted,
-    findFilePathByName,
 } from '../../api';
 import { FileInfo, FileType, PageName } from '../../types';
 import { AppFooter } from '../AppFooter';
@@ -45,7 +43,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     
     const logGenericPageVisited = useCallback(async () => {
         await logPageVisited(pageName)
-    }, [pageName])
+    }, [logPageVisited, pageName])
     
     useEffect(() => {
         logGenericPageVisited()
@@ -73,7 +71,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         const files = await selectMultipleFiles(inputFilesType, selectFilesPrompt ?? headerText);
         addFilesToSelectionList(files.map((filePath: string) => ({ name: getFileNameFromPath(filePath), id: filePath })))
         setIsLoading(false);
-    }, [setIsLoading, inputFilesType, selectFilesPrompt, headerText, addFilesToSelectionList])
+    }, [setIsLoading, selectMultipleFiles, inputFilesType, selectFilesPrompt, headerText, addFilesToSelectionList, getFileNameFromPath])
 
     const runHandler = useCallback(async () => {
         setIsLoading(true);
@@ -88,48 +86,23 @@ export const GenericPage: React.FC<GenericPageProps> = ({
             return;
         }
 
-        const { successes, failures } = 
-            !Array.isArray(result)
-            ? { successes: result ? 1 : 0, failures: result ? 0 : 1 }
-            : result.reduce<{successes: number, failures: number}>(
+        if(!Array.isArray(result)){
+            const operationResult = { successes: result ? 1 : 0, failures: result ? 0 : 1 }
+            setIsLoading(false);
+            notifyAndLogOperationsResult(pageName, batchId, operationResult);
+            return
+        }
+
+        const { successes, failures } = result.reduce<{successes: number, failures: number}>(
                 (acc, operationResult) => operationResult 
                 ? { successes: acc.successes + 1, failures: acc.failures } 
                 : { successes: acc.successes, failures: acc.failures + 1 }, 
             { successes: 0, failures: 0 })
 
-
         setIsLoading(false);
         notifyAndLogOperationsResult(pageName, batchId, { successes, failures })
-        if(!Array.isArray(result)){
-            if(result){
-                setSelectedFiles([]);
-            }
-            return;
-        }
-        setSelectedFiles(includedFiles.filter((_, index) => result[index]));
-    }, [setIsLoading, action, selectedFiles, setSelectedFiles])
-
-    const handleFilesDropped = useCallback(async (fileNames: File[]) => {
-        setIsLoading(true)
-        let failuresNames: string[] = [];
-        try {
-            const results = await Promise.all(fileNames.map(fileInfo => findFilePathByName(fileInfo.name, fileInfo.size, fileInfo.lastModified)))
-            const { failures, successes } = results.reduce(
-                (acc, path, index) => path ? 
-                ({ ...acc, successes: [...acc.successes, { id: path, name: fileNames[index].name }]}) : 
-                ({ ...acc, failures: [...acc.failures, fileNames[index].name] })
-            , {failures: [], successes: []} as {failures: string[], successes: FileInfo[]})
-            failuresNames = failures;
-            addFilesToSelectionList(successes)
-            toast.success(`${successes.length} fichier(s) ajouté(s)`)
-        } catch (error) {
-            console.error(error)
-            toast.error("Erreur lors de l'ajout des fichiers");
-        }
-        setIsLoading(false)
-        if (!failuresNames.length) return
-        failuresNames.forEach((fileName) => toast.error(`${fileName}: erreur lors de l'import du fichier, essayez de l'ajouter manuellement`))
-    }, [setIsLoading, pageName, selectedFiles, addFilesToSelectionList, ])
+        setSelectedFiles(includedFiles.filter((_, index) => !!result[index]));
+    }, [setIsLoading, logOperationStarted, action, selectedFiles, setSelectedFiles, notifyAndLogOperationsResult])
 
     return (
         <>
@@ -148,7 +121,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
                     onSelectFiles={selectFiles}
                     onRunAction={runHandler}
                 />
-                <DragDrop filesType={inputFilesType} onFilesDropped={handleFilesDropped} >
+                <DragDrop filesType={inputFilesType} onFilesDropped={addFilesToSelectionList} setIsLoading={setIsLoading}>
                     <FilesList 
                         selectedFiles={selectedFiles}
                         onRemoveFileFromList={removeFileFromList}

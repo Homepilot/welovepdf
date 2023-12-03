@@ -15,7 +15,7 @@ type HomePageProps = {
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     const logHomePageVisited = useCallback(async () => {
         await logPageVisited(PageName.HOME)
-    }, [])
+    }, [logPageVisited])
     
     useEffect(() => {
         logHomePageVisited()
