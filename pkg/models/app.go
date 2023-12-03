@@ -12,12 +12,12 @@ import (
 type App struct {
 	ctx          context.Context
 	config       *utils.AppConfig
-	customLogger *utils.Logger
+	customLogger *utils.CustomLogger
 	LogoIcon     []byte
 }
 
 // NewApp creates a new App application struct
-func NewApp(logger *utils.Logger, config *utils.AppConfig) *App {
+func NewApp(logger *utils.CustomLogger, config *utils.AppConfig) *App {
 	newApp := &App{
 		config:       config,
 		customLogger: logger,
