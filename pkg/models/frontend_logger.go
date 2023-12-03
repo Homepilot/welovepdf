@@ -57,6 +57,10 @@ func formatJsonStringToSlogArgs(jsonString string) []any {
 		if isInt {
 			attr = append(attr, slog.Int(key, safeIntValue))
 		}
+		safeFloatValue, isFloat := value.(float64)
+		if isFloat {
+			attr = append(attr, slog.Float64(key, safeFloatValue))
+		}
 		safeBoolValue, isBool := value.(bool)
 		if isBool {
 			attr = append(attr, slog.Bool(key, safeBoolValue))

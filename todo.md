@@ -17,8 +17,7 @@
 ---------------------------------------------------------------
     Improvements                                        3h30
 ---------------------------------------------------------------
-- [ ]  Logger - send logs by batches ?                  30m 
-- [ ] improved logger (use slog only & everywhere)      1h30 
+- [ ]  Logger - send logs by batches ?                  30m
 - [ ] hide file names in logs (personal info)           30m
         replace only letters for easier debugging 
 - [ ] Backend logs - 🏆 unexpected errors 🏆

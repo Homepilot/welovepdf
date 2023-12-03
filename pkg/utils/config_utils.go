@@ -68,9 +68,13 @@ func GetAppConfigFromAssetsDir(assetsDir embed.FS) *AppConfig {
 	if debugModeOk {
 		newConfig.DebugMode = debugMode
 	}
-	logsBatchSize, logsBatchSizeOk := jsonValue["logsBatchSize"].(int)
+	logsBatchSize, logsBatchSizeOk := jsonValue["logsBatchSize"].(float64)
 	if logsBatchSizeOk {
-		newConfig.Logger.LogsBatchSize = logsBatchSize
+		newConfig.Logger.LogsBatchSize = int(logsBatchSize)
+	}
+	logsBatchSizeInt, logsBatchSizeIntOk := jsonValue["logsBatchSize"].(int)
+	if logsBatchSizeIntOk {
+		newConfig.Logger.LogsBatchSize = logsBatchSizeInt
 	}
 	logLevel, logLevelOk := jsonValue["logLevel"].(slog.Level)
 	if logLevelOk {
