@@ -1,7 +1,6 @@
 - -------------------------------------------------------------
     Must Have                                           
 - -------------------------------------------------------------
-- [ ] stop process on app close ? (ony in dev ?)
 - [ ] remove auto resize on convert
 - [ ] Test img resize
 - [ ] Test img rotate

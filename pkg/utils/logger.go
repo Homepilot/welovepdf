@@ -27,6 +27,7 @@ type CustomLogger struct {
 	logsDirPath   string
 	logsToSend    []string
 	logsBatchSize int
+	debugMode     bool
 }
 
 func SetupLogger(appConfig *AppConfig) *CustomLogger {
@@ -52,6 +53,7 @@ func SetupLogger(appConfig *AppConfig) *CustomLogger {
 		logtailToken:  appConfig.Logger.LogtailToken,
 		logsDirPath:   appConfig.Logger.LogsDirPath,
 		logsBatchSize: appConfig.Logger.LogsBatchSize,
+		debugMode:     appConfig.DebugMode,
 	}
 
 	slogHandlers := slogmulti.Fanout(
@@ -92,7 +94,11 @@ func (l *CustomLogger) Write(data []byte) (int, error) {
 func (l *CustomLogger) flush() error {
 	logsBatch := l.logsToSend
 	l.logsToSend = []string{}
-	slog.Debug("SENDING LOGS BATCH W/ LENGTH", slog.Int("batchLength", len(logsBatch)))
+	if len(logsBatch) < 1 {
+		slog.Debug("No logs to send, aborting")
+		return nil
+	}
+	slog.Debug("Sending logs batch w/ length :", slog.Int("batchLength", len(logsBatch)))
 	logsBatchAsJson, err := mergeLogsArrayToJson(logsBatch)
 	if logsBatchAsJson == nil {
 		slog.Debug("Error merging json obj", slog.String("reason", err.Error()))
@@ -107,8 +113,10 @@ func (l *CustomLogger) flush() error {
 }
 
 func (c *CustomLogger) Close() {
+	if !c.debugMode && c.logtailToken != "" {
+		c.flush()
+	}
 	c.lumberjack.Close()
-	c.flush()
 	removeEmptyLogsFiles(c.logsDirPath)
 }
 
