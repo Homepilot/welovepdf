@@ -72,31 +72,28 @@ func SetupLogger(logsDir string, logtailToken string, logLevel slog.Level) *Cust
 func (l *CustomLogger) Write(data []byte) (int, error) {
 	fmt.Printf("GOT LOG TO SEND !!, data length : %d", len(data))
 	l.logsToSend = append(l.logsToSend, data)
-	if len(l.logsToSend) >= l.logsBatchSize {
-		_ = l.flush()
-	}
+	// if len(l.logsToSend) >= l.logsBatchSize {
+	// 	_ = l.flush()
+	// }
+	l.sendToLogtail(data)
 	return len(data), nil
 }
 
-func (l *CustomLogger) flush() error {
-	err := l.sendCurrentBatchToLogtail()
-	if err != nil {
-		fmt.Printf("Error sending to logtail : %s", err.Error())
-	}
-	return err
-}
+// func (l *CustomLogger) flush() error {
+// 	err := l.sendCurrentBatchToLogtail()
+// 	if err != nil {
+// 		fmt.Printf("Error sending to logtail : %s", err.Error())
+// 	}
+// 	return err
+// }
 
 func (c *CustomLogger) Close() {
 	c.lumberjack.Close()
 	removeEmptyLogsFiles2(c.logsDirPath)
 }
 
-func (c *CustomLogger) sendCurrentBatchToLogtail() error {
+func (c *CustomLogger) sendToLogtail(body []byte) error {
 	logTailUrl := "https://in.logs.betterstack.com/"
-
-	currentBatch := c.logsToSend
-	c.logsToSend = [][]byte{}
-	body, err := mergeJsonAsBytesArrayToJsonBytes(&currentBatch)
 
 	req, err := http.NewRequest(http.MethodPost, logTailUrl, bytes.NewBuffer(body))
 	if err != nil {
@@ -118,11 +115,11 @@ func (c *CustomLogger) sendCurrentBatchToLogtail() error {
 	return fmt.Errorf("Response has status : %s", res.Status)
 }
 
-func mergeJsonAsBytesArrayToJsonBytes(bytesArrays *[][]byte) ([]byte, error) {
-	arraysToMerge := *bytesArrays
+// func mergeJsonAsBytesArrayToJsonBytes(bytesArrays *[][]byte) ([]byte, error) {
+// 	arraysToMerge := *bytesArrays
 
-	return []byte{}, nil
-}
+// 	return []byte{}, nil
+// }
 
 // func (c *CustomLogger) getBaseLogBody(msg string, level slog.Level) map[string]any {
 // 	logObj := map[string]any{
