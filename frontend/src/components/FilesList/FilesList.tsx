@@ -106,7 +106,6 @@ function getListStyle(isDraggingOver: boolean){
     return {
         background: isDraggingOver ? "#484848" : "#282824",
         padding: '0.5rem 0',
-        width: '99%',
         margin: '0 auto',
     }
 }

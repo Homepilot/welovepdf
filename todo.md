@@ -26,6 +26,7 @@
 - [ ] hide file names in logs (personal info)           30m
         replace only letters for easier debugging 
 - [ ] Backend logs - 🏆 unexpected errors 🏆
+- [ ] CSS style scroll
 - [ ] open dir after actions 
 <br/>
 

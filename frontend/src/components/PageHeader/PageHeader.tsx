@@ -28,17 +28,20 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             <Button
                 disabled={isSelectionEmpty}
                 clicked={onEmptyList}
-            >
+                extraClasses={['empty-list-btn']}
+                >
                 Vider la liste
             </Button>
             <Button
                 clicked={onSelectFiles}
-            >
+                extraClasses={['add-files-btn']}
+                >
                 {`${isSelectionEmpty ? 'Choisir' : 'Ajouter'} des fichiers`}
             </Button>
             <Button
                 disabled={isActionDisabled}
                 clicked={onRunAction}
+                extraClasses={['run-action-btn']}
             >
                 {actionLabel}
             </Button>
