@@ -93,7 +93,7 @@ func (p *PdfService) CompressFile(filePath string, targetImageQuality int) bool 
 
 func (p *PdfService) ConvertImageToPdf(sourceFilePath string) bool {
 	slog.Debug("ResizePdfFileToA4 : operation started")
-	convertImageToPdf := commands.BuildConvertImageToPdf(p.tempDir, p.gsCommander.ConvertJpegToPdf)
+	convertImageToPdf := commands.BuildConvertImageToPdf(p.tempDir, p.gsCommander.ConvertJpegToPdf, utils.ConvertImageToJpeg)
 	targetFilePath := utils.ComputeTargetFilePath(p.outputDir, sourceFilePath, "pdf", "_converted")
 	slog.Debug("MergePdfFiles: operation starting")
 	return convertImageToPdf(&wlptypes.FileToFileOperationConfig{

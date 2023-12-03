@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/disintegration/imaging"
 	"golang.org/x/image/tiff"
 	"golang.org/x/image/webp"
 )
@@ -37,10 +36,10 @@ func ConvertImageToJpeg(sourceFilePath string, targetFilePath string) error {
 	r := bufio.NewReader(sourceFile)
 	slog.Debug("Reader opened, starting to decode")
 
-	if sourceFileExt == ".jpeg" {
-		img, err = jpeg.Decode(r)
+	if sourceFileExt == ".jpeg" || sourceFileExt == ".jpg" {
+		err = os.Rename(sourceFilePath, targetFilePath)
+		img = nil
 	}
-
 	if sourceFileExt == ".png" {
 		img, err = png.Decode(r)
 	}
@@ -55,17 +54,6 @@ func ConvertImageToJpeg(sourceFilePath string, targetFilePath string) error {
 		return err
 	}
 
-	imgToUse := img
-	isLandscapeOriented, err := isLandscape(img)
-	if err != nil {
-		slog.Debug("Error in ConvertImageToJpeg 3", slog.String("reason", err.Error()))
-		return err
-
-	}
-	if isLandscapeOriented {
-		imgToUse = imaging.Rotate90(img)
-	}
-
 	targetFile, err := os.Create(targetFilePath)
 	if err != nil {
 		slog.Debug("Error in ConvertImageToJpeg 3", slog.String("reason", err.Error()))
@@ -75,13 +63,5 @@ func ConvertImageToJpeg(sourceFilePath string, targetFilePath string) error {
 	targetFile.Chmod(0755)
 
 	w := bufio.NewWriter(targetFile)
-	return jpeg.Encode(w, imgToUse, &jpeg.Options{})
-}
-
-func isLandscape(img image.Image) (bool, error) {
-	srcBounds := img.Bounds()
-	imgWidth := srcBounds.Dx()
-	imgHeight := srcBounds.Dy()
-
-	return imgHeight < imgWidth, nil
+	return jpeg.Encode(w, img, &jpeg.Options{})
 }

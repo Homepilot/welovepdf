@@ -5,7 +5,6 @@ go 1.21
 toolchain go1.21.4
 
 require (
-	github.com/disintegration/imaging v1.6.2
 	github.com/elastic/go-sysinfo v1.11.2
 	github.com/google/uuid v1.3.0
 	github.com/samber/slog-multi v1.0.2
