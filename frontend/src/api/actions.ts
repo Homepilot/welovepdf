@@ -6,6 +6,7 @@ import {
     RemoveFile,
 } from '../../wailsjs/go/models/PdfService';
 import {
+    OpenOutputDir,
     SearchFileInUserDir,
     OpenSaveFileDialog,
     PromptUserSelect,
@@ -29,15 +30,7 @@ export async function resizeToA4(filesPathes: string[], _batchId: string = "unkn
 
 export async function convertImagesToPdf(
         filesPathes: string[], 
-        // batchId: string = "unknown_batch"
     ) {
-    // const shouldResize = await chooseShouldResize();
-    // console.log({ shouldResize })
-    // if(shouldResize === null) {
-    //     logOperationCanceledByUser(PageName.CONVERT_IMG, batchId)
-    //     return null
-    // }
-
     return Promise.all(filesPathes.map(path => ConvertImageToPdf(path)));
 }
 
@@ -118,15 +111,7 @@ export async function findFilePathByName(fileName: string, size: number, lastMod
 
     return matchingFile || null
 }
-// type FnToRun<Args extends unknown[], Return = boolean> = (...args: Args) => Return | Promise<Return>;
 
-// async function noFail<T extends unknown[], R>(fnToRun: FnToRun<T, R>, errorValue: R, ...args: T): Promise<R>{
-//     try {
-//         let result = fnToRun(...args);
-//         if(result instanceof Promise) result = await result;
-//         return result; 
-//     } catch (error) {
-//         console.error(`Error running fn "${fnToRun.name}"`, args)
-//         return errorValue
-//     }
-// }
+export async function openOutputDirInFinder(){
+    await OpenOutputDir()
+}

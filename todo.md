@@ -14,7 +14,7 @@
     Improvements                                        30m + 2 * ??
 ---------------------------------------------------------------------
 - [ ] Backend logs - 🏆 unexpected errors 🏆            ??
-- [ ] open dir after actions                            ??
+- [ ] select output file(s) when opening dir            ??
 - [ ] 1 line comment on all Go functions                30m
 <br/>
 

@@ -7,6 +7,7 @@ import {
     logPageVisited,
     selectMultipleFiles,
     logOperationStarted,
+    openOutputDirInFinder,
 } from '../../api';
 import { FileInfo, FileType, PageName } from '../../types';
 import { AppFooter } from '../AppFooter';
@@ -90,22 +91,25 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         if(!Array.isArray(result)){
             const operationResult = { successes: result ? 1 : 0, failures: result ? 0 : 1 }
             if(result){
-                setSelectedFiles([])
+                await openOutputDirInFinder();
+                setSelectedFiles([]);
             }
             setIsLoading(false);
             notifyAndLogOperationsResult(pageName, batchId, operationResult);
-            return
+            return;
         }
-
+        
         const { successes, failures } = result.reduce<{successes: number, failures: number}>(
-                (acc, operationResult) => operationResult 
-                ? { successes: acc.successes + 1, failures: acc.failures } 
-                : { successes: acc.successes, failures: acc.failures + 1 }, 
-            { successes: 0, failures: 0 })
-
-        setIsLoading(false);
-        notifyAndLogOperationsResult(pageName, batchId, { successes, failures })
-        setSelectedFiles(includedFiles.filter((_, index) => !result[index]));
+            (acc, operationResult) => operationResult 
+            ? { successes: acc.successes + 1, failures: acc.failures } 
+            : { successes: acc.successes, failures: acc.failures + 1 }, 
+            { successes: 0, failures: 0 });
+            
+            setIsLoading(false);
+            notifyAndLogOperationsResult(pageName, batchId, { successes, failures });
+            setSelectedFiles(includedFiles.filter((_, index) => !result[index]));
+            if(successes > 0) await openOutputDirInFinder();
+            await openOutputDirInFinder();
     }, [setIsLoading, logOperationStarted, action, selectedFiles, setSelectedFiles, notifyAndLogOperationsResult])
 
     return (

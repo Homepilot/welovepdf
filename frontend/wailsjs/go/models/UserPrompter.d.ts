@@ -5,6 +5,8 @@ import {models} from '../models';
 
 export function Init(arg1:context.Context):Promise<void>;
 
+export function OpenOutputDir():Promise<void>;
+
 export function OpenSaveFileDialog():Promise<string>;
 
 export function PromptUserSelect(arg1:models.PromptSelectConfig):Promise<string>;

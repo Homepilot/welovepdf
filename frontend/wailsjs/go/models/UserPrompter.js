@@ -6,6 +6,10 @@ export function Init(arg1) {
   return window['go']['models']['UserPrompter']['Init'](arg1);
 }
 
+export function OpenOutputDir() {
+  return window['go']['models']['UserPrompter']['OpenOutputDir']();
+}
+
 export function OpenSaveFileDialog() {
   return window['go']['models']['UserPrompter']['OpenSaveFileDialog']();
 }

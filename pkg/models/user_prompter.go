@@ -5,6 +5,7 @@ import (
 	"embed"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"welovepdf/pkg/utils"
@@ -205,4 +206,11 @@ func (up *UserPrompter) loadIconAssets(assetsDir embed.FS) *UserPrompter {
 	up.resizeA4Icon = resizeA4Icon
 
 	return up
+}
+
+func (up *UserPrompter) OpenOutputDir() {
+	err := exec.Command("open", up.config.OutputDirPath).Run()
+	if err != nil {
+		slog.Error("Error opening target folder", slog.String("reason", err.Error()))
+	}
 }
