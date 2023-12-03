@@ -67,9 +67,12 @@ func SetupLogger(appConfig *AppConfig) *CustomLogger {
 	}
 
 	slogLogger := slog.New(slogHandlers)
+	if appConfig.DebugMode {
+		slog.SetDefault(slogLogger)
+		return customLogger
+	}
 	enrichedLogger := addSysInfoToLogger(slogLogger)
 	slog.SetDefault(enrichedLogger)
-
 	return customLogger
 }
 

@@ -81,13 +81,17 @@ export const GenericPage: React.FC<GenericPageProps> = ({
         const includedFiles = [...selectedFiles];
         const result = await action.handler(includedFiles.map(({id}) => id), batchId);
         
-        if(!['boolean', 'object'].includes(typeof result)) {
+        console.log({result})
+        if(result == null || !['boolean', 'object'].includes(typeof result)) {
             setIsLoading(false);
             return;
         }
 
         if(!Array.isArray(result)){
             const operationResult = { successes: result ? 1 : 0, failures: result ? 0 : 1 }
+            if(result){
+                setSelectedFiles([])
+            }
             setIsLoading(false);
             notifyAndLogOperationsResult(pageName, batchId, operationResult);
             return
@@ -101,7 +105,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
 
         setIsLoading(false);
         notifyAndLogOperationsResult(pageName, batchId, { successes, failures })
-        setSelectedFiles(includedFiles.filter((_, index) => !!result[index]));
+        setSelectedFiles(includedFiles.filter((_, index) => !result[index]));
     }, [setIsLoading, logOperationStarted, action, selectedFiles, setSelectedFiles, notifyAndLogOperationsResult])
 
     return (

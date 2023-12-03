@@ -88,7 +88,7 @@ export async function compressFiles (filesPathes: string[], batchId: string = "u
 export async function chooseCompressionMode(): Promise<CompressionMode | null>{
     const result = await PromptUserSelect({
         Title:        "Mode de compression",
-		Message:      "Choississez un mode de compression",
+		Message:      "Veuillez choisir un mode de compression",
 		Buttons:      [ "Compression", "Compression extrême"],
         Icon:         "compress",
     }) as CompressionMode | '';
@@ -100,7 +100,7 @@ export async function chooseCompressionMode(): Promise<CompressionMode | null>{
 export async function chooseShouldResize(): Promise<boolean | null>{
     const result = await PromptUserSelect({
         Title:        "Formattage A4",
-		Message:      "Souhaitez convertir le fichier au format A4?",
+		Message:      "Souhaitez-vous convertir le fichier au format A4?",
 		Buttons:      ["Oui", "Non"],
         Icon:         "resizeA4",
     })

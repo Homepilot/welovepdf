@@ -9,7 +9,7 @@ export const EmptyList: React.FC<{filesType: FileType}> = ({ filesType }) => (
         <img className="drag-n-drop-icon" src={DragNDropIcon} />
         <span>Vous pouvez aussi glisser des fichiers ici</span>
         {filesType === FileType.PDF ? null : (
-            <span className="files-type"><i>{`(fichiers acceptés: ${ALLOWED_IMAGE_EXTENTIONS.map(ext => ext.toLowerCase()).join(', ')})`}</i></span>
+            <span className="files-type"><i>{`fichiers acceptés: ${ALLOWED_IMAGE_EXTENTIONS.map(ext => ext.toLowerCase()).join(', ')}`}</i></span>
         )}
     </div>
 )

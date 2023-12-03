@@ -1,16 +1,15 @@
 - -------------------------------------------------------------
     Must Have                                           
 - -------------------------------------------------------------
-- [ ] processd files dont disapeear from list (1 file OR several)
-- [ ] check all hooks' dependencies                     30m
-- [ ] new logo by iad                                   10m
----------------------------------------------------------------
+- [ ] stop process on app close ? (ony in dev ?)
 - [ ] remove auto resize on convert
 - [ ] Test img resize
 - [ ] Test img rotate
+---------------------------------------------------------------
 - [ ] check new mem usage       
 - [ ] SIGN BUILDS
 - [ ] DOCS
+- [ ] new logo by iad                                   10m
 <br/>
 
 ---------------------------------------------------------------
@@ -19,7 +18,7 @@
 - [ ] Backend logs - 🏆 unexpected errors 🏆
 - [ ] CSS style scroll
 - [ ] open dir after actions 
-- [ ] 1 line comment on all function (Golang)           30m
+- [ ] 1 line comment on all Go functions                30m
 <br/>
 
 ---------------------------------------------------------------
@@ -34,6 +33,7 @@
    Nice to have                                         3h30
 ---------------------------------------------------------------
 - [ ] cache gs binary in build pipeline                 30min 
+- [ ] remove sysinfo from file & console logs
 - [ ] cache node modules & go in test/build pipelines   30min 
 - [ ] format frontend code                              30min 
 - [ ] different loader messages                         30min
@@ -42,15 +42,7 @@
 - [ ] paralellize when several files... 
 - [ ] Split PDF                                         1h 
 <br/>
-
----------------------------------------------------------------
-   BUGS                                         3h30
----------------------------------------------------------------
-- [ ] stop process on app close ? (ony in dev ?)
-
 <br/>
-<br/>
-
 
 ## Tests
 | [ ] To test | ✅ Pass  | ❌ Fail |

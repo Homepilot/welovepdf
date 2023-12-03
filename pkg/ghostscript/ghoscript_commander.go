@@ -2,7 +2,6 @@ package ghostscript
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 	"path"
 	wlptypes "welovepdf/pkg/types"
@@ -22,7 +21,6 @@ func NewGhostscriptClient(
 }
 
 func (c *GhostScriptCommander) ConvertPdfToJpeg(targetImageQuality int, config *wlptypes.FileToFileOperationConfig) error {
-	log.Printf("converting w/ GS using quality %d, binaryPath '%s', source '%s', target '%s'", targetImageQuality, c.binaryPath, config.SourceFilePath, config.TargetFilePath)
 	convertPdfToJpegCmd := exec.Command(
 		c.binaryPath,
 		"-sDEVICE=jpeg",
