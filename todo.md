@@ -8,7 +8,6 @@
 - -------------------------------------------------------------
                                                         3h
 - -------------------------------------------------------------
-- [ ] FileCard components, alignment & overflow         30m
 - [ ] batch Ids in logs                                 45m
 - [ ] 1 line comment on all function (Golang)           30m
 - [ ] check all hooks' dependencies                     30m
@@ -44,8 +43,9 @@
 - [ ] cache gs binary in build pipeline                 30min 
 - [ ] cache node modules & go in test/build pipelines   30min 
 - [ ] format frontend code                              30min 
-- [ ] different loader messages                         30min 
+- [ ] different loader messages                         30min
 - [ ] setup husky                                       30min 
+- [ ] style scroll bar                                  30min 
 - [ ] paralellize when several files... 
 - [ ] Split PDF                                         1h 
 <br/>

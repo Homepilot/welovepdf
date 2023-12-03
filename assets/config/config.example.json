@@ -1,8 +1,0 @@
-{
-    "debugMode": false,
-    "logger": {
-        "logtailToken": "MY_SOURCE_TOKEN",
-        "logLovel": "INFO",
-        "logsBatchSize": 100
-    }
-}

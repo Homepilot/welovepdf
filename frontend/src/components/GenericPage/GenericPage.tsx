@@ -71,7 +71,7 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     const selectFiles = useCallback(async () => {
         setIsLoading(true);
         const files = await selectMultipleFiles(inputFilesType, selectFilesPrompt ?? headerText);
-        addFilesToSelectionList(files.map((filePath: string) => ({ name: filePath, id: filePath })))
+        addFilesToSelectionList(files.map((filePath: string) => ({ name: getFileNameFromPath(filePath), id: filePath })))
         setIsLoading(false);
     }, [setIsLoading, inputFilesType, selectFilesPrompt, headerText, addFilesToSelectionList])
 
@@ -163,3 +163,8 @@ export const GenericPage: React.FC<GenericPageProps> = ({
     )
 }
 
+
+function getFileNameFromPath(pathString: string) {
+    const splitted = pathString.split('/')
+    return splitted[splitted.length -1]
+}

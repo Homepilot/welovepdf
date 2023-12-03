@@ -58,7 +58,7 @@ export const FilesList: React.FC<React.PropsWithChildren<FilesListProps>> = ({ o
                                             provided.draggableProps.style
                                         )}
                                     >
-                                        <FileCard fileName={item.name} onDeleteCard={() => onRemoveFileFromList(item.id)} />
+                                        <FileCard filePath={item.id} fileName={item.name} onDeleteCard={() => onRemoveFileFromList(item.id)} />
                                     </div>
                                 )}
                                 </Draggable>
