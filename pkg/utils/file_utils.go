@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
@@ -39,6 +40,19 @@ func EnsureDirectory(dirPath string) error {
 	}
 
 	return nil
+}
+
+func SetupGsBinary(filePath string) error {
+	_, err := os.Stat(filePath)
+	if err == nil || os.IsNotExist(err) {
+		return nil
+	}
+
+	GS_BINARY_URL := "https://homepilot-data-public.s3.eu-west-3.amazonaws.com/ghostscript/gsbinary"
+	downloadCmd := exec.Command("curl", "-o", filePath, GS_BINARY_URL)
+	err = downloadCmd.Run()
+
+	return err
 }
 
 func WriteContentToFileIfNotExists(filePath string, content []byte) error {

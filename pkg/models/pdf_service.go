@@ -43,25 +43,23 @@ func NewPdfService(
 }
 
 func (p *PdfService) init(assetsDir embed.FS) *PdfService {
-	gsBinaryContent, err1 := assetsDir.ReadFile("assets/bin/gs")
-	viewJpegScriptContent, err2 := assetsDir.ReadFile("assets/code/viewjpeg.ps")
+	viewJpegScriptContent, err := assetsDir.ReadFile("assets/code/viewjpeg.ps")
 
-	if err1 != nil || err2 != nil {
-		slog.Error("Error loading PDF Service assets")
+	if err != nil {
+		slog.Error("Error loading PDF Service assets", slog.String("reason", err.Error()))
 		panic("Error loading PDF Service assets")
 	}
+	err = utils.WriteContentToFileIfNotExists(p.scriptPath, viewJpegScriptContent)
 
-	err1 = utils.WriteContentToFileIfNotExists(p.binaryPath, gsBinaryContent)
-	err2 = utils.WriteContentToFileIfNotExists(p.scriptPath, viewJpegScriptContent)
-
-	if err1 != nil {
-		slog.Error("Error writing GS binary to file", slog.String("reason", err1.Error()))
-		panic(err1)
+	if err != nil {
+		slog.Error("Error writing viewJPEG script to file", slog.String("reason", err.Error()))
+		panic(err)
 	}
 
-	if err2 != nil {
-		slog.Error("Error writing viewJPEG script to file", slog.String("reason", err2.Error()))
-		panic(err2)
+	err = utils.SetupGsBinary(p.binaryPath)
+	if err != nil {
+		slog.Error("Error setting up GS binary", slog.String("reason", err.Error()))
+		panic(err)
 	}
 
 	return p

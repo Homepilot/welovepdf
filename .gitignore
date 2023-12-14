@@ -1,8 +1,5 @@
 build/bin
 node_modules
 frontend/dist
-assets/bin/gs
 assets/config/config.json
-*.gz
-temp
 fmtcoverage.html
