@@ -31,7 +31,7 @@ jobs:
       - name: Set up build assets
         env:
           LOGTAIL_TOKEN: ${{ secrets.LOGTAIL_TOKEN }}
-        run: ./scripts/setup-build-assets.sh
+        run: ./scripts/setup-config-file.sh
       - name: Build Wails app
         run: |
           wails build -platform=darwin/arm64
