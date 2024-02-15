@@ -17,37 +17,45 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
-      - name: Install Go
+
+      - name: 🛠️ Install Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Setup Node
+
+      - name: 🛠️ Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 18
+
       # You may need to manually build you frontend here, unless you have configured frontend build and install commands in wails.json.
-      - name: Get Wails
+      - name: 🛠️ Get Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - name: Set up build assets
+
+      - name: 👷‍♂️ Build config file
         env:
           LOGTAIL_TOKEN: ${{ secrets.LOGTAIL_TOKEN }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: ./scripts/setup-config-file.sh
-      - name: Build Wails app
+
+      - name: 👷‍♂️ Build Wails app
         run: |
           wails build -platform=darwin/arm64
-      - name: upload artifacts macOS
+
+      - name: 🎁 Upload artifacts macOS
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v2
         with:
           name: wails-binaries-macos
           path: build/bin/*
-      - name: MacOS download gon for code signing and app notarization
+
+      - name: 🛠️ MacOS download gon for code signing and app notarization
         if: matrix.platform == 'macos-latest'
         run: |
           brew install Bearer/tap/gon
-      - name: Import Code-Signing Certificates for macOS
+
+      - name: 🛠️ Import Code-Signing Certificates for macOS
         if: matrix.platform == 'macos-latest'
         uses: Apple-Actions/import-codesign-certs@v1
         with:
@@ -55,7 +63,8 @@ jobs:
           p12-file-base64: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
           # The password used to import the PKCS12 file.
           p12-password: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
-      - name: Sign our macOS binary
+
+      - name: ✍️ Sign our macOS binary
         if: matrix.platform == 'macos-latest'
         run: |
           echo "Signing Package"
