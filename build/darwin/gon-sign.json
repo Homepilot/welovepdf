@@ -1,5 +1,5 @@
 {
-    "source": ["./build/bin/app.app"],
+    "source": ["./build/bin/welovepdf.app"],
     "bundle_id": "fr.homepilot.welovepdf",
     "apple_id": {
       "username": "gregoire.claise@homepilot.fr",
@@ -7,6 +7,6 @@
       "provider": "@env:APPLE_TEAM_ID"
     },
     "sign": {
-      "application_identity": "Developer ID Application: Rent Technologies"
+      "application_identity": "Developer ID Application. Rent Technologies"
     }
   }

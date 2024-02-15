@@ -31,6 +31,8 @@ jobs:
       - name: Set up build assets
         env:
           LOGTAIL_TOKEN: ${{ secrets.LOGTAIL_TOKEN }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: ./scripts/setup-config-file.sh
       - name: Build Wails app
         run: |
