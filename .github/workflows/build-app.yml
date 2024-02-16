@@ -68,4 +68,4 @@ jobs:
         if: matrix.platform == 'macos-latest'
         run: |
           echo "Signing Package"
-          gon -log-level=info ./build/darwin/gon-sign.json
+          gon -log-level=debug ./build/darwin/gon-sign.json
